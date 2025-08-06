@@ -3,6 +3,33 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* LaunchCV Brand Colors */
+  --launch-blue: #2563eb;
+  --rocket-orange: #f97316;
+  
+  /* Extended Palette */
+  --launch-blue-50: #eff6ff;
+  --launch-blue-100: #dbeafe;
+  --launch-blue-200: #bfdbfe;
+  --launch-blue-300: #93c5fd;
+  --launch-blue-400: #60a5fa;
+  --launch-blue-500: #3b82f6;
+  --launch-blue-600: #2563eb;
+  --launch-blue-700: #1d4ed8;
+  --launch-blue-800: #1e40af;
+  --launch-blue-900: #1e3a8a;
+  
+  --rocket-orange-50: #fff7ed;
+  --rocket-orange-100: #ffedd5;
+  --rocket-orange-200: #fed7aa;
+  --rocket-orange-300: #fdba74;
+  --rocket-orange-400: #fb923c;
+  --rocket-orange-500: #f97316;
+  --rocket-orange-600: #ea580c;
+  --rocket-orange-700: #c2410c;
+  --rocket-orange-800: #9a3412;
+  --rocket-orange-900: #7c2d12;
 }
 
 @theme inline {
@@ -10,6 +37,31 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* LaunchCV Brand Colors as Tailwind Variables */
+  --color-launch-blue-50: var(--launch-blue-50);
+  --color-launch-blue-100: var(--launch-blue-100);
+  --color-launch-blue-200: var(--launch-blue-200);
+  --color-launch-blue-300: var(--launch-blue-300);
+  --color-launch-blue-400: var(--launch-blue-400);
+  --color-launch-blue-500: var(--launch-blue-500);
+  --color-launch-blue-600: var(--launch-blue-600);
+  --color-launch-blue-700: var(--launch-blue-700);
+  --color-launch-blue-800: var(--launch-blue-800);
+  --color-launch-blue-900: var(--launch-blue-900);
+  --color-launch-blue: var(--launch-blue);
+  
+  --color-rocket-orange-50: var(--rocket-orange-50);
+  --color-rocket-orange-100: var(--rocket-orange-100);
+  --color-rocket-orange-200: var(--rocket-orange-200);
+  --color-rocket-orange-300: var(--rocket-orange-300);
+  --color-rocket-orange-400: var(--rocket-orange-400);
+  --color-rocket-orange-500: var(--rocket-orange-500);
+  --color-rocket-orange-600: var(--rocket-orange-600);
+  --color-rocket-orange-700: var(--rocket-orange-700);
+  --color-rocket-orange-800: var(--rocket-orange-800);
+  --color-rocket-orange-900: var(--rocket-orange-900);
+  --color-rocket-orange: var(--rocket-orange);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +74,91 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Typography System */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  font-size: 2.25rem; /* 36px */
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 500;
+}
+
+h6 {
+  font-size: 1rem; /* 16px */
+  font-weight: 500;
+}
+
+/* Body Text */
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Launch Theme Typography Classes */
+.launch-heading {
+  background: linear-gradient(135deg, var(--launch-blue), var(--rocket-orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+.mission-text {
+  color: var(--launch-blue);
+  font-weight: 500;
+}
+
+.accent-text {
+  color: var(--rocket-orange);
+  font-weight: 600;
+}
+
+/* Professional Resume Typography */
+.resume-heading {
+  font-weight: 700;
+  color: var(--foreground);
+  line-height: 1.1;
+}
+
+.resume-subheading {
+  font-weight: 600;
+  color: var(--launch-blue);
+  line-height: 1.2;
+}
+
+.resume-body {
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.resume-meta {
+  font-size: 0.875rem;
+  color: rgb(107 114 128);
+  font-weight: 400;
 }

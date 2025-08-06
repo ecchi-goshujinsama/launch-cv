@@ -5,12 +5,17 @@ import type {
   Resume, 
   ResumeState, 
   PersonalInfo, 
-  ResumeSection
+  ResumeSection,
+  ExperienceItem,
+  EducationItem,
+  SkillsItem
 } from '../types';
+import type { ParsedResumeData } from '../parsers';
 
 interface ResumeActions {
   // Resume management
   createResume: (title: string, templateId: string) => void;
+  createResumeFromParsedData: (parsedData: ParsedResumeData, title?: string) => string;
   loadResume: (resume: Resume) => void;
   saveResume: () => void;
   deleteResume: (id: string) => void;
@@ -122,6 +127,113 @@ export const useResumeStore = create<ResumeStore>()(
             state.selectedTemplate = templateId;
             state.isDirty = true;
           });
+        },
+
+        createResumeFromParsedData: (parsedData: ParsedResumeData, title?: string) => {
+          let resumeId = '';
+          set((state) => {
+            const resumeTitle = title || 
+              `${parsedData.personalInfo.fullName || 'New Resume'} - ${new Date().toLocaleDateString()}`;
+            
+            resumeId = generateId();
+            const newResume: Resume = {
+              id: resumeId,
+              title: resumeTitle,
+              templateId: 'classic-professional',
+              personalInfo: {
+                fullName: parsedData.personalInfo.fullName || '',
+                email: parsedData.personalInfo.email || '',
+                phone: parsedData.personalInfo.phone || '',
+                location: parsedData.personalInfo.location || '',
+                linkedin: parsedData.personalInfo.linkedin || '',
+                website: parsedData.personalInfo.website || '',
+                summary: parsedData.personalInfo.summary || ''
+              },
+              sections: [],
+              metadata: {
+                lastEdited: new Date(),
+                version: 1,
+                exportCount: 0,
+                importSource: 'upload',
+                wordCount: 0
+              },
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+
+            // Add experience section if data exists
+            if (parsedData.sections.experience && parsedData.sections.experience.length > 0) {
+              const experienceItems: ExperienceItem[] = parsedData.sections.experience.map(exp => ({
+                id: generateId(),
+                company: exp.company || '',
+                position: exp.title || '',
+                startDate: exp.startDate || '',
+                endDate: exp.current ? null : exp.endDate || '',
+                location: exp.location || '',
+                description: exp.description ? [exp.description] : [],
+                skills: []
+              }));
+
+              newResume.sections.push({
+                id: generateId(),
+                type: 'experience',
+                title: 'Work Experience',
+                items: experienceItems,
+                order: 0,
+                visible: true
+              });
+            }
+
+            // Add education section if data exists
+            if (parsedData.sections.education && parsedData.sections.education.length > 0) {
+              const educationItems: EducationItem[] = parsedData.sections.education.map(edu => ({
+                id: generateId(),
+                institution: edu.institution || '',
+                degree: edu.degree || '',
+                field: edu.field || '',
+                startDate: edu.startDate || '',
+                endDate: edu.endDate || null,
+                location: edu.location || '',
+                gpa: edu.gpa || '',
+                honors: [],
+                coursework: []
+              }));
+
+              newResume.sections.push({
+                id: generateId(),
+                type: 'education',
+                title: 'Education',
+                items: educationItems,
+                order: 1,
+                visible: true
+              });
+            }
+
+            // Add skills section if data exists
+            if (parsedData.sections.skills && parsedData.sections.skills.length > 0) {
+              const skillsItem: SkillsItem = {
+                id: generateId(),
+                category: 'General',
+                skills: parsedData.sections.skills,
+                proficiency: 'intermediate'
+              };
+
+              newResume.sections.push({
+                id: generateId(),
+                type: 'skills',
+                title: 'Skills',
+                items: [skillsItem],
+                order: 2,
+                visible: true
+              });
+            }
+
+            state.currentResume = newResume;
+            state.resumes.push(newResume);
+            state.selectedTemplate = 'classic-professional';
+            state.isDirty = true;
+          });
+          return resumeId;
         },
 
         loadResume: (resume: Resume) => {

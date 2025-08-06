@@ -343,7 +343,7 @@ export function PreFlightCheck({
                           <span className="font-medium">{issue.section}:</span> {issue.message}
                           {issue.value && (
                             <div className="text-xs text-gray-600 mt-1">
-                              Current value: "{issue.value}"
+                              Current value: &quot;{issue.value}&quot;
                             </div>
                           )}
                         </div>

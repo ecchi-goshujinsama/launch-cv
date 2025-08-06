@@ -91,7 +91,12 @@ export function DataReviewForm({
         gpa: edu.gpa || ''
       })),
       skills: data.sections.skills || [],
-      projects: data.sections.projects || []
+      projects: (data.sections.projects || []).map(project => ({
+        name: project.name || '',
+        description: project.description,
+        technologies: project.technologies,
+        url: project.url
+      }))
     };
   };
 
@@ -117,12 +122,47 @@ export function DataReviewForm({
   const onSubmit = (data: DataReviewFormData) => {
     // Transform back to ParsedResumeData format
     const transformedData: ParsedResumeData = {
-      personalInfo: data.personalInfo,
+      personalInfo: {
+        ...(data.personalInfo.fullName && { fullName: data.personalInfo.fullName }),
+        ...(data.personalInfo.email && { email: data.personalInfo.email }),
+        ...(data.personalInfo.phone && { phone: data.personalInfo.phone }),
+        ...(data.personalInfo.location && { location: data.personalInfo.location }),
+        ...(data.personalInfo.linkedin && { linkedin: data.personalInfo.linkedin }),
+        ...(data.personalInfo.website && { website: data.personalInfo.website }),
+        ...(data.personalInfo.summary && { summary: data.personalInfo.summary })
+      },
       sections: {
-        experience: data.experience,
-        education: data.education,
-        skills: data.skills,
-        projects: data.projects
+        ...(data.experience.length > 0 && {
+          experience: data.experience.map(exp => ({
+            ...(exp.title && { title: exp.title }),
+            ...(exp.company && { company: exp.company }),
+            ...(exp.location && { location: exp.location }),
+            ...(exp.startDate && { startDate: exp.startDate }),
+            ...(exp.endDate && { endDate: exp.endDate }),
+            ...(exp.description && { description: exp.description }),
+            ...(exp.current !== undefined && { current: exp.current })
+          }))
+        }),
+        ...(data.education.length > 0 && {
+          education: data.education.map(edu => ({
+            ...(edu.institution && { institution: edu.institution }),
+            ...(edu.degree && { degree: edu.degree }),
+            ...(edu.field && { field: edu.field }),
+            ...(edu.location && { location: edu.location }),
+            ...(edu.startDate && { startDate: edu.startDate }),
+            ...(edu.endDate && { endDate: edu.endDate }),
+            ...(edu.gpa && { gpa: edu.gpa })
+          }))
+        }),
+        ...(data.skills.length > 0 && { skills: data.skills }),
+        ...(data.projects && data.projects.length > 0 && {
+          projects: data.projects.map(project => ({
+            ...(project.name && { name: project.name }),
+            ...(project.description && { description: project.description }),
+            ...(project.technologies && { technologies: project.technologies }),
+            ...(project.url && { url: project.url })
+          }))
+        })
       },
       rawText: initialData.rawText,
       extractedDates: initialData.extractedDates,
@@ -422,7 +462,7 @@ export function DataReviewForm({
 
                 {watchedData.education.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
-                    <p>No education entries found. Click "Add Education" to add your educational background.</p>
+                    <p>No education entries found. Click &quot;Add Education&quot; to add your educational background.</p>
                   </div>
                 )}
               </div>
@@ -470,7 +510,7 @@ export function DataReviewForm({
 
                 {watchedData.skills.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
-                    <p>No skills found. Click "Add Skill" to list your professional skills.</p>
+                    <p>No skills found. Click &quot;Add Skill&quot; to list your professional skills.</p>
                   </div>
                 )}
               </div>

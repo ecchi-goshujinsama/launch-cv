@@ -51,7 +51,7 @@ export function ManualEntryForm({
   initialData,
   className
 }: ManualEntryFormProps) {
-  const [activeSection, setActiveSection] = useState<string>('personal');
+  // const [activeSection] = useState<string>('personal'); // Unused in current implementation
   const [currentStep, setCurrentStep] = useState<number>(1);
   const totalSteps = 4;
 
@@ -68,7 +68,16 @@ export function ManualEntryForm({
         summary: initialData?.personalInfo?.summary || ''
       },
       experience: initialData?.sections?.experience?.length ? 
-        initialData.sections.experience.map((exp, index) => ({ ...exp, id: `exp-${index}` })) : 
+        initialData.sections.experience.map((exp, index) => ({ 
+          id: `exp-${index}`,
+          title: exp.title || '',
+          company: exp.company || '',
+          location: exp.location || '',
+          startDate: exp.startDate || '',
+          endDate: exp.endDate || '',
+          description: exp.description || '',
+          current: exp.current || false
+        })) : 
         [{
           id: 'exp-1',
           title: '',
@@ -80,7 +89,16 @@ export function ManualEntryForm({
           current: false
         }],
       education: initialData?.sections?.education?.length ?
-        initialData.sections.education.map((edu, index) => ({ ...edu, id: `edu-${index}` })) :
+        initialData.sections.education.map((edu, index) => ({ 
+          id: `edu-${index}`,
+          institution: edu.institution || '',
+          degree: edu.degree || '',
+          field: edu.field || '',
+          location: edu.location || '',
+          startDate: edu.startDate || '',
+          endDate: edu.endDate || '',
+          gpa: edu.gpa || ''
+        })) :
         [{
           id: 'edu-1',
           institution: '',
@@ -92,7 +110,12 @@ export function ManualEntryForm({
           gpa: ''
         }],
       skills: initialData?.sections?.skills?.length ? initialData.sections.skills : [''],
-      projects: initialData?.sections?.projects || []
+      projects: initialData?.sections?.projects?.map(project => ({
+        name: project.name || '',
+        description: project.description,
+        technologies: project.technologies,
+        url: project.url
+      })) || []
     };
   };
 
@@ -115,12 +138,49 @@ export function ManualEntryForm({
   const handleFormSubmit = (data: ManualEntryFormData) => {
     // Transform to ParsedResumeData format
     const transformedData: ParsedResumeData = {
-      personalInfo: data.personalInfo,
+      personalInfo: {
+        ...(data.personalInfo.fullName && { fullName: data.personalInfo.fullName }),
+        ...(data.personalInfo.email && { email: data.personalInfo.email }),
+        ...(data.personalInfo.phone && { phone: data.personalInfo.phone }),
+        ...(data.personalInfo.location && { location: data.personalInfo.location }),
+        ...(data.personalInfo.linkedin && { linkedin: data.personalInfo.linkedin }),
+        ...(data.personalInfo.website && { website: data.personalInfo.website }),
+        ...(data.personalInfo.summary && { summary: data.personalInfo.summary })
+      },
       sections: {
-        experience: data.experience,
-        education: data.education,
-        skills: data.skills.filter(skill => skill.trim() !== ''),
-        projects: data.projects
+        ...(data.experience.length > 0 && {
+          experience: data.experience.map(exp => ({
+            ...(exp.title && { title: exp.title }),
+            ...(exp.company && { company: exp.company }),
+            ...(exp.location && { location: exp.location }),
+            ...(exp.startDate && { startDate: exp.startDate }),
+            ...(exp.endDate && { endDate: exp.endDate }),
+            ...(exp.description && { description: exp.description }),
+            ...(exp.current !== undefined && { current: exp.current })
+          }))
+        }),
+        ...(data.education.length > 0 && {
+          education: data.education.map(edu => ({
+            ...(edu.institution && { institution: edu.institution }),
+            ...(edu.degree && { degree: edu.degree }),
+            ...(edu.field && { field: edu.field }),
+            ...(edu.location && { location: edu.location }),
+            ...(edu.startDate && { startDate: edu.startDate }),
+            ...(edu.endDate && { endDate: edu.endDate }),
+            ...(edu.gpa && { gpa: edu.gpa })
+          }))
+        }),
+        ...(data.skills.filter(skill => skill.trim() !== '').length > 0 && { 
+          skills: data.skills.filter(skill => skill.trim() !== '') 
+        }),
+        ...(data.projects && data.projects.length > 0 && {
+          projects: data.projects.map(project => ({
+            ...(project.name && { name: project.name }),
+            ...(project.description && { description: project.description }),
+            ...(project.technologies && { technologies: project.technologies }),
+            ...(project.url && { url: project.url })
+          }))
+        })
       },
       rawText: 'Manually entered data',
       extractedDates: [],
@@ -136,17 +196,17 @@ export function ManualEntryForm({
     const isStepValid = await trigger();
     if (isStepValid && currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
-      // Update active section based on step
-      const sections = ['personal', 'experience', 'education', 'skills'];
-      setActiveSection(sections[currentStep]); // currentStep will be incremented
+      // Update active section based on step - not currently used
+      // const sections = ['personal', 'experience', 'education', 'skills'];
+      // setActiveSection(sections[currentStep]); // currentStep will be incremented - not used
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-      const sections = ['personal', 'experience', 'education', 'skills'];
-      setActiveSection(sections[currentStep - 2]); // currentStep will be decremented
+      // const sections = ['personal', 'experience', 'education', 'skills'];
+      // setActiveSection(sections[currentStep - 2]); // currentStep will be decremented - not used
     }
   };
 
@@ -527,8 +587,8 @@ export function ManualEntryForm({
                   <h4 className="font-medium text-blue-900 mb-2">💡 Skill Tips</h4>
                   <ul className="text-sm text-blue-700 space-y-1">
                     <li>• Include both technical and soft skills relevant to your target role</li>
-                    <li>• Be specific (e.g., "React.js" instead of just "JavaScript")</li>
-                    <li>• Add skills that match job descriptions you're interested in</li>
+                    <li>• Be specific (e.g., &quot;React.js&quot; instead of just &quot;JavaScript&quot;)</li>
+                    <li>• Add skills that match job descriptions you&apos;re interested in</li>
                   </ul>
                 </div>
               </div>

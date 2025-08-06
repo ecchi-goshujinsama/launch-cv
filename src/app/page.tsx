@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Rocket, Target, Zap, CheckCircle } from 'lucide-react';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionProgress, type MissionStep } from '@/components/ui/mission-progress';
@@ -50,24 +51,28 @@ export default function Home() {
             showDivider
           >
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center sm:justify-start">
-              <LaunchButton
-                variant="rocket"
-                size="lg"
-                icon="rocket"
-                iconPosition="left"
-                animation="rocket"
-              >
-                Start Mission
-              </LaunchButton>
+              <Link href="/import">
+                <LaunchButton
+                  variant="rocket"
+                  size="lg"
+                  icon="rocket"
+                  iconPosition="left"
+                  animation="rocket"
+                >
+                  Start Mission
+                </LaunchButton>
+              </Link>
               
-              <LaunchButton
-                variant="outline"
-                size="lg"
-                icon="arrow"
-                iconPosition="right"
-              >
-                Import Resume
-              </LaunchButton>
+              <Link href="/import">
+                <LaunchButton
+                  variant="outline"
+                  size="lg"
+                  icon="arrow"
+                  iconPosition="right"
+                >
+                  Import Resume
+                </LaunchButton>
+              </Link>
             </div>
           </MissionSection>
 

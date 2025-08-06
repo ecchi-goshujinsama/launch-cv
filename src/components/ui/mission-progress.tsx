@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { CheckCircle, Circle, Rocket, Target, Zap, Clock } from 'lucide-react';
+import { CheckCircle, Circle, Rocket, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const missionProgressVariants = cva(

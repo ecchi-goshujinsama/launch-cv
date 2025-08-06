@@ -71,3 +71,8 @@ prisma/migrations/
 # Temporary folders
 tmp/
 temp/
+
+# Project documentation (local development only)
+CLAUDE.md
+launch-cv-projectplan.md
+launchcv_development_guide.md

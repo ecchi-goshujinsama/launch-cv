@@ -1,5 +1,94 @@
 import { z } from 'zod';
 
+// Validation helpers for individual fields
+export const validateEmail = (email: string): boolean | string => {
+  try {
+    z.string().email('Please enter a valid email address').parse(email);
+    return true;
+  } catch (error) {
+    return (error as z.ZodError).issues[0]?.message || 'Invalid email address';
+  }
+};
+
+export const validatePhone = (phone: string): boolean | string => {
+  try {
+    // Basic phone validation - allows various formats
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+    
+    if (!phoneRegex.test(cleanPhone)) {
+      throw new Error('Please enter a valid phone number');
+    }
+    return true;
+  } catch {
+    return 'Please enter a valid phone number (e.g., +1 555-123-4567)';
+  }
+};
+
+export const validateUrl = (url: string): boolean | string => {
+  if (!url.trim()) return true; // Optional field
+  
+  try {
+    z.string().url('Please enter a valid URL').parse(url);
+    return true;
+  } catch (error) {
+    return (error as z.ZodError).issues[0]?.message || 'Please enter a valid URL';
+  }
+};
+
+// Enhanced schemas for data review interface
+export const experienceSchema = z.object({
+  title: z.string().min(1, 'Job title is required').max(100, 'Job title is too long'),
+  company: z.string().min(1, 'Company name is required').max(100, 'Company name is too long'),
+  location: z.string().max(100, 'Location is too long').optional().or(z.literal('')),
+  startDate: z.string().max(50, 'Start date is too long').optional().or(z.literal('')),
+  endDate: z.string().max(50, 'End date is too long').optional().or(z.literal('')),
+  description: z.string().max(2000, 'Description is too long').optional().or(z.literal('')),
+  current: z.boolean().optional()
+});
+
+export const educationSchema = z.object({
+  institution: z.string().min(1, 'Institution name is required').max(100, 'Institution name is too long'),
+  degree: z.string().min(1, 'Degree is required').max(100, 'Degree is too long'),
+  field: z.string().max(100, 'Field of study is too long').optional().or(z.literal('')),
+  location: z.string().max(100, 'Location is too long').optional().or(z.literal('')),
+  startDate: z.string().max(50, 'Start date is too long').optional().or(z.literal('')),
+  endDate: z.string().max(50, 'End date is too long').optional().or(z.literal('')),
+  gpa: z.string().max(10, 'GPA is too long').optional().or(z.literal(''))
+});
+
+// Updated personal info schema
+export const dataReviewPersonalInfoSchema = z.object({
+  fullName: z.string().min(1, 'Full name is required').max(100, 'Full name is too long'),
+  email: z.string().min(1, 'Email is required').email('Please enter a valid email address'),
+  phone: z.string().max(20, 'Phone number is too long').optional().or(z.literal('')),
+  location: z.string().max(100, 'Location is too long').optional().or(z.literal('')),
+  linkedin: z.string().max(200, 'LinkedIn URL is too long').optional().or(z.literal('')),
+  website: z.string().max(200, 'Website URL is too long').optional().or(z.literal('')),
+  summary: z.string().max(1000, 'Summary is too long').optional().or(z.literal(''))
+});
+
+// Complete parsed resume data validation schema
+export const parsedResumeDataSchema = z.object({
+  personalInfo: dataReviewPersonalInfoSchema,
+  sections: z.object({
+    experience: z.array(experienceSchema).optional(),
+    education: z.array(educationSchema).optional(),
+    skills: z.array(z.string().min(1, 'Skill cannot be empty').max(50, 'Skill name is too long')).optional(),
+    projects: z.array(z.object({
+      name: z.string().min(1, 'Project name is required').max(100, 'Project name is too long'),
+      description: z.string().max(500, 'Project description is too long').optional(),
+      technologies: z.array(z.string().max(30, 'Technology name is too long')).optional(),
+      url: z.string().max(200, 'Project URL is too long').optional()
+    })).optional()
+  }),
+  rawText: z.string(),
+  extractedDates: z.array(z.string()),
+  extractedEmails: z.array(z.string()),
+  extractedPhones: z.array(z.string()),
+  confidence: z.number().min(0).max(1)
+});
+
 // Personal Information Schema
 export const personalInfoSchema = z.object({
   fullName: z.string().min(1, 'Full name is required').max(100, 'Full name is too long'),
@@ -143,32 +232,14 @@ export const validateSectionItem = (item: any, sectionType: string) => {
   }
 };
 
-// Quick validation functions for forms
-export const validateEmail = (email: string) => {
-  try {
-    z.string().email().parse(email);
-    return true;
-  } catch {
-    return 'Invalid email address';
-  }
-};
 
-export const validateUrl = (url: string) => {
-  if (!url) return true; // Optional URLs
-  try {
-    z.string().url().parse(url);
-    return true;
-  } catch {
-    return 'Invalid URL format';
-  }
-};
 
 export const validateRequired = (value: string, fieldName: string) => {
   try {
     z.string().min(1, `${fieldName} is required`).parse(value);
     return true;
   } catch (error) {
-    return (error as z.ZodError).errors[0].message;
+    return (error as z.ZodError).issues[0]?.message || 'Validation error';
   }
 };
 
@@ -177,7 +248,7 @@ export const validateLength = (value: string, maxLength: number, fieldName: stri
     z.string().max(maxLength, `${fieldName} is too long (max ${maxLength} characters)`).parse(value);
     return true;
   } catch (error) {
-    return (error as z.ZodError).errors[0].message;
+    return (error as z.ZodError).issues[0]?.message || 'Validation error';
   }
 };
 

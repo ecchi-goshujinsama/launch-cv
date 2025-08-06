@@ -10,7 +10,7 @@ export function useZodForm<TSchema extends z.ZodType<any, any>>(
   defaultValues?: Partial<z.infer<TSchema>>
 ) {
   return useForm<z.infer<TSchema>>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: defaultValues as z.infer<TSchema>,
     mode: 'onBlur'
   });

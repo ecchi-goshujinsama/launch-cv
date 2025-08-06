@@ -99,7 +99,7 @@ export function MissionPrep({
 
   return (
     <div className={cn('w-full', className)}>
-      <MissionContainer maxWidth="4xl" padding="lg" background="transparent">
+      <MissionContainer maxWidth="2xl" padding="lg" background="transparent">
         {/* Mission Briefing */}
         {missionPhase === 'briefing' && (
           <div className="space-y-8">
@@ -109,7 +109,9 @@ export function MissionPrep({
               subtitle="Mission Control is ready to analyze your existing resume and prepare it for launch optimization."
               icon={<Rocket className="w-6 h-6 text-launch-blue" />}
               showDivider
-            />
+            >
+              <></>
+            </MissionSection>
 
             {/* Mission Steps Overview */}
             <MissionCard variant="elevated">
@@ -180,7 +182,7 @@ export function MissionPrep({
             </div>
 
             {/* Mission Tips */}
-            <MissionCard variant="card">
+            <MissionCard variant="elevated">
               <div className="space-y-3">
                 <h3 className="font-semibold text-launch-blue">
                   🚀 Mission Control Tips
@@ -203,7 +205,9 @@ export function MissionPrep({
               title="Mission Data Upload"
               subtitle="Upload your resume file to begin the pre-flight analysis"
               icon={<FileText className="w-6 h-6 text-launch-blue" />}
-            />
+            >
+              <></>
+            </MissionSection>
 
             <MissionCard variant="elevated">
               <FileUpload
@@ -242,7 +246,9 @@ export function MissionPrep({
               title="Mission Data Imported Successfully!"
               subtitle="Your resume has been analyzed and is ready for pre-flight review."
               icon={<Rocket className="w-6 h-6 text-green-500" />}
-            />
+            >
+              <></>
+            </MissionSection>
 
             {/* Updated Progress */}
             <MissionCard variant="elevated">

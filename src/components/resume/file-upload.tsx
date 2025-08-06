@@ -118,7 +118,7 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       if (disabled) return;
 
       const files = Array.from(e.dataTransfer.files);
-      if (files.length > 0) {
+      if (files.length > 0 && files[0]) {
         handleFileSelect(files[0]);
       }
     }, [disabled, handleFileSelect]);
@@ -133,7 +133,7 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
     // Handle input change
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
-      if (files && files.length > 0) {
+      if (files && files.length > 0 && files[0]) {
         handleFileSelect(files[0]);
       }
     }, [handleFileSelect]);

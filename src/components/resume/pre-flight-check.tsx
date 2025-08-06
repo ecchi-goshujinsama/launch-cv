@@ -70,7 +70,7 @@ export function PreFlightCheck({
         issues.push({
           field: 'email',
           section: 'Personal Info',
-          message: emailValidation,
+          message: typeof emailValidation === 'string' ? emailValidation : 'Invalid email format',
           severity: 'error',
           value: personalInfo.email
         });
@@ -83,7 +83,7 @@ export function PreFlightCheck({
         issues.push({
           field: 'phone',
           section: 'Personal Info',
-          message: phoneValidation,
+          message: typeof phoneValidation === 'string' ? phoneValidation : 'Invalid phone format',
           severity: 'warning',
           value: personalInfo.phone
         });
@@ -159,12 +159,18 @@ export function PreFlightCheck({
         let current = updated as any;
         
         for (let i = 0; i < parts.length - 1; i++) {
-          if (!current[parts[i]]) {
-            current[parts[i]] = {};
+          const part = parts[i];
+          if (part && !current[part]) {
+            current[part] = {};
           }
-          current = current[parts[i]];
+          if (part) {
+            current = current[part];
+          }
         }
-        current[parts[parts.length - 1]] = value;
+        const lastPart = parts[parts.length - 1];
+        if (lastPart) {
+          current[lastPart] = value;
+        }
       } else {
         // Handle top-level personal info fields
         if (updated.personalInfo) {

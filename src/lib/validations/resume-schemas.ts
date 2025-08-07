@@ -171,7 +171,7 @@ export const customSectionItemSchema = z.object({
 // Section Schema
 export const sectionSchema = z.object({
   id: z.string(),
-  type: z.enum(['experience', 'education', 'skills', 'projects', 'certifications']),
+  type: z.enum(['experience', 'education', 'skills', 'projects', 'certifications', 'custom']),
   title: z.string().min(1, 'Section title is required').max(50, 'Section title is too long'),
   items: z.array(z.any()), // Will be validated based on section type
   order: z.number().int().min(0),

@@ -31,6 +31,11 @@ interface ResumeActions {
   reorderSections: (startIndex: number, endIndex: number) => void;
   toggleSectionVisibility: (sectionId: string) => void;
   
+  // Helper methods for form components
+  updateResumeSection: (sectionType: string, title: string, items: any[]) => void;
+  addResumeSection: (sectionType: string, title: string, items: any[]) => void;
+  removeResumeSection: (sectionId: string) => void;
+  
   // Section items
   addSectionItem: (sectionId: string, item: any) => void;
   updateSectionItem: (sectionId: string, itemId: string, updates: any) => void;
@@ -460,6 +465,68 @@ export const useResumeStore = create<ResumeStore>()(
         markClean: () => {
           set((state) => {
             state.isDirty = false;
+          });
+        },
+
+        // Helper methods for form components
+        updateResumeSection: (sectionType: string, title: string, items: any[]) => {
+          set((state) => {
+            if (state.currentResume) {
+              const existingSection = state.currentResume.sections.find(s => s.type === sectionType);
+              if (existingSection) {
+                existingSection.title = title;
+                existingSection.items = items.map(item => ({
+                  ...item,
+                  id: item.id || generateId()
+                }));
+              } else {
+                // Create new section if it doesn't exist
+                const newSection: ResumeSection = {
+                  id: generateId(),
+                  type: sectionType as any,
+                  title,
+                  items: items.map(item => ({
+                    ...item,
+                    id: item.id || generateId()
+                  })),
+                  order: state.currentResume.sections.length,
+                  visible: true
+                };
+                state.currentResume.sections.push(newSection);
+              }
+              state.isDirty = true;
+            }
+          });
+        },
+
+        addResumeSection: (sectionType: string, title: string, items: any[]) => {
+          set((state) => {
+            if (state.currentResume) {
+              const newSection: ResumeSection = {
+                id: generateId(),
+                type: sectionType as any,
+                title,
+                items: items.map(item => ({
+                  ...item,
+                  id: item.id || generateId()
+                })),
+                order: state.currentResume.sections.length,
+                visible: true
+              };
+              state.currentResume.sections.push(newSection);
+              state.isDirty = true;
+            }
+          });
+        },
+
+        removeResumeSection: (sectionId: string) => {
+          set((state) => {
+            if (state.currentResume) {
+              state.currentResume.sections = state.currentResume.sections.filter(
+                section => section.id !== sectionId
+              );
+              state.isDirty = true;
+            }
           });
         },
 

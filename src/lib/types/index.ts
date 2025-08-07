@@ -22,7 +22,7 @@ export interface PersonalInfo {
 
 export interface ResumeSection {
   id: string;
-  type: 'experience' | 'education' | 'skills' | 'projects' | 'certifications';
+  type: 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'custom';
   title: string;
   items: SectionItem[];
   order: number;

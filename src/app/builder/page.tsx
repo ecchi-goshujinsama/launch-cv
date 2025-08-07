@@ -4,7 +4,15 @@ import * as React from 'react';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import { BuilderLayout } from '@/components/builder/builder-layout';
 import { PreviewContainer } from '@/components/preview/preview-container';
-import { PersonalInfoForm, ExperienceForm, EducationForm, SkillsForm } from '@/components/builder';
+import { 
+  PersonalInfoForm, 
+  ExperienceForm, 
+  EducationForm, 
+  SkillsForm,
+  ProjectsForm,
+  CertificationsForm,
+  useBulkEditModal
+} from '@/components/builder';
 // import { SectionManager } from '@/components/builder/section-manager';
 // import { MissionProgressTracker } from '@/components/builder/mission-progress-tracker';
 // import { AutoSaveProvider } from '@/components/builder/auto-save-provider';
@@ -12,6 +20,7 @@ import { PersonalInfoForm, ExperienceForm, EducationForm, SkillsForm } from '@/c
 export default function BuilderPage() {
   const { currentResume, createResume } = useResumeStore();
   const [activeSection, setActiveSection] = React.useState<string>('personal');
+  const { BulkEditModal, openModal: openBulkEdit } = useBulkEditModal();
 
   // Create a default resume if none exists
   React.useEffect(() => {
@@ -36,21 +45,33 @@ export default function BuilderPage() {
           <p className="text-gray-600">Live Preview System Active</p>
         </div>
 
-        {/* Simple Section Navigation */}
-        <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-          {['personal', 'experience', 'education', 'skills'].map((section) => (
+        {/* Section Navigation */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2 p-1 bg-gray-100 rounded-lg flex-wrap">
+              {['personal', 'experience', 'education', 'skills', 'projects', 'certifications'].map((section) => (
+                <button
+                  key={section}
+                  onClick={() => setActiveSection(section)}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors capitalize ${
+                    activeSection === section 
+                      ? 'bg-white text-launch-blue shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  {section}
+                </button>
+              ))}
+            </div>
+            
+            {/* Bulk Edit Button */}
             <button
-              key={section}
-              onClick={() => setActiveSection(section)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors capitalize ${
-                activeSection === section 
-                  ? 'bg-white text-launch-blue shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
+              onClick={openBulkEdit}
+              className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-launch-blue transition-colors border border-gray-300 rounded-md hover:border-launch-blue"
             >
-              {section}
+              Bulk Edit
             </button>
-          ))}
+          </div>
         </div>
 
         {/* Active Section Form */}
@@ -99,6 +120,30 @@ export default function BuilderPage() {
               }}
             />
           )}
+
+          {activeSection === 'projects' && (
+            <ProjectsForm
+              initialData={
+                (currentResume.sections
+                  .find(s => s.type === 'projects')?.items || []) as any[]
+              }
+              onSave={() => {
+                // The ProjectsForm should handle saving via store
+              }}
+            />
+          )}
+
+          {activeSection === 'certifications' && (
+            <CertificationsForm
+              initialData={
+                (currentResume.sections
+                  .find(s => s.type === 'certifications')?.items || []) as any[]
+              }
+              onSave={() => {
+                // The CertificationsForm should handle saving via store
+              }}
+            />
+          )}
         </div>
       </div>
     );
@@ -122,6 +167,9 @@ export default function BuilderPage() {
           console.log('Preview mode changed to:', mode);
         }}
       />
+      
+      {/* Bulk Edit Modal */}
+      <BulkEditModal />
     </div>
   );
 }

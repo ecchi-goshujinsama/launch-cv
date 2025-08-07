@@ -3,6 +3,9 @@ export { PersonalInfoForm } from './personal-info-form';
 export { ExperienceForm } from './experience-form';
 export { EducationForm } from './education-form';
 export { SkillsForm } from './skills-form';
+export { ProjectsForm } from './projects-form';
+export { CertificationsForm } from './certifications-form';
+export { CustomSectionForm } from './custom-section-form';
 
 // Section Management
 export { SectionManager } from './section-manager';
@@ -24,6 +27,9 @@ export {
   useAutoSaveContext,
   useHasUnsavedData 
 } from './auto-save-provider';
+
+// Bulk Operations
+export { BulkEditModal, useBulkEditModal } from './bulk-edit-modal';
 
 // Types
 export type { SectionType, ResumeSection } from './section-manager';

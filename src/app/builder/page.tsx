@@ -4,6 +4,9 @@ import * as React from 'react';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import { BuilderLayout } from '@/components/builder/builder-layout';
 import { PreviewContainer } from '@/components/preview/preview-container';
+import { KeyboardShortcutsModal } from '@/components/ui/keyboard-shortcuts-modal';
+import { LaunchButton } from '@/components/ui/launch-button';
+import { useKeyboardShortcuts, createResumeBuilderShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
 import { 
   PersonalInfoForm, 
   ExperienceForm, 
@@ -13,14 +16,53 @@ import {
   CertificationsForm,
   useBulkEditModal
 } from '@/components/builder';
+import { Plus, Keyboard, Search } from 'lucide-react';
 // import { SectionManager } from '@/components/builder/section-manager';
 // import { MissionProgressTracker } from '@/components/builder/mission-progress-tracker';
 // import { AutoSaveProvider } from '@/components/builder/auto-save-provider';
 
 export default function BuilderPage() {
-  const { currentResume, createResume } = useResumeStore();
+  const { currentResume, createResume, updateResumeSection } = useResumeStore();
   const [activeSection, setActiveSection] = React.useState<string>('personal');
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [showSearch, setShowSearch] = React.useState(false);
   const { BulkEditModal, openModal: openBulkEdit } = useBulkEditModal();
+  
+  // Keyboard shortcuts setup
+  const keyboardActions = {
+    save: () => {
+      // Trigger form save - handled by individual forms
+      console.log('Manual save triggered');
+    },
+    undo: () => {
+      // Handled by individual forms
+      console.log('Undo triggered');
+    },
+    redo: () => {
+      // Handled by individual forms  
+      console.log('Redo triggered');
+    },
+    newSection: () => {
+      // Add a new custom section
+      if (currentResume) {
+        updateResumeSection(crypto.randomUUID(), 'New Section', []);
+      }
+    },
+    search: () => {
+      setShowSearch(true);
+    },
+    preview: () => {
+      // Focus on preview area
+      console.log('Focus preview');
+    },
+    help: () => {
+      setShowKeyboardShortcuts(true);
+    }
+  };
+
+  const shortcuts = createResumeBuilderShortcuts(keyboardActions);
+  const { shortcuts: shortcutsWithDisplay } = useKeyboardShortcuts(shortcuts);
 
   // Create a default resume if none exists
   React.useEffect(() => {
@@ -45,11 +87,71 @@ export default function BuilderPage() {
           <p className="text-gray-600">Live Preview System Active</p>
         </div>
 
-        {/* Section Navigation */}
+        {/* Enhanced Section Navigation */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2 p-1 bg-gray-100 rounded-lg flex-wrap">
-              {['personal', 'experience', 'education', 'skills', 'projects', 'certifications'].map((section) => (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {/* Search functionality */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search sections... (Ctrl+F)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-launch-blue-200 focus:border-launch-blue"
+                  style={{ width: showSearch ? '200px' : '160px' }}
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Keyboard shortcuts help */}
+              <LaunchButton
+                type="button"
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowKeyboardShortcuts(true)}
+                icon="none"
+                title="Show keyboard shortcuts (F1)"
+              >
+                <Keyboard className="w-4 h-4 mr-2" />
+                Shortcuts
+              </LaunchButton>
+              
+              {/* New Section Button */}
+              <LaunchButton
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={keyboardActions.newSection}
+                icon="none"
+                title="Add new section (Ctrl+N)"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Section
+              </LaunchButton>
+              
+              {/* Bulk Edit Button */}
+              <LaunchButton
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={openBulkEdit}
+                icon="none"
+              >
+                Bulk Edit
+              </LaunchButton>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg flex-wrap">
+            {['personal', 'experience', 'education', 'skills', 'projects', 'certifications']
+              .filter(section => 
+                searchTerm === '' || 
+                section.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map((section) => (
                 <button
                   key={section}
                   onClick={() => setActiveSection(section)}
@@ -62,15 +164,6 @@ export default function BuilderPage() {
                   {section}
                 </button>
               ))}
-            </div>
-            
-            {/* Bulk Edit Button */}
-            <button
-              onClick={openBulkEdit}
-              className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-launch-blue transition-colors border border-gray-300 rounded-md hover:border-launch-blue"
-            >
-              Bulk Edit
-            </button>
           </div>
         </div>
 
@@ -170,6 +263,13 @@ export default function BuilderPage() {
       
       {/* Bulk Edit Modal */}
       <BulkEditModal />
+      
+      {/* Keyboard Shortcuts Modal */}
+      <KeyboardShortcutsModal
+        isOpen={showKeyboardShortcuts}
+        onClose={() => setShowKeyboardShortcuts(false)}
+        shortcuts={shortcutsWithDisplay}
+      />
     </div>
   );
 }

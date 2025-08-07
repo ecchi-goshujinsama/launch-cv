@@ -354,7 +354,7 @@ p {
   padding: 1rem;
 }
 
-/* Mobile-friendly touch targets and interactions */
+/* Enhanced Mobile Responsiveness and Performance */
 @media (max-width: 768px) {
   .launch-heading {
     font-size: 1.5rem;
@@ -370,7 +370,7 @@ p {
     font-size: 0.875rem;
   }
 
-  /* Touch target optimization */
+  /* Touch target optimization - WCAG compliant */
   .touch-target {
     min-height: 44px;
     min-width: 44px;
@@ -379,40 +379,194 @@ p {
     justify-content: center;
   }
   
-  /* Improved touch feedback */
+  /* Enhanced touch feedback with haptic-like response */
   button:active, 
   .touch-target:active {
     transform: scale(0.95);
-    transition: transform 75ms ease;
+    transition: transform 75ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
-  /* Better form inputs on mobile */
+  /* Prevent zoom on form inputs (iOS Safari) */
   input, textarea, select {
-    font-size: 16px !important; /* Prevents zoom on iOS */
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    border-radius: 0;
   }
   
-  /* Mobile-optimized scrolling */
+  /* Optimized scrolling performance */
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    transform: translate3d(0, 0, 0); /* Hardware acceleration */
   }
   
-  /* Better modal handling on mobile */
+  /* Full-screen mobile modals */
   .mobile-modal {
     max-height: 100vh;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
-  /* Swipe feedback animation */
+  /* Enhanced swipe feedback with momentum */
   .swipe-feedback {
-    transition: transform 200ms ease-out;
+    transition: transform 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   
   .swipe-left {
-    transform: translateX(-10px);
+    transform: translateX(-15px);
   }
   
   .swipe-right {
-    transform: translateX(10px);
+    transform: translateX(15px);
+  }
+  
+  /* Improved button spacing for mobile */
+  .mobile-button-group {
+    gap: 0.75rem;
+  }
+  
+  .mobile-button-group button {
+    flex: 1;
+    min-height: 44px;
+  }
+  
+  /* Mobile-optimized form layouts */
+  .mobile-form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Reduced motion for mobile performance */
+  @media (prefers-reduced-motion: reduce) {
+    .rocket-launch,
+    .mission-pulse,
+    .countdown-animation,
+    .launch-trail {
+      animation: none;
+    }
+    
+    button:active,
+    .touch-target:active {
+      transform: none;
+    }
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .tablet-sidebar {
+    position: sticky;
+    top: 1rem;
+    height: fit-content;
+  }
+}
+
+/* High-performance animations using GPU acceleration */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimized loading states */
+.skeleton-loading {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shine 1.5s infinite;
+}
+
+@keyframes skeleton-shine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Improved focus styles for accessibility */
+.focus-ring {
+  outline: 2px solid var(--launch-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--launch-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Performance-optimized hover states */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+    transition: box-shadow 200ms ease;
+  }
+}
+
+/* Print optimization */
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+  
+  .print-optimize {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Ensure launch colors print correctly */
+  .text-launch-blue {
+    color: #2563eb !important;
+  }
+  
+  .text-rocket-orange {
+    color: #f97316 !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .launch-heading {
+    -webkit-text-fill-color: var(--foreground);
+    background: none;
+  }
+  
+  .brand-text-gradient {
+    -webkit-text-fill-color: var(--foreground);
+    background: none;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .mission-control-panel {
+    background: linear-gradient(135deg, 
+      rgba(37, 99, 235, 0.1) 0%, 
+      rgba(249, 115, 22, 0.1) 100%);
+    border-color: rgba(37, 99, 235, 0.3);
+  }
+  
+  .mission-success {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.3);
+    color: #60a5fa;
   }
 }

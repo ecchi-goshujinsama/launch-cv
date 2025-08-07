@@ -6,6 +6,7 @@ import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionCard } from '@/components/layout';
 import type { TemplatePreviewProps, Template } from '@/lib/types/template';
 import type { Resume } from '@/lib/types';
+import { getTemplateRenderer } from './renderers';
 import { 
   Eye, 
   Star, 
@@ -295,9 +296,18 @@ export function TemplatePreview({
     ? { ...template.colorScheme, ...customizations.colorScheme }
     : template.colorScheme;
 
-  const appliedTypography = customizations?.typography
-    ? { ...template.typography, ...customizations.typography }
-    : template.typography;
+  // Get the appropriate renderer component
+  const TemplateRenderer = getTemplateRenderer(template.id);
+  
+  // Calculate scale based on size
+  const getScale = () => {
+    switch (size) {
+      case 'small': return 0.15;
+      case 'medium': return 0.25;
+      case 'large': return 0.4;
+      default: return 0.25;
+    }
+  };
 
   return (
     <div 
@@ -319,46 +329,16 @@ export function TemplatePreview({
           borderColor: appliedColorScheme.borders
         }}
       >
-        {/* Template Preview Content */}
-        <div className="p-3 space-y-2">
-          {/* Header */}
-          <div className="text-center space-y-1">
-            <h1 
-              className="text-lg font-bold truncate"
-              style={{ 
-                color: appliedColorScheme.text.primary,
-                fontFamily: appliedTypography.headings.fontFamily,
-                fontSize: size === 'small' ? '14px' : size === 'medium' ? '16px' : '18px'
-              }}
-            >
-              {sampleData.personalInfo.fullName}
-            </h1>
-            <div 
-              className="text-xs"
-              style={{ color: appliedColorScheme.text.secondary }}
-            >
-              {sampleData.personalInfo.email} • {sampleData.personalInfo.phone}
-            </div>
-          </div>
-
-          {/* Section Lines */}
-          <div className="space-y-2 mt-3">
-            <div 
-              className="h-0.5 rounded"
-              style={{ backgroundColor: appliedColorScheme.primary }}
-            />
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="space-y-1">
-                <div 
-                  className="h-0.5 rounded"
-                  style={{ 
-                    backgroundColor: appliedColorScheme.secondary,
-                    width: `${80 - i * 10}%`
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+        {/* Template Preview Content - Render actual template */}
+        <div className="w-full h-full overflow-hidden">
+          <TemplateRenderer
+            resume={sampleData}
+            template={template}
+            {...(customizations && { customizations })}
+            scale={getScale()}
+            isPrintMode={false}
+            className="origin-top-left"
+          />
         </div>
 
         {/* Hover Overlay */}

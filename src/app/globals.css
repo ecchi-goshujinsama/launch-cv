@@ -354,7 +354,7 @@ p {
   padding: 1rem;
 }
 
-/* Responsive Launch Elements */
+/* Mobile-friendly touch targets and interactions */
 @media (max-width: 768px) {
   .launch-heading {
     font-size: 1.5rem;
@@ -368,5 +368,51 @@ p {
   .btn-mission {
     padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
+  }
+
+  /* Touch target optimization */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Improved touch feedback */
+  button:active, 
+  .touch-target:active {
+    transform: scale(0.95);
+    transition: transform 75ms ease;
+  }
+  
+  /* Better form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  /* Mobile-optimized scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Better modal handling on mobile */
+  .mobile-modal {
+    max-height: 100vh;
+    overflow: auto;
+  }
+  
+  /* Swipe feedback animation */
+  .swipe-feedback {
+    transition: transform 200ms ease-out;
+  }
+  
+  .swipe-left {
+    transform: translateX(-10px);
+  }
+  
+  .swipe-right {
+    transform: translateX(10px);
   }
 }

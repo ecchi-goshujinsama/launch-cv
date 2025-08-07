@@ -4,6 +4,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { LivePreview } from './live-preview';
 import { useMediaQuery } from '@/lib/hooks/use-media-query';
+import { useIsMobile } from '@/lib/hooks/use-touch-interactions';
 
 interface PreviewContainerProps {
   className?: string;
@@ -22,18 +23,18 @@ export function PreviewContainer({
   const [containerRef, setContainerRef] = React.useState<HTMLDivElement | null>(null);
   const [scale, setScale] = React.useState(1);
 
-  // Responsive breakpoints
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  // Responsive breakpoints and device detection
   const isTablet = useMediaQuery('(max-width: 1024px)');
+  const { isMobile: isReallyMobile, isTouchDevice } = useIsMobile();
 
-  // Auto-adjust preview mode based on screen size
+  // Auto-adjust preview mode based on screen size and device capabilities
   React.useEffect(() => {
-    if (isMobile && previewMode === 'desktop') {
+    if (isReallyMobile && previewMode === 'desktop') {
       setPreviewMode('mobile');
-    } else if (isTablet && !isMobile && previewMode === 'desktop') {
+    } else if (isTablet && !isReallyMobile && previewMode === 'desktop') {
       setPreviewMode('tablet');
     }
-  }, [isMobile, isTablet, previewMode]);
+  }, [isReallyMobile, isTablet, previewMode]);
 
   // Calculate optimal scale for container
   React.useEffect(() => {
@@ -51,19 +52,23 @@ export function PreviewContainer({
       let targetWidth = pageWidth;
       let targetHeight = pageHeight;
 
-      // Adjust target size based on preview mode
+      // Adjust target size based on preview mode and device capabilities
       switch (previewMode) {
         case 'mobile':
-          targetWidth = 375;
+          targetWidth = isTouchDevice ? Math.min(375, containerWidth) : 375;
           targetHeight = Math.min(targetWidth * (pageHeight / pageWidth), containerHeight);
           break;
         case 'tablet':
-          targetWidth = 768;
+          targetWidth = isTouchDevice ? Math.min(768, containerWidth) : 768;
           targetHeight = Math.min(targetWidth * (pageHeight / pageWidth), containerHeight);
           break;
         case 'desktop':
         default:
           // Keep original dimensions but scale to fit
+          // On mobile devices, limit the max width to screen width
+          if (isReallyMobile) {
+            targetWidth = Math.min(pageWidth, containerWidth);
+          }
           break;
       }
 
@@ -82,13 +87,14 @@ export function PreviewContainer({
     return () => {
       resizeObserver.disconnect();
     };
-  }, [autoScale, containerRef, previewMode]);
+  }, [autoScale, containerRef, previewMode, isReallyMobile, isTouchDevice]);
 
   return (
     <div 
       ref={setContainerRef}
       className={cn(
         "flex flex-col h-full bg-gray-50 overflow-hidden",
+        isReallyMobile && "mobile-scroll",
         className
       )}
     >
@@ -98,6 +104,8 @@ export function PreviewContainer({
         previewMode={previewMode}
         onPreviewModeChange={setPreviewMode}
         className="flex-1"
+        isMobile={isReallyMobile}
+        isTouchDevice={isTouchDevice}
       />
     </div>
   );

@@ -39,6 +39,7 @@ export function BuilderLayout({
   const [previewMode, setPreviewMode] = useState<PreviewMode>('desktop');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [touchFeedback, setTouchFeedback] = useState('');
 
   // Check for mobile screen size
   React.useEffect(() => {
@@ -55,14 +56,40 @@ export function BuilderLayout({
     return () => window.removeEventListener('resize', checkMobile);
   }, [layoutMode]);
 
+  // Enhanced mobile experience with touch feedback
+  const showTouchFeedback = (message: string) => {
+    setTouchFeedback(message);
+    setTimeout(() => setTouchFeedback(''), 1500);
+  };
+
   const handleLayoutChange = (newLayout: LayoutMode) => {
     setLayoutMode(newLayout);
     onLayoutChange?.(newLayout);
+    
+    // Mobile-friendly feedback
+    if (isMobile) {
+      const messages = {
+        'form': 'Switched to Editor Mode 📝',
+        'preview': 'Switched to Preview Mode 👁️', 
+        'split': 'Split View Active'
+      };
+      showTouchFeedback(messages[newLayout]);
+    }
   };
 
   const handlePreviewModeChange = (newMode: PreviewMode) => {
     setPreviewMode(newMode);
     onPreviewModeChange?.(newMode);
+    
+    // Mobile-friendly feedback for preview mode changes
+    if (isMobile) {
+      const messages = {
+        'mobile': 'Mobile Preview 📱',
+        'tablet': 'Tablet Preview 📱',
+        'desktop': 'Desktop Preview 🖥️'
+      };
+      showTouchFeedback(messages[newMode]);
+    }
   };
 
   const getPreviewStyles = () => {
@@ -70,9 +97,9 @@ export function BuilderLayout({
     
     switch (previewMode) {
       case 'mobile':
-        return `${baseStyles} max-w-sm mx-auto`;
+        return `${baseStyles} max-w-sm mx-auto ${isMobile ? 'w-full max-w-full' : ''}`;
       case 'tablet':
-        return `${baseStyles} max-w-2xl mx-auto`;
+        return `${baseStyles} max-w-2xl mx-auto ${isMobile ? 'w-full max-w-full' : ''}`;
       case 'desktop':
       default:
         return `${baseStyles} w-full`;
@@ -155,23 +182,29 @@ export function BuilderLayout({
             </div>
           )}
 
-          {/* Mobile Layout Toggle */}
+          {/* Mobile Layout Toggle - Enhanced */}
           <div className="md:hidden flex items-center gap-1">
             <LaunchButton
               variant={layoutMode === 'form' ? 'mission' : 'ghost'}
               size="sm"
               onClick={() => handleLayoutChange('form')}
               icon="none"
+              className="touch-target"
+              title="Switch to Form Editor"
             >
               <Edit3 className="w-4 h-4" />
+              {isMobile && <span className="ml-1 text-xs">Edit</span>}
             </LaunchButton>
             <LaunchButton
               variant={layoutMode === 'preview' ? 'mission' : 'ghost'}
               size="sm"
               onClick={() => handleLayoutChange('preview')}
               icon="none"
+              className="touch-target"
+              title="Switch to Preview"
             >
               <Eye className="w-4 h-4" />
+              {isMobile && <span className="ml-1 text-xs">View</span>}
             </LaunchButton>
           </div>
 
@@ -255,6 +288,13 @@ export function BuilderLayout({
           </div>
         </div>
       </div>
+
+      {/* Touch Feedback Toast - Mobile Only */}
+      {touchFeedback && isMobile && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white px-4 py-2 rounded-full text-sm shadow-lg transition-all duration-300">
+          {touchFeedback}
+        </div>
+      )}
     </div>
   );
 }

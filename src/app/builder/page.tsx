@@ -7,6 +7,7 @@ import { PreviewContainer } from '@/components/preview/preview-container';
 import { KeyboardShortcutsModal } from '@/components/ui/keyboard-shortcuts-modal';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { useKeyboardShortcuts, createResumeBuilderShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
+import { useSwipeNavigation, useIsMobile } from '@/lib/hooks/use-touch-interactions';
 import { 
   PersonalInfoForm, 
   ExperienceForm, 
@@ -17,6 +18,7 @@ import {
   useBulkEditModal
 } from '@/components/builder';
 import { Plus, Keyboard, Search } from 'lucide-react';
+import { cn } from '@/lib/utils';
 // import { SectionManager } from '@/components/builder/section-manager';
 // import { MissionProgressTracker } from '@/components/builder/mission-progress-tracker';
 // import { AutoSaveProvider } from '@/components/builder/auto-save-provider';
@@ -28,6 +30,24 @@ export default function BuilderPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [showSearch, setShowSearch] = React.useState(false);
   const { BulkEditModal, openModal: openBulkEdit } = useBulkEditModal();
+  
+  // Mobile and touch detection
+  const { isMobile, isTouchDevice } = useIsMobile();
+  
+  // Available sections for swipe navigation
+  const sections = ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'];
+  
+  // Swipe navigation between sections
+  const { 
+    touchProps, 
+    canSwipeNext, 
+    canSwipePrevious
+  } = useSwipeNavigation(
+    sections, 
+    activeSection, 
+    setActiveSection, 
+    isMobile && isTouchDevice
+  );
   
   // Keyboard shortcuts setup
   const keyboardActions = {
@@ -81,10 +101,15 @@ export default function BuilderPage() {
     }
 
     return (
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-6" {...(isMobile ? touchProps : {})}>
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Resume Builder - Mission Control</h2>
-          <p className="text-gray-600">Live Preview System Active</p>
+          <p className="text-gray-600">
+            Live Preview System Active
+            {isMobile && isTouchDevice && (
+              <span className="block text-xs text-gray-500 mt-1">👈 Swipe to navigate sections</span>
+            )}
+          </p>
         </div>
 
         {/* Enhanced Section Navigation */}
@@ -146,24 +171,49 @@ export default function BuilderPage() {
           </div>
           
           <div className="flex gap-2 p-1 bg-gray-100 rounded-lg flex-wrap">
-            {['personal', 'experience', 'education', 'skills', 'projects', 'certifications']
+            {sections
               .filter(section => 
                 searchTerm === '' || 
                 section.toLowerCase().includes(searchTerm.toLowerCase())
               )
-              .map((section) => (
-                <button
-                  key={section}
-                  onClick={() => setActiveSection(section)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors capitalize ${
-                    activeSection === section 
-                      ? 'bg-white text-launch-blue shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
-                >
-                  {section}
-                </button>
-              ))}
+              .map((section) => {
+                const isActive = activeSection === section;
+                const activeIndex = sections.indexOf(activeSection);
+                return (
+                  <button
+                    key={section}
+                    onClick={() => setActiveSection(section)}
+                    className={cn(
+                      "px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 capitalize relative",
+                      "touch-target",
+                      isActive 
+                        ? 'bg-white text-launch-blue shadow-sm scale-105'
+                        : 'text-gray-600 hover:text-gray-800',
+                      isMobile && 'min-w-[80px] text-center'
+                    )}
+                  >
+                    {section}
+                    {/* Mobile swipe indicators */}
+                    {isMobile && isTouchDevice && isActive && (
+                      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
+                        {canSwipePrevious && <span className="text-xs text-gray-400">←</span>}
+                        <div className="flex gap-1">
+                          {sections.map((_, dotIndex) => (
+                            <div 
+                              key={dotIndex}
+                              className={cn(
+                                "w-1.5 h-1.5 rounded-full transition-colors",
+                                dotIndex === activeIndex ? 'bg-launch-blue' : 'bg-gray-300'
+                              )}
+                            />
+                          ))}
+                        </div>
+                        {canSwipeNext && <span className="text-xs text-gray-400">→</span>}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
           </div>
         </div>
 

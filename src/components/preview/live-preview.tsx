@@ -23,6 +23,8 @@ interface LivePreviewProps {
   initialScale?: number;
   previewMode?: 'desktop' | 'tablet' | 'mobile';
   onPreviewModeChange?: (mode: 'desktop' | 'tablet' | 'mobile') => void;
+  isMobile?: boolean;
+  isTouchDevice?: boolean;
 }
 
 export function LivePreview({

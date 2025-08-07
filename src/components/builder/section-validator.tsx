@@ -172,7 +172,7 @@ export function SectionValidator({
   };
 
   // Validate all sections
-  const validateAllSections = async () => {
+  const validateAllSections = React.useCallback(async () => {
     setIsValidating(true);
     
     const results: SectionValidationResult = {};
@@ -188,7 +188,7 @@ export function SectionValidator({
     if (onValidationChange) {
       onValidationChange(results);
     }
-  };
+  }, [sections, onValidationChange, validateSection]);
 
   // Auto-validate when data changes
   useEffect(() => {
@@ -200,7 +200,7 @@ export function SectionValidator({
       return () => clearTimeout(timeoutId);
     }
     return undefined;
-  }, [resumeData, sections, autoValidate]);
+  }, [resumeData, sections, autoValidate, validateAllSections]);
 
   // Calculate overall score
   const overallResults = React.useMemo(() => {

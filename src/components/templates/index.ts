@@ -10,6 +10,8 @@ export {
   ClassicProfessionalRenderer,
   ModernMinimalRenderer,
   ExecutiveRenderer,
+  TechnicalRenderer,
+  CreativeRenderer,
   templateRenderers,
   getTemplateRenderer
 } from './renderers';

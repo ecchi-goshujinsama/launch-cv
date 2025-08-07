@@ -345,11 +345,193 @@ export const executiveTemplate: Template = {
   }
 };
 
+// Template 4: Technical Skills-focused
+export const technicalTemplate: Template = {
+  id: 'technical',
+  name: 'Technical Developer',
+  description: 'Skills-focused template with GitHub integration, perfect for developers and technical professionals.',
+  category: 'technical',
+  previewImage: '/templates/technical-preview.png',
+  thumbnailImage: '/templates/technical-thumb.png',
+  difficulty: 'intermediate',
+  colorScheme: {
+    primary: '#0d1117',     // GitHub dark
+    secondary: '#21262d',    // GitHub gray
+    accent: '#58a6ff',       // GitHub blue
+    text: {
+      primary: '#0d1117',
+      secondary: '#656d76',
+      muted: '#8b949e'
+    },
+    background: {
+      primary: '#ffffff',
+      secondary: '#f6f8fa',
+      paper: '#ffffff'
+    },
+    borders: '#d0d7de',
+    links: '#0969da'
+  },
+  typography: {
+    headings: {
+      fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", monospace',
+      fontWeight: '700',
+      letterSpacing: '0'
+    },
+    body: {
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      fontSize: '10pt',
+      lineHeight: '1.5'
+    },
+    small: {
+      fontSize: '9pt',
+      fontWeight: '400'
+    }
+  },
+  layout: {
+    columns: 2,
+    spacing: 'compact',
+    headerStyle: 'tech',
+    sectionStyle: 'cards',
+    margins: {
+      top: '0.5in',
+      right: '0.5in',
+      bottom: '0.5in',
+      left: '0.5in'
+    }
+  },
+  sections: baseSectionConfigs.map(section => ({
+    ...section,
+    formatting: {
+      ...section.formatting,
+      showIcons: true,
+      bulletStyle: 'arrow' as const
+    }
+  })),
+  customization: {
+    colors: {
+      canChangeColors: true,
+      availableColorSchemes: []
+    },
+    fonts: {
+      canChangeFonts: true,
+      availableFonts: []
+    },
+    layout: {
+      canChangeLayout: true,
+      availableLayouts: []
+    },
+    sections: {
+      canReorderSections: true,
+      canHideSections: true,
+      canCustomizeSections: true
+    }
+  },
+  ...baseTemplateConfig,
+  metadata: {
+    ...baseTemplateConfig.metadata,
+    tags: ['technical', 'developer', 'github', 'skills-focused'],
+    industry: ['technology', 'software', 'engineering', 'startups'],
+    experience: 'all' as const
+  }
+};
+
+// Template 5: Creative Unique
+export const creativeTemplate: Template = {
+  id: 'creative',
+  name: 'Creative Portfolio',
+  description: 'Unique layout with personality and visual elements, perfect for creative professionals and designers.',
+  category: 'creative',
+  previewImage: '/templates/creative-preview.png',
+  thumbnailImage: '/templates/creative-thumb.png',
+  difficulty: 'advanced',
+  colorScheme: {
+    primary: '#6366f1',     // Indigo
+    secondary: '#8b5cf6',    // Purple
+    accent: '#f59e0b',       // Amber
+    text: {
+      primary: '#111827',
+      secondary: '#4b5563',
+      muted: '#9ca3af'
+    },
+    background: {
+      primary: '#ffffff',
+      secondary: '#f9fafb',
+      paper: '#ffffff'
+    },
+    borders: '#e5e7eb',
+    links: '#6366f1'
+  },
+  typography: {
+    headings: {
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontWeight: '800',
+      letterSpacing: '-0.05em'
+    },
+    body: {
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontSize: '10pt',
+      lineHeight: '1.6'
+    },
+    small: {
+      fontSize: '9pt',
+      fontWeight: '500'
+    }
+  },
+  layout: {
+    columns: 2,
+    spacing: 'relaxed',
+    headerStyle: 'creative',
+    sectionStyle: 'artistic',
+    margins: {
+      top: '0.75in',
+      right: '0.75in',
+      bottom: '0.75in',
+      left: '0.75in'
+    }
+  },
+  sections: baseSectionConfigs.map(section => ({
+    ...section,
+    formatting: {
+      ...section.formatting,
+      showIcons: true,
+      bulletStyle: 'custom' as const
+    }
+  })),
+  customization: {
+    colors: {
+      canChangeColors: true,
+      availableColorSchemes: []
+    },
+    fonts: {
+      canChangeFonts: true,
+      availableFonts: []
+    },
+    layout: {
+      canChangeLayout: true,
+      availableLayouts: []
+    },
+    sections: {
+      canReorderSections: true,
+      canHideSections: true,
+      canCustomizeSections: true
+    }
+  },
+  ...baseTemplateConfig,
+  metadata: {
+    ...baseTemplateConfig.metadata,
+    tags: ['creative', 'unique', 'artistic', 'portfolio'],
+    industry: ['design', 'creative', 'marketing', 'media'],
+    experience: 'all' as const
+  }
+};
+
 // Export all templates
 export const templates: Template[] = [
   classicProfessionalTemplate,
   modernMinimalTemplate,
-  executiveTemplate
+  executiveTemplate,
+  technicalTemplate,
+  creativeTemplate
 ];
 
 // Utility functions

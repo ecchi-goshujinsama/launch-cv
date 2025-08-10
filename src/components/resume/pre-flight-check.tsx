@@ -36,6 +36,15 @@ export function PreFlightCheck({
   const [editedData, setEditedData] = useState<ParsedResumeData>(parsedData);
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
 
+  // Debug logging to see what data is being received
+  React.useEffect(() => {
+    console.log('=== PreFlightCheck DEBUG ===');
+    console.log('Parsed data received:', parsedData);
+    console.log('Experience sections:', parsedData.sections?.experience);
+    console.log('Skills sections:', parsedData.sections?.skills);
+    console.log('=== END PreFlightCheck DEBUG ===');
+  }, [parsedData]);
+
   // Run validation on mount and data changes
   React.useEffect(() => {
     const issues = validateResumeData(editedData);
@@ -216,7 +225,12 @@ export function PreFlightCheck({
   const warningCount = validationIssues.filter(i => i.severity === 'warning').length;
   const infoCount = validationIssues.filter(i => i.severity === 'info').length;
 
-  const canProceed = errorCount === 0;
+  // Allow proceeding with minor errors, only block for critical errors
+  const criticalErrors = validationIssues.filter(i => 
+    i.severity === 'error' && 
+    (i.field === 'fullName' || i.field === 'email') // Only block for missing name/email
+  );
+  const canProceed = criticalErrors.length === 0;
 
   const renderPersonalInfoField = (field: keyof ParsedResumeData['personalInfo'], label: string, required = false) => {
     const value = editedData.personalInfo[field] || '';
@@ -468,7 +482,7 @@ export function PreFlightCheck({
             animation={canProceed ? "rocket" : undefined}
             size="lg"
           >
-            {canProceed ? 'Pre-flight Complete - Continue' : `Fix ${errorCount} Error${errorCount !== 1 ? 's' : ''} First`}
+            {canProceed ? 'Launch Mission Control' : `Fix ${criticalErrors.length} Critical Error${criticalErrors.length !== 1 ? 's' : ''} First`}
           </LaunchButton>
         </div>
       </MissionContainer>

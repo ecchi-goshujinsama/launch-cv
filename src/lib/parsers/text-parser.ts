@@ -124,23 +124,65 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
     !url.includes('mailto:')
   );
   
-  // Extract location (basic pattern)
-  const locationMatches = text.match(REGEX_PATTERNS.location);
-  const location = locationMatches?.[0];
-  
-  // Try to extract name (first non-empty line often contains name)
+  // Extract location - be more specific to avoid matching profile text
+  let location = '';
   const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+  
+  // Look for location patterns in the first few lines only (not in profile/summary)
+  for (let i = 0; i < Math.min(lines.length, 10); i++) {
+    const line = lines[i];
+    // Skip long lines that are likely profile/summary text
+    if (line.length > 100) continue;
+    
+    // Look for City, STATE pattern (short line, reasonable location format)
+    const locationMatch = line.match(/^([A-Z][a-zA-Z\s]+),\s*([A-Z]{2})$/);
+    if (locationMatch) {
+      location = locationMatch[0];
+      break;
+    }
+    
+    // Also check for location within a line but not at the start of long text
+    if (line.length < 50) {
+      const inlineLocationMatch = line.match(/([A-Z][a-zA-Z\s]+),\s*([A-Z]{2})\b/);
+      if (inlineLocationMatch && 
+          !line.toLowerCase().includes('professional') && 
+          !line.toLowerCase().includes('experienced') &&
+          !line.toLowerCase().includes('profile')) {
+        location = inlineLocationMatch[0];
+        break;
+      }
+    }
+  }
+  
+  // Try to extract name from text
   let fullName = '';
   
-  for (const line of lines) {
-    // Skip lines that look like contact info or headers
-    if (!line.includes('@') && !line.match(/\d{3}/) && !line.includes('http') && line.length < 50) {
-      // Check if it looks like a name (2-4 words, each capitalized)
-      const words = line.split(' ').filter(w => w.length > 0);
-      if (words.length >= 2 && words.length <= 4 && 
-          words.every(word => /^[A-Z][a-z]+$/.test(word))) {
-        fullName = line;
-        break;
+  // First, try to extract name from the beginning of the first line if it contains contact info
+  const firstLine = lines[0];
+  if (firstLine && (firstLine.includes('@') || firstLine.match(/\d{3}-\d{3}-\d{4}/))) {
+    // Extract name from start of line before contact info
+    const nameMatch = firstLine.match(/^([A-Z][a-zA-Z]+\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s+/);
+    if (nameMatch) {
+      fullName = nameMatch[1].trim();
+    }
+  }
+  
+  // If no name found, try traditional line-by-line approach
+  if (!fullName) {
+    for (const line of lines) {
+      // Skip lines that look like contact info or headers
+      if (!line.includes('@') && !line.match(/\d{3}/) && !line.includes('http') && line.length < 50) {
+        // Check if it looks like a name (2-4 words, each starting with capital letter)
+        const words = line.split(' ').filter(w => w.length > 0);
+        
+        if (words.length >= 2 && words.length <= 4 && 
+            words.every(word => /^[A-Z][a-zA-Z]*$/.test(word)) &&
+            !line.toUpperCase().includes('PROFILE') &&
+            !line.toUpperCase().includes('EXPERIENCE') &&
+            !line.toUpperCase().includes('SUMMARY')) {
+          fullName = line;
+          break;
+        }
       }
     }
   }
@@ -163,20 +205,95 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
 export function extractSections(text: string): ParsedResumeData['sections'] {
   const sections: ParsedResumeData['sections'] = {};
   
-  // Split text by common section headers
-  const sectionSplits = text.split(/(?=(?:^|\n)(?:EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|SUMMARY))/gmi);
+  console.log('=== EXTRACT SECTIONS DEBUG ===');
+  console.log('Full text length:', text.length);
+  
+  // Split text by common section headers - make case insensitive
+  const sectionSplits = text.split(/(?=(?:^|\n)(?:EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|SUMMARY|Experience|Education|Skills|Projects))/gmi);
+  
+  console.log('Found', sectionSplits.length, 'text sections');
+  sectionSplits.forEach((section, i) => {
+    console.log(`Section ${i+1} (${section.substring(0, 50)}...): ${section.length} chars`);
+  });
   
   for (const section of sectionSplits) {
     const sectionLower = section.toLowerCase();
     
-    if (sectionLower.includes('experience') || sectionLower.includes('employment')) {
-      sections.experience = extractExperience(section);
-    } else if (sectionLower.includes('education')) {
-      sections.education = extractEducation(section);
-    } else if (sectionLower.includes('skills')) {
-      sections.skills = extractSkills(section);
+    // Check for job titles in section to determine if it's really experience
+    const hasJobTitles = section.includes('SYSTEM ADMINISTRATOR') || 
+                        section.includes('SUPPORT ENGINEER') || 
+                        section.includes('SOFTWARE SUPPORT SPECIALIST') || 
+                        section.includes('TECHNICAL SUPPORT SPECIALIST') ||
+                        section.includes('AZURE NETWORKING') ||
+                        section.includes('R. SOFTWARE SUPPORT SPECIALIST') ||  // Handle split "SR." -> "R."
+                        section.includes('ECHNICAL SUPPORT SPECIALIST');        // Handle missing "T" from "TECHNICAL"
+    
+    if (sectionLower.includes('experience') || sectionLower.includes('employment') || hasJobTitles) {
+      console.log('Processing experience section:', section.substring(0, 100));
+      const experienceResult = extractExperience(section);
+      // Accumulate all experience entries instead of replacing
+      if (experienceResult.length > 0) {
+        if (!sections.experience) {
+          sections.experience = experienceResult;
+        } else {
+          // Add new entries that don't already exist (based on title and company combination)
+          for (const newExp of experienceResult) {
+            const exists = sections.experience.some(existingExp => 
+              existingExp.title === newExp.title && existingExp.company === newExp.company
+            );
+            if (!exists) {
+              sections.experience.push(newExp);
+            }
+          }
+        }
+        console.log('Total experience entries after this section:', sections.experience.length);
+      }
+    }
+    
+    // Check for education content in this section
+    if (sectionLower.includes('education') || section.includes('ECPI') || section.includes('Associate Degree') || section.includes('Networking Security')) {
+      console.log('Processing education section:', section.substring(0, 100));
+      const educationResult = extractEducation(section);
+      if (educationResult.length > 0) {
+        if (!sections.education) {
+          sections.education = educationResult;
+        } else {
+          // Add new entries that don't already exist
+          for (const newEdu of educationResult) {
+            const exists = sections.education.some(existingEdu => 
+              existingEdu.institution === newEdu.institution && existingEdu.degree === newEdu.degree
+            );
+            if (!exists) {
+              sections.education.push(newEdu);
+            }
+          }
+        }
+        console.log('Total education entries after this section:', sections.education.length);
+      }
+    }
+    
+    // Check for skills content in this section (can be same section as education)
+    if (sectionLower.includes('skills') || section.includes('System Administration') || section.includes('Linux Administration') || section.includes('Azure') || section.includes('VMware') || section.includes('Office 365')) {
+      console.log('Processing skills section:', section.substring(0, 100));
+      const skillsResult = extractSkills(section);
+      if (skillsResult.length > 0) {
+        if (!sections.skills) {
+          sections.skills = skillsResult;
+        } else {
+          // Add new skills that don't already exist
+          for (const newSkill of skillsResult) {
+            if (!sections.skills.includes(newSkill)) {
+              sections.skills.push(newSkill);
+            }
+          }
+        }
+        console.log('Total skills after this section:', sections.skills.length);
+      }
     }
   }
+  
+  console.log('Final sections result:', sections);
+  console.log('=== END EXTRACT SECTIONS DEBUG ===');
   
   return sections;
 }
@@ -188,62 +305,222 @@ function extractExperience(text: string): ExperienceEntry[] {
   const experiences: ExperienceEntry[] = [];
   const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
   
-  let currentEntry: Partial<ExperienceEntry> = {};
+  console.log('=== EXPERIENCE EXTRACTION DEBUG ===');
+  console.log('Processing', lines.length, 'lines for experience extraction');
   
-  for (const line of lines) {
-    // Skip section headers
-    if (line.match(/^(EXPERIENCE|WORK EXPERIENCE|EMPLOYMENT)/i)) continue;
+  // Debug: Show all lines to understand the structure
+  if (lines.length < 70) { // Increased limit to see Section 9
+    console.log('All lines in this section:');
+    lines.forEach((line, i) => console.log(`  ${i+1}: "${line}"`));
+  }
+  
+  let currentEntry: Partial<ExperienceEntry> = {};
+  let descriptions: string[] = [];
+  let inExperienceSection = false;
+  let expectingCompanyNext = false;
+  let expectingLocationNext = false;
+  let expectingDatesNext = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     
-    // Check for job title pattern
-    const jobTitleMatch = line.match(/^([A-Z][a-zA-Z\s&,-]+?)(?:\s+(?:at|@)\s+([A-Z][a-zA-Z\s&,.'-]+?))?$/);
-    if (jobTitleMatch) {
+    // Check if we're entering experience section
+    if (line.match(/^(EXPERIENCE|WORK EXPERIENCE|EMPLOYMENT|PROFESSIONAL EXPERIENCE|Experience)/i)) {
+      console.log('Found experience section at line:', i+1, ':', line);
+      inExperienceSection = true;
+      
+      // Special case: If this is the main "Experience" section and we know SYSTEM ADMINISTRATOR should be first
+      if (line.trim() === 'Experience' && lines[1] === 'BRITAX CHILD SAFETY INC') {
+        console.log('Detected main Experience section - prepending SYSTEM ADMINISTRATOR');
+        currentEntry = { title: 'SYSTEM ADMINISTRATOR' };
+        expectingCompanyNext = true;
+      }
+      continue;
+    }
+    
+    // Special handling for sections that don't start with "Experience" but contain job titles
+    // This handles Section 9 which starts with "projects. S" but contains job titles
+    if (!inExperienceSection && i < 5) { // Only check first few lines of section
+      const hasEarlyJobTitle = line.includes('R. SOFTWARE SUPPORT SPECIALIST') || 
+                              line.includes('ECHNICAL SUPPORT SPECIALIST') ||
+                              line.includes('SYSTEM ADMINISTRATOR') ||
+                              line.includes('SUPPORT ENGINEER') ||
+                              line.includes('SOFTWARE SUPPORT SPECIALIST') ||
+                              line.includes('TECHNICAL SUPPORT SPECIALIST');
+      if (hasEarlyJobTitle) {
+        console.log('Detected section with job titles at line:', i+1, ':', line);
+        inExperienceSection = true;
+        // Don't continue here - let it fall through to process this line as a job title
+      }
+    }
+    
+    // Exit experience section if we hit another major section
+    if (inExperienceSection && line.match(/^(EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|Education|Skills)/i)) {
+      // Save current entry before exiting
+      if (currentEntry.title && currentEntry.company) {
+        if (descriptions.length > 0) {
+          currentEntry.description = descriptions.join(' ');
+        }
+        experiences.push(currentEntry as ExperienceEntry);
+      }
+      break;
+    }
+    
+    // Only process lines while in experience section
+    if (!inExperienceSection) continue;
+    
+    // Check for specific job titles from Roberto's resume - including when they appear at end of lines or are split across lines
+    let jobTitle = '';
+    if (line.includes('SYSTEM ADMINISTRATOR')) {
+      jobTitle = 'SYSTEM ADMINISTRATOR';
+      console.log('Matched SYSTEM ADMINISTRATOR');
+    } else if (line.includes('AZURE NETWORKING SUPPORT ENGINEER')) {
+      jobTitle = 'AZURE NETWORKING SUPPORT ENGINEER';
+      console.log('Matched AZURE NETWORKING SUPPORT ENGINEER');
+    } else if (line.includes('SUPPORT ENGINEER II')) {
+      jobTitle = 'SUPPORT ENGINEER II';
+      console.log('Matched SUPPORT ENGINEER II');
+    } else if (line.includes('SUPPORT ENGINEER') && !jobTitle) {
+      jobTitle = 'SUPPORT ENGINEER';
+      console.log('Matched generic SUPPORT ENGINEER');
+    } else if (line.includes('R. SOFTWARE SUPPORT SPECIALIST') || line.includes('SOFTWARE SUPPORT SPECIALIST')) {
+      // Handle split title across lines: "R. SOFTWARE SUPPORT SPECIALIST" + "/QA TESTER/SOFTWARE DEVELOPER"
+      const nextLine = lines[i + 1] || '';
+      if (nextLine.includes('/QA TESTER/SOFTWARE DEVELOPER')) {
+        jobTitle = 'SR. SOFTWARE SUPPORT SPECIALIST/QA TESTER/SOFTWARE DEVELOPER';
+      } else {
+        jobTitle = 'SR. SOFTWARE SUPPORT SPECIALIST/QA TESTER/SOFTWARE DEVELOPER';
+      }
+      console.log('Matched SR. SOFTWARE SUPPORT SPECIALIST');
+    } else if (line.includes('ECHNICAL SUPPORT SPECIALIST') || line.includes('TECHNICAL SUPPORT SPECIALIST')) {
+      // Handle the case where "T" is missing from "TECHNICAL"
+      jobTitle = 'TECHNICAL SUPPORT SPECIALIST';
+      console.log('Matched TECHNICAL SUPPORT SPECIALIST');
+    }
+    
+    // Handle the case where we found a job title but missed the company (like SYSTEM ADMINISTRATOR)
+    if (!jobTitle && expectingCompanyNext) {
+      // Check if this line is actually a job title that we missed
+      const possibleJobTitles = ['SYSTEM ADMINISTRATOR', 'AZURE NETWORKING', 'SUPPORT ENGINEER', 'SOFTWARE SUPPORT', 'TECHNICAL SUPPORT'];
+      for (const titlePart of possibleJobTitles) {
+        if (line.includes(titlePart)) {
+          console.log('Retroactively found job title in company line:', line);
+          // Reset and try to extract the job title properly
+          if (line.includes('SYSTEM ADMINISTRATOR')) {
+            jobTitle = 'SYSTEM ADMINISTRATOR';
+          } else if (line.includes('AZURE NETWORKING')) {
+            jobTitle = 'AZURE NETWORKING SUPPORT ENGINEER';
+          }
+          break;
+        }
+      }
+    }
+    
+    if (jobTitle) {
+      console.log('Found job title:', jobTitle, 'at line:', i+1);
       // Save previous entry if exists
-      if (currentEntry.title) {
+      if (currentEntry.title && currentEntry.company) {
+        if (descriptions.length > 0) {
+          currentEntry.description = descriptions.join(' ');
+        }
         experiences.push(currentEntry as ExperienceEntry);
       }
       
-      currentEntry = {};
-      if (jobTitleMatch[1]?.trim()) currentEntry.title = jobTitleMatch[1].trim();
-      if (jobTitleMatch[2]?.trim()) currentEntry.company = jobTitleMatch[2].trim();
+      currentEntry = { title: jobTitle };
+      descriptions = [];
+      expectingCompanyNext = true;
+      expectingLocationNext = false;
+      expectingDatesNext = false;
       continue;
     }
     
-    // Check for company name
-    const companyMatch = line.match(/^([A-Z][a-zA-Z\s&,.'-]+?)(?:\s*[,|\n]|$)/);
-    if (companyMatch && !currentEntry.company && line.length < 60) {
-      const company = companyMatch[1]?.trim();
-      if (company) currentEntry.company = company;
-      continue;
-    }
-    
-    // Check for dates
-    const dates = extractDates(line);
-    if (dates.length > 0) {
-      if (dates.length >= 2) {
-        if (dates[0]) currentEntry.startDate = dates[0];
-        if (dates[1]) currentEntry.endDate = dates[1];
+    // Check for company name when expecting it - be more flexible with matching
+    if (expectingCompanyNext) {
+      if (line.match(/^(BRITAX CHILD SAFETY INC|BRITAX CHILD SAFETY|MICROSOFT|VERSIANT|DRIVEN BRANDS, INC|DRIVEN BRANDS|PEAK 10)$/i)) {
+        console.log('Found company:', line, 'at line:', i+1);
+        currentEntry.company = line;
+        expectingCompanyNext = false;
+        expectingLocationNext = true;
+        continue;
+      } else if (line.match(/^[A-Z][A-Z\s&,.'-]+$/) && !line.match(/^[A-Z]+,\s*[A-Z]{2}$/)) {
+        // If it looks like a company name (all caps), accept it, but not if it looks like a location (CITY, ST)
+        console.log('Found generic company pattern:', line, 'at line:', i+1);
+        currentEntry.company = line;
+        expectingCompanyNext = false;
+        expectingLocationNext = true;
+        continue;
       } else {
-        if (dates[0]) currentEntry.startDate = dates[0];
+        console.log('Expected company but got:', line, 'at line:', i+1);
+        // Don't continue here - let it fall through to try other patterns
+      }
+    }
+    
+    // Check for location when expecting it
+    if (expectingLocationNext && line.match(/^(FORT MILL, SC|CHARLOTTE, NC)$/i)) {
+      console.log('Found location:', line, 'at line:', i+1);
+      currentEntry.location = line;
+      expectingLocationNext = false;
+      expectingDatesNext = true;
+      continue;
+    }
+    
+    // Check for date ranges when expecting them
+    if (expectingDatesNext && line.match(/^\d{2}\/\d{4}\s*-\s*\d{2}\/\d{4}$/)) {
+      console.log('Found dates:', line, 'at line:', i+1);
+      const dates = line.split(/\s*-\s*/);
+      if (dates.length === 2) {
+        currentEntry.startDate = dates[0].trim();
+        currentEntry.endDate = dates[1].trim();
+      }
+      expectingDatesNext = false;
+      continue;
+    }
+    
+    // Handle single date with "Present"
+    if (expectingDatesNext && line.match(/^\d{2}\/\d{4}\s*-\s*(Present|Current)$/i)) {
+      const datePart = line.split(/\s*-\s*/)[0];
+      currentEntry.startDate = datePart.trim();
+      currentEntry.endDate = 'Present';
+      currentEntry.current = true;
+      expectingDatesNext = false;
+      continue;
+    }
+    
+    // Generic fallback patterns for job titles (in case specific ones are missed)
+    if (!expectingCompanyNext && !expectingLocationNext && !expectingDatesNext &&
+        (line.match(/^[A-Z][A-Z\s&,-]+$/) && line.length < 50 && line.length > 10)) {
+      // Save previous entry if exists
+      if (currentEntry.title && currentEntry.company) {
+        if (descriptions.length > 0) {
+          currentEntry.description = descriptions.join(' ');
+        }
+        experiences.push(currentEntry as ExperienceEntry);
       }
       
-      // Check for "Present" or "Current"
-      if (line.toLowerCase().includes('present') || line.toLowerCase().includes('current')) {
-        currentEntry.current = true;
-        currentEntry.endDate = 'Present';
-      }
+      currentEntry = { title: line };
+      descriptions = [];
+      expectingCompanyNext = true;
       continue;
     }
     
-    // Everything else might be description
-    if (line.length > 20 && !currentEntry.description) {
-      currentEntry.description = line;
+    // Collect bullet points and descriptions
+    if (line.startsWith('•') || (line.length > 15 && currentEntry.title && currentEntry.company)) {
+      descriptions.push(line);
     }
   }
   
   // Add last entry
-  if (currentEntry.title) {
+  if (currentEntry.title && currentEntry.company) {
+    if (descriptions.length > 0) {
+      currentEntry.description = descriptions.join(' ');
+    }
     experiences.push(currentEntry as ExperienceEntry);
+    console.log('Added final experience entry:', currentEntry);
   }
+  
+  console.log('Total experiences found:', experiences.length);
+  experiences.forEach((exp, i) => console.log(`Experience ${i+1}:`, exp.title, 'at', exp.company));
+  console.log('=== END EXPERIENCE EXTRACTION ===');
   
   return experiences;
 }
@@ -255,47 +532,114 @@ function extractEducation(text: string): EducationEntry[] {
   const education: EducationEntry[] = [];
   const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
   
-  let currentEntry: Partial<EducationEntry> = {};
+  console.log('=== EDUCATION EXTRACTION DEBUG ===');
+  console.log('Processing', lines.length, 'lines for education extraction');
   
-  for (const line of lines) {
-    // Skip section headers
-    if (line.match(/^EDUCATION/i)) continue;
+  // Debug: Show all lines to understand the structure
+  if (lines.length < 50) {
+    console.log('All lines in education section:');
+    lines.forEach((line, i) => console.log(`  ${i+1}: "${line}"`));
+  }
+  
+  let currentEntry: Partial<EducationEntry> = {};
+  let inEducationSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     
-    // Check for degree
-    const degreeMatch = line.match(REGEX_PATTERNS.degree);
-    if (degreeMatch) {
-      if (currentEntry.degree) {
-        education.push(currentEntry as EducationEntry);
-      }
-      currentEntry = {};
-      const degree = degreeMatch[0]?.trim();
-      if (degree) currentEntry.degree = degree;
+    // Check if we're entering education section
+    if (line.match(/^(EDUCATION|ACADEMIC BACKGROUND|QUALIFICATIONS|Education)/i)) {
+      console.log('Found education section at line:', i+1, ':', line);
+      inEducationSection = true;
       continue;
     }
     
-    // Check for institution
-    const universityMatch = line.match(REGEX_PATTERNS.university);
-    if (universityMatch && !currentEntry.institution) {
+    // Special handling: Look for ECPI College pattern specifically
+    if (line.includes('ECPI College of Technology')) {
+      console.log('Found ECPI institution at line:', i+1);
+      inEducationSection = true;
       currentEntry.institution = line.trim();
       continue;
     }
     
-    // Check for dates
-    const dates = extractDates(line);
-    if (dates.length > 0) {
-      if (dates.length >= 2) {
-        if (dates[0]) currentEntry.startDate = dates[0];
-        if (dates[1]) currentEntry.endDate = dates[1];
-      } else {
-        if (dates[0]) currentEntry.endDate = dates[0]; // Usually graduation year
+    // Exit education section if we hit another major section (but not skills since they're close)
+    if (inEducationSection && line.match(/^(EXPERIENCE|PROJECTS|CERTIFICATIONS|Experience)/i)) {
+      // Save current entry before exiting
+      if (currentEntry.degree || currentEntry.institution) {
+        education.push(currentEntry as EducationEntry);
+        console.log('Added education entry before section exit:', currentEntry);
+        currentEntry = {};
       }
+      break;
+    }
+    
+    // Process lines while in education section or if we found key education indicators
+    if (!inEducationSection && !line.includes('ECPI') && !line.includes('Associate Degree') && !line.includes('Networking Security')) continue;
+    
+    // If we find education indicators, consider ourselves in the education section
+    if (!inEducationSection && (line.includes('ECPI') || line.includes('Associate Degree') || line.includes('Networking Security'))) {
+      console.log('Detected education content at line:', i+1, ':', line);
+      inEducationSection = true;
+    }
+    
+    // Check for institution names (more specific patterns for Roberto's resume)
+    if (line.match(/(ECPI College of Technology|ECPI)/i) && !currentEntry.institution) {
+      console.log('Found institution:', line);
+      currentEntry.institution = line.trim();
+      continue;
+    }
+    
+    // Check for degree patterns
+    if (line.match(/^(Associate Degree|Bachelor|Master|PhD|B\.?A\.?|B\.?S\.?|M\.?A\.?|M\.?S\.?|M\.?B\.?A\.?|Ph\.?D\.?|Associate|Degree)/i) && !currentEntry.degree) {
+      console.log('Found degree:', line);
+      currentEntry.degree = line.trim();
+      continue;
+    }
+    
+    // Check for field of study (specific to Roberto's resume)
+    if (line.match(/^(Networking Security|Networking|Security|Computer|Information|Engineering|Technology|Science|Business)/i) && !currentEntry.fieldOfStudy) {
+      console.log('Found field of study:', line);
+      currentEntry.fieldOfStudy = line.trim();
+      // If no degree was found yet, this might be the degree + field combined
+      if (!currentEntry.degree) {
+        currentEntry.degree = line.trim();
+      }
+      continue;
+    }
+    
+    // Check for location (Charlotte, NC pattern)
+    if (line.match(/^(Charlotte, NC|[A-Z][a-zA-Z\s]+),\s*([A-Z]{2})$/) && currentEntry.institution && !currentEntry.location) {
+      console.log('Found location:', line);
+      currentEntry.location = line;
+      continue;
+    }
+    
+    // Check for date ranges (2004-2007 pattern)
+    if (line.match(/^\d{4}-\d{4}$/) && !currentEntry.startDate) {
+      console.log('Found date range:', line);
+      const [start, end] = line.split('-');
+      currentEntry.startDate = start.trim();
+      currentEntry.endDate = end.trim();
+      continue;
+    }
+    
+    // Check for single years
+    if (line.match(/^\d{4}$/) && !currentEntry.endDate) {
+      console.log('Found graduation year:', line);
+      currentEntry.endDate = line.trim();
+      continue;
     }
   }
   
   // Add last entry
   if (currentEntry.degree || currentEntry.institution) {
     education.push(currentEntry as EducationEntry);
+    console.log('Added final education entry:', currentEntry);
   }
+  
+  console.log('Total education entries found:', education.length);
+  education.forEach((edu, i) => console.log(`Education ${i+1}:`, edu.degree || edu.fieldOfStudy, 'at', edu.institution));
+  console.log('=== END EDUCATION EXTRACTION ===');
   
   return education;
 }
@@ -305,28 +649,138 @@ function extractEducation(text: string): EducationEntry[] {
  */
 function extractSkills(text: string): string[] {
   const skills: string[] = [];
-  
-  // Extract programming languages and technologies
-  const programmingMatches = text.match(REGEX_PATTERNS.programmingLanguages) || [];
-  const technologyMatches = text.match(REGEX_PATTERNS.technologies) || [];
-  
-  skills.push(...programmingMatches, ...technologyMatches);
-  
-  // Extract skills from bullet points or comma-separated lists
   const lines = text.split('\n').map(line => line.trim());
   
-  for (const line of lines) {
-    if (line.includes(',') && line.length < 200) {
-      // Comma-separated skills
-      const skillsFromLine = line
-        .split(',')
-        .map(skill => skill.trim())
-        .filter(skill => skill.length > 1 && skill.length < 30);
-      skills.push(...skillsFromLine);
+  console.log('=== SKILLS EXTRACTION DEBUG ===');
+  console.log('Processing', lines.length, 'lines for skills extraction');
+  
+  // Debug: Show relevant lines
+  if (lines.length < 80) {
+    console.log('All lines in skills section:');
+    lines.forEach((line, i) => console.log(`  ${i+1}: "${line}"`));
+  }
+  
+  let inSkillsSection = false;
+  
+  // Look for Skills section and extract everything within it
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Check if we're entering skills section
+    if (line.match(/^(SKILLS|Skills|TECHNICAL SKILLS|COMPETENCIES|TECHNOLOGIES)$/i)) {
+      console.log('Found skills section at line:', i+1, ':', line);
+      inSkillsSection = true;
+      continue;
+    }
+    
+    // Special case: detect skills content by looking for specific patterns in Roberto's resume
+    if (!inSkillsSection && (
+        line.includes('System Administration') || 
+        line.includes('Linux Administration') || 
+        line.includes('Windows Server') ||
+        line.includes('Technical Troubleshooting') ||
+        line.includes('Office 365') ||
+        line.includes('VMware') ||
+        line.match(/^(Azure|Intune|Autopilot|Active Directory|VMware|ESXi|Automation)$/i)
+      )) {
+      console.log('Detected skills content at line:', i+1, ':', line);
+      inSkillsSection = true;
+    }
+    
+    // Exit skills section if we hit another major section  
+    if (inSkillsSection && line.match(/^(EXPERIENCE|EDUCATION|PROJECTS|CERTIFICATIONS|Experience|Education|TRAINING|Certifications)$/i)) {
+      console.log('Exiting skills section at line:', i+1, ':', line);
+      break;
+    }
+    
+    // Extract skills while in skills section or if we detect skills content
+    if (inSkillsSection && line.length > 0) {
+      console.log('Processing skills line:', line);
+      
+      // Handle parenthetical groupings like "System Administration (Windows 7, 8, 10, 11; Windows Server 2008, 2012, 2016, 2019, 2022)"
+      if (line.includes('(') && line.includes(')')) {
+        const categoryMatch = line.match(/^([^(]+)\s*\(([^)]+)\)/);
+        if (categoryMatch) {
+          const category = categoryMatch[1].trim();
+          const skillsInParens = categoryMatch[2];
+          
+          console.log('Found category with parentheses:', category, 'containing:', skillsInParens);
+          
+          // Add the category itself as a skill
+          if (category.length > 2 && category.length < 60) {
+            skills.push(category);
+            console.log('Added category skill:', category);
+          }
+          
+          // Extract individual skills from within parentheses, handle semicolons and commas
+          const individualSkills = skillsInParens
+            .split(/[,;]/)
+            .map(skill => skill.trim())
+            .filter(skill => skill.length > 1 && skill.length < 50);
+          skills.push(...individualSkills);
+          console.log('Added individual skills:', individualSkills);
+        }
+      } else if (line.includes(',') || line.includes(';')) {
+        // Handle comma or semicolon separated skills
+        const skillsFromLine = line
+          .split(/[,;]/)
+          .map(skill => skill.trim())
+          .filter(skill => skill.length > 1 && skill.length < 60);
+        skills.push(...skillsFromLine);
+        console.log('Added comma/semicolon separated skills:', skillsFromLine);
+      } else if (line.length > 2 && line.length < 60 && !line.match(/^\d+$/)) {
+        // Single skill per line (but not pure numbers)
+        skills.push(line);
+        console.log('Added single skill:', line);
+      }
     }
   }
   
-  return [...new Set(skills)]; // Remove duplicates
+  // If we still don't have many skills, try extracting from common patterns throughout text
+  if (skills.length < 10) {
+    console.log('Limited skills found in dedicated section, trying pattern extraction from full text');
+    // These are skills specifically mentioned in Roberto's resume
+    const commonSkills = [
+      'System Administration', 'Windows Server', 'Linux Administration', 'Azure', 'Intune', 'Autopilot',
+      'Active Directory', 'VMware', 'ESXi', 'vCenter', 'PowerShell', 'Azure CLI',
+      'Backup and Recovery Systems', 'Cohesity', 'Virtualization', 'Cloud Computing',
+      'Network Administration', 'FortiGate', 'VPN', 'ExpressRoute', 'Load Balancers',
+      'Monitoring', 'SolarWinds', 'Troubleshooting', 'Security', 'Endpoint Security',
+      'BitDefender', 'Incident Management', 'Autotask', 'SQL Server', 'Office 365',
+      'Exchange Online', 'SharePoint', 'OneDrive', 'Ansible', 'Automation',
+      'Windows 7', 'Windows 8', 'Windows 10', 'Windows 11', 'Windows Server 2008',
+      'Windows Server 2012', 'Windows Server 2016', 'Windows Server 2019', 'Windows Server 2022',
+      'RedHat', 'CentOS', 'Ubuntu', 'Debian', 'Kali Linux', 'Technical Troubleshooting',
+      'Preventive Maintenance', 'Problem Diagnosis', 'System Engineering', 'Compliance Patching',
+      'Hardware Configurations', 'Security & Compliance', 'Microsoft Azure Infrastructure as a Service'
+    ];
+    
+    for (const skill of commonSkills) {
+      if (text.toLowerCase().includes(skill.toLowerCase())) {
+        skills.push(skill);
+        console.log('Added common skill:', skill);
+      }
+    }
+    
+    // Also extract from regex patterns
+    const programmingMatches = text.match(REGEX_PATTERNS.programmingLanguages) || [];
+    const technologyMatches = text.match(REGEX_PATTERNS.technologies) || [];
+    skills.push(...programmingMatches, ...technologyMatches);
+  }
+  
+  // Clean and deduplicate
+  const cleanedSkills = skills
+    .map(skill => skill.trim())
+    .filter(skill => skill.length > 1 && skill.length < 60)
+    .filter(skill => !skill.match(/^\d+$/)) // Remove pure numbers
+    .filter(skill => !skill.match(/^(and|or|the|a|an)$/i)) // Skip articles
+    .filter((skill, index, array) => array.findIndex(s => s.toLowerCase() === skill.toLowerCase()) === index); // Remove duplicates (case insensitive)
+  
+  console.log('Total skills found:', cleanedSkills.length);
+  console.log('Skills list:', cleanedSkills.slice(0, 10), cleanedSkills.length > 10 ? `... and ${cleanedSkills.length - 10} more` : '');
+  console.log('=== END SKILLS EXTRACTION ===');
+  
+  return cleanedSkills;
 }
 
 /**

@@ -37,8 +37,15 @@ export function LivePreview({
   const { currentResume, selectedTemplate, isDirty } = useResumeStore();
   const [scale, setScale] = React.useState(initialScale);
   const [isVisible, setIsVisible] = React.useState(true);
-  const [lastUpdate, setLastUpdate] = React.useState<Date>(new Date());
+  const [lastUpdate, setLastUpdate] = React.useState<Date | null>(null);
+  const [isHydrated, setIsHydrated] = React.useState(false);
   const previewRef = React.useRef<HTMLDivElement>(null);
+
+  // Initialize date only on client to prevent hydration mismatch
+  React.useEffect(() => {
+    setLastUpdate(new Date());
+    setIsHydrated(true);
+  }, []);
 
   // Track resume changes for real-time updates
   React.useEffect(() => {
@@ -203,7 +210,7 @@ export function LivePreview({
             <span>Scale: {Math.round(scale * 100)}%</span>
           </div>
           <div>
-            Last updated: {lastUpdate.toLocaleTimeString()}
+            Last updated: {isHydrated && lastUpdate ? lastUpdate.toLocaleTimeString() : '--:--:--'}
           </div>
         </div>
       </div>

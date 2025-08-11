@@ -109,19 +109,35 @@ export const LaunchCelebration: React.FC<LaunchCelebrationProps> = ({
       {/* Confetti Effect */}
       {showConfetti && (
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-3 h-3 rounded-full animate-bounce"
-              style={{
-                backgroundColor: ['#2563eb', '#f97316', '#10b981', '#f59e0b', '#8b5cf6'][i % 5],
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${1.5 + Math.random() * 2}s`,
-              }}
-            />
-          ))}
+          {[...Array(20)].map((_, i) => {
+            // Use predictable values based on index to prevent hydration issues
+            const positions = [
+              { left: 12, top: 18 }, { left: 78, top: 22 }, { left: 42, top: 85 },
+              { left: 67, top: 38 }, { left: 28, top: 62 }, { left: 88, top: 72 },
+              { left: 18, top: 42 }, { left: 58, top: 12 }, { left: 38, top: 88 },
+              { left: 82, top: 52 }, { left: 8, top: 78 }, { left: 92, top: 28 },
+              { left: 52, top: 35 }, { left: 22, top: 92 }, { left: 72, top: 8 },
+              { left: 45, top: 68 }, { left: 68, top: 32 }, { left: 32, top: 55 },
+              { left: 88, top: 82 }, { left: 58, top: 98 }
+            ];
+            const pos = positions[i] || { left: 50, top: 50 };
+            const delay = (i * 0.1) % 2;
+            const duration = 1.5 + (i % 3) * 0.5;
+            
+            return (
+              <div
+                key={i}
+                className="absolute w-3 h-3 rounded-full animate-bounce"
+                style={{
+                  backgroundColor: ['#2563eb', '#f97316', '#10b981', '#f59e0b', '#8b5cf6'][i % 5],
+                  left: `${pos.left}%`,
+                  top: `${pos.top}%`,
+                  animationDelay: `${delay}s`,
+                  animationDuration: `${duration}s`,
+                }}
+              />
+            );
+          })}
         </div>
       )}
 

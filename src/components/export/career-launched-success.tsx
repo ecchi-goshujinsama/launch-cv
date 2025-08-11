@@ -88,20 +88,36 @@ export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
         <>
           {/* Animated background particles */}
           <div className="absolute inset-0 pointer-events-none">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute animate-bounce"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${2 + Math.random() * 2}s`,
-                }}
-              >
-                <Sparkles className="w-4 h-4 text-yellow-400 opacity-70" />
-              </div>
-            ))}
+            {[...Array(20)].map((_, i) => {
+              // Use predictable values based on index to prevent hydration issues
+              const positions = [
+                { left: 10, top: 20 }, { left: 85, top: 15 }, { left: 45, top: 80 },
+                { left: 70, top: 35 }, { left: 25, top: 60 }, { left: 90, top: 70 },
+                { left: 15, top: 45 }, { left: 60, top: 10 }, { left: 35, top: 85 },
+                { left: 80, top: 55 }, { left: 5, top: 75 }, { left: 95, top: 25 },
+                { left: 50, top: 40 }, { left: 20, top: 90 }, { left: 75, top: 5 },
+                { left: 40, top: 65 }, { left: 65, top: 30 }, { left: 30, top: 50 },
+                { left: 85, top: 85 }, { left: 55, top: 95 }
+              ];
+              const pos = positions[i] || { left: 50, top: 50 };
+              const delay = (i * 0.1) % 2;
+              const duration = 2 + (i % 3) * 0.5;
+              
+              return (
+                <div
+                  key={i}
+                  className="absolute animate-bounce"
+                  style={{
+                    left: `${pos.left}%`,
+                    top: `${pos.top}%`,
+                    animationDelay: `${delay}s`,
+                    animationDuration: `${duration}s`,
+                  }}
+                >
+                  <Sparkles className="w-4 h-4 text-yellow-400 opacity-70" />
+                </div>
+              );
+            })}
           </div>
           
           {/* Success glow effect */}

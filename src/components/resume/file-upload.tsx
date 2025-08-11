@@ -57,13 +57,16 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
       setUploadProgress(0);
 
       // Simulate upload progress for better UX
+      let progressIncrement = 15;
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
           }
-          return prev + Math.random() * 20;
+          // Use predictable increments instead of Math.random()
+          progressIncrement = progressIncrement === 15 ? 10 : progressIncrement === 10 ? 20 : 15;
+          return Math.min(prev + progressIncrement, 90);
         });
       }, 100);
 

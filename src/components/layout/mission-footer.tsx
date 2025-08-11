@@ -19,7 +19,12 @@ export function MissionFooter({
   version = '1.0.0',
   className
 }: MissionFooterProps) {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = React.useState<number | null>(null);
+  
+  // Set current year only on client to prevent hydration mismatch
+  React.useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   return (
     <footer className={cn(
@@ -97,7 +102,7 @@ export function MissionFooter({
             {showVersion && (
               <div className="space-y-2 text-sm text-slate-400">
                 <div>Version {version}</div>
-                <div>© {currentYear} LaunchCV</div>
+                <div>© {currentYear || '2024'} LaunchCV</div>
               </div>
             )}
           </div>

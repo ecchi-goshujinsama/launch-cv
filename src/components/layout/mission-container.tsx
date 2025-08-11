@@ -39,7 +39,7 @@ export function MissionContainer({
   };
 
   const backgroundClasses = {
-    default: 'bg-white',
+    default: 'bg-slate-800',
     'mission-control': 'mission-control-panel',
     'launch-pad': 'bg-gradient-to-br from-launch-blue-50 to-rocket-orange-50',
     transparent: 'bg-transparent'
@@ -104,7 +104,7 @@ export function MissionSection({
             )}
           </div>
           {subtitle && (
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-slate-400 leading-relaxed">
               {subtitle}
             </p>
           )}
@@ -143,9 +143,9 @@ export function MissionCard({
   hover = false
 }: MissionCardProps) {
   const variantClasses = {
-    default: 'bg-white border border-gray-200 rounded-lg p-6',
-    elevated: 'bg-white shadow-lg rounded-lg p-6 border border-gray-100',
-    bordered: 'bg-white border-2 border-launch-blue-200 rounded-lg p-6',
+    default: 'bg-slate-800 border border-slate-700 rounded-lg p-6',
+    elevated: 'bg-slate-800 shadow-lg rounded-lg p-6 border border-slate-700',
+    bordered: 'bg-slate-800 border-2 border-launch-blue-200 rounded-lg p-6',
     mission: 'mission-control-panel'
   };
 
@@ -168,13 +168,13 @@ export function MissionCard({
               </div>
             )}
             {title && (
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-slate-100">
                 {title}
               </h3>
             )}
           </div>
           {subtitle && (
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-400">
               {subtitle}
             </p>
           )}

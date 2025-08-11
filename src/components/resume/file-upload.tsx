@@ -200,13 +200,13 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                   <h3 className="text-lg font-semibold mission-text">
                     Pre-flight Data Processing...
                   </h3>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-slate-700 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-launch-blue to-rocket-orange h-2 rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-400">
                     Mission Control is analyzing your resume data...
                   </p>
                 </div>
@@ -245,13 +245,13 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                   <h3 className="text-lg font-semibold mission-text mb-2">
                     {isDragOver ? 'Release to Start Mission!' : 'Pre-flight Data Import'}
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-slate-400 mb-4">
                     Drag & drop your resume or{' '}
                     <span className="accent-text font-medium cursor-pointer">
                       click to browse
                     </span>
                   </p>
-                  <div className="text-sm text-gray-500 space-y-1">
+                  <div className="text-sm text-slate-400 space-y-1">
                     <div>Supported formats: {accept.map(ext => ext.toUpperCase()).join(', ')}</div>
                     <div>Maximum size: {maxSize}MB</div>
                   </div>
@@ -277,8 +277,8 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                   {getFileIcon()}
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">{currentFile.name}</h4>
-                  <p className="text-sm text-gray-600">{formatFileSize(currentFile.size)}</p>
+                  <h4 className="font-medium text-slate-100">{currentFile.name}</h4>
+                  <p className="text-sm text-slate-400">{formatFileSize(currentFile.size)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -290,14 +290,14 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
                   variant="ghost"
                   size="icon"
                   onClick={handleRemoveFile}
-                  className="text-gray-500 hover:text-red-500"
+                  className="text-slate-400 hover:text-red-500"
                 >
                   <X className="w-4 h-4" />
                 </LaunchButton>
               </div>
             </div>
             
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-slate-400">
               File successfully imported and ready for mission control processing.
             </div>
           </div>

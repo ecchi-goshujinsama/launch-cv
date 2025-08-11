@@ -95,7 +95,7 @@ export default function BuilderPage() {
     if (!currentResume) {
       return (
         <div className="p-8 text-center">
-          <p className="text-gray-600">Loading resume data...</p>
+          <p className="text-slate-400">Loading resume data...</p>
         </div>
       );
     }
@@ -103,11 +103,11 @@ export default function BuilderPage() {
     return (
       <div className="space-y-6 p-6" {...(isMobile ? touchProps : {})}>
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Resume Builder - Mission Control</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl font-semibold text-slate-100 mb-2">Resume Builder - Mission Control</h2>
+          <p className="text-slate-400">
             Live Preview System Active
             {isMobile && isTouchDevice && (
-              <span className="block text-xs text-gray-500 mt-1">👈 Swipe to navigate sections</span>
+              <span className="block text-xs text-slate-400 mt-1">👈 Swipe to navigate sections</span>
             )}
           </p>
         </div>
@@ -118,13 +118,13 @@ export default function BuilderPage() {
             <div className="flex items-center gap-3">
               {/* Search functionality */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Search sections... (Ctrl+F)"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-launch-blue-200 focus:border-launch-blue"
+                  className="pl-10 pr-4 py-2 text-sm border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-launch-blue-200 focus:border-launch-blue bg-slate-800 text-slate-100 placeholder-slate-400"
                   style={{ width: showSearch ? '200px' : '160px' }}
                 />
               </div>
@@ -170,7 +170,7 @@ export default function BuilderPage() {
             </div>
           </div>
           
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg flex-wrap">
+          <div className="flex gap-2 p-1 bg-slate-700 rounded-lg flex-wrap">
             {sections
               .filter(section => 
                 searchTerm === '' || 
@@ -187,8 +187,8 @@ export default function BuilderPage() {
                       "px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 capitalize relative",
                       "touch-target",
                       isActive 
-                        ? 'bg-white text-launch-blue shadow-sm scale-105'
-                        : 'text-gray-600 hover:text-gray-800',
+                        ? 'bg-slate-600 text-launch-blue shadow-sm scale-105'
+                        : 'text-slate-400 hover:text-slate-100',
                       isMobile && 'min-w-[80px] text-center'
                     )}
                   >
@@ -196,19 +196,19 @@ export default function BuilderPage() {
                     {/* Mobile swipe indicators */}
                     {isMobile && isTouchDevice && isActive && (
                       <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex items-center gap-2">
-                        {canSwipePrevious && <span className="text-xs text-gray-400">←</span>}
+                        {canSwipePrevious && <span className="text-xs text-slate-400">←</span>}
                         <div className="flex gap-1">
                           {sections.map((_, dotIndex) => (
                             <div 
                               key={dotIndex}
                               className={cn(
                                 "w-1.5 h-1.5 rounded-full transition-colors",
-                                dotIndex === activeIndex ? 'bg-launch-blue' : 'bg-gray-300'
+                                dotIndex === activeIndex ? 'bg-launch-blue' : 'bg-slate-600'
                               )}
                             />
                           ))}
                         </div>
-                        {canSwipeNext && <span className="text-xs text-gray-400">→</span>}
+                        {canSwipeNext && <span className="text-xs text-slate-400">→</span>}
                       </div>
                     )}
                   </button>
@@ -255,8 +255,10 @@ export default function BuilderPage() {
           {activeSection === 'skills' && (
             <SkillsForm
               initialData={
+                // Extract skills from SkillsItem objects
                 (currentResume.sections
-                  .find(s => s.type === 'skills')?.items || []) as any[]
+                  .find(s => s.type === 'skills')?.items || [])
+                  .flatMap((item: any) => item.skills || [])
               }
               onSave={() => {
                 // The SkillsForm should handle saving via store

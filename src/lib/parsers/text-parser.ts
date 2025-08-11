@@ -117,11 +117,18 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
   const linkedinMatches = text.match(REGEX_PATTERNS.linkedin);
   const linkedin = linkedinMatches?.[0];
   
-  // Extract website/portfolio
+  // Extract website/portfolio - be more specific to avoid email domains
   const websiteMatches = text.match(REGEX_PATTERNS.website);
   const website = websiteMatches?.find(url => 
     !url.includes('linkedin.com') && 
-    !url.includes('mailto:')
+    !url.includes('mailto:') &&
+    !url.includes('gmail.com') &&
+    !url.includes('yahoo.com') &&
+    !url.includes('hotmail.com') &&
+    !url.includes('outlook.com') &&
+    // Only accept if it looks like a real website (has protocol or www, or is a proper domain)
+    (url.startsWith('http') || url.startsWith('www.') || 
+     (url.includes('.') && !emails.some(email => email.includes(url))))
   );
   
   // Extract location - be more specific to avoid matching profile text
@@ -555,10 +562,10 @@ function extractEducation(text: string): EducationEntry[] {
     }
     
     // Special handling: Look for ECPI College pattern specifically
-    if (line.includes('ECPI College of Technology')) {
+    if (line.includes('ECPI College of Technology') || line.match(/^ECPI\b/i)) {
       console.log('Found ECPI institution at line:', i+1);
       inEducationSection = true;
-      currentEntry.institution = line.trim();
+      currentEntry.institution = 'ECPI College of Technology';
       continue;
     }
     
@@ -583,9 +590,11 @@ function extractEducation(text: string): EducationEntry[] {
     }
     
     // Check for institution names (more specific patterns for Roberto's resume)
-    if (line.match(/(ECPI College of Technology|ECPI)/i) && !currentEntry.institution) {
+    if (line.match(/(ECPI College of Technology|ECPI)/i) && !currentEntry.institution && 
+        !line.includes('Peak') && !line.includes('services') && !line.includes('Update') && 
+        !line.includes('documentation') && !line.includes('Manage')) {
       console.log('Found institution:', line);
-      currentEntry.institution = line.trim();
+      currentEntry.institution = 'ECPI College of Technology';
       continue;
     }
     

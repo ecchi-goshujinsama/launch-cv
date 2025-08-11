@@ -117,17 +117,17 @@ export function BuilderLayout({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Layout Controls */}
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 bg-slate-800 border-b border-slate-600">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold mission-text">Mission Control</h2>
-          <div className="hidden md:flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+          <div className="hidden md:flex items-center gap-1 p-1 bg-slate-700 rounded-lg">
             <button
               onClick={() => handleLayoutChange('form')}
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors",
                 layoutMode === 'form' 
-                  ? "bg-white text-launch-blue shadow-sm" 
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-slate-600 text-launch-blue shadow-sm" 
+                  : "text-slate-300 hover:text-slate-100"
               )}
             >
               <Edit3 className="w-4 h-4" />
@@ -138,8 +138,8 @@ export function BuilderLayout({
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors",
                 layoutMode === 'split' 
-                  ? "bg-white text-launch-blue shadow-sm" 
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-slate-600 text-launch-blue shadow-sm" 
+                  : "text-slate-300 hover:text-slate-100"
               )}
             >
               <PanelLeft className="w-4 h-4" />
@@ -150,8 +150,8 @@ export function BuilderLayout({
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors",
                 layoutMode === 'preview' 
-                  ? "bg-white text-launch-blue shadow-sm" 
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-slate-600 text-launch-blue shadow-sm" 
+                  : "text-slate-300 hover:text-slate-100"
               )}
             >
               <Eye className="w-4 h-4" />
@@ -163,7 +163,7 @@ export function BuilderLayout({
         <div className="flex items-center gap-3">
           {/* Preview Mode Controls */}
           {(layoutMode === 'preview' || layoutMode === 'split') && (
-            <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+            <div className="flex items-center gap-1 p-1 bg-slate-700 rounded-lg">
               {(['desktop', 'tablet', 'mobile'] as PreviewMode[]).map((mode) => (
                 <button
                   key={mode}
@@ -171,8 +171,8 @@ export function BuilderLayout({
                   className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
                     previewMode === mode 
-                      ? "bg-white text-launch-blue shadow-sm" 
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "bg-slate-600 text-launch-blue shadow-sm" 
+                      : "text-slate-300 hover:text-slate-100"
                   )}
                   title={`${mode.charAt(0).toUpperCase() + mode.slice(1)} view`}
                 >
@@ -212,7 +212,7 @@ export function BuilderLayout({
           {layoutMode === 'split' && !isMobile && (
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-2 text-gray-600 hover:text-gray-800 rounded-md hover:bg-gray-100"
+              className="p-2 text-slate-300 hover:text-slate-100 rounded-md hover:bg-slate-700"
               title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {sidebarCollapsed ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
@@ -230,13 +230,13 @@ export function BuilderLayout({
           layoutMode === 'split' ? (
             sidebarCollapsed ? 'w-12' : 'w-full md:w-1/2 lg:w-2/5'
           ) : 'w-full',
-          "border-r border-gray-200"
+          "border-r border-slate-600"
         )}>
           {sidebarCollapsed ? (
             <div className="flex flex-col items-center py-4">
               <button
                 onClick={() => setSidebarCollapsed(false)}
-                className="p-2 text-gray-600 hover:text-gray-800 rounded-md hover:bg-gray-100"
+                className="p-2 text-slate-300 hover:text-slate-100 rounded-md hover:bg-slate-700"
                 title="Expand form panel"
               >
                 <PanelRight className="w-5 h-5" />
@@ -258,12 +258,12 @@ export function BuilderLayout({
           layoutMode === 'split' ? (
             sidebarCollapsed ? 'w-full' : 'w-full md:w-1/2 lg:w-3/5'
           ) : 'w-full',
-          "bg-gray-50"
+          "bg-slate-800"
         )}>
-          <div className="flex-1 overflow-auto p-4">
+          <div className="flex-1 overflow-auto p-4 bg-slate-900">
             <div className="h-full flex items-start justify-center">
               <div className={getPreviewStyles()}>
-                <div className="h-full min-h-[600px]">
+                <div className="h-full min-h-[600px] bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                   {previewSection}
                 </div>
               </div>
@@ -271,18 +271,18 @@ export function BuilderLayout({
           </div>
 
           {/* Preview Footer */}
-          <div className="p-4 bg-white border-t border-gray-200">
-            <div className="flex items-center justify-center text-sm text-gray-600">
+          <div className="p-4 bg-slate-800 border-t border-slate-600">
+            <div className="flex items-center justify-center text-sm text-slate-300">
               <span>Preview Mode: </span>
-              <span className="ml-2 font-medium capitalize">{previewMode}</span>
+              <span className="ml-2 font-medium capitalize text-slate-100">{previewMode}</span>
               {previewMode === 'mobile' && (
-                <span className="ml-2 text-xs text-gray-500">(375px)</span>
+                <span className="ml-2 text-xs text-slate-400">(375px)</span>
               )}
               {previewMode === 'tablet' && (
-                <span className="ml-2 text-xs text-gray-500">(768px)</span>
+                <span className="ml-2 text-xs text-slate-400">(768px)</span>
               )}
               {previewMode === 'desktop' && (
-                <span className="ml-2 text-xs text-gray-500">(1024px+)</span>
+                <span className="ml-2 text-xs text-slate-400">(1024px+)</span>
               )}
             </div>
           </div>

@@ -123,7 +123,7 @@ export function PersonalInfoForm({
     
     return (
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-200">
           {icon}
           {label}
           {required && <span className="text-red-500">*</span>}
@@ -135,10 +135,12 @@ export function PersonalInfoForm({
           placeholder={placeholder}
           className={cn(
             "w-full px-3 py-2 border rounded-md text-sm transition-colors",
+            "text-slate-100 bg-slate-800 placeholder-slate-400 border-slate-600",
             "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-launch-blue-200",
+            "hover:border-slate-500 focus:border-launch-blue focus:bg-slate-700",
             error
-              ? "border-red-300 bg-red-50"
-              : "border-gray-300 hover:border-gray-400 focus:border-launch-blue"
+              ? "border-red-400 bg-red-900/20"
+              : ""
           )}
         />
         {error && (
@@ -155,13 +157,13 @@ export function PersonalInfoForm({
     <MissionCard variant="elevated" className={cn('', className)}>
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
         {/* Section Header */}
-        <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
+        <div className="flex items-center gap-3 pb-4 border-b border-slate-700">
           <div className="w-10 h-10 bg-launch-blue/10 rounded-lg flex items-center justify-center">
             <User className="w-5 h-5 text-launch-blue" />
           </div>
           <div>
             <h3 className="text-lg font-semibold mission-text">Personal Information</h3>
-            <p className="text-sm text-gray-600">Your basic contact information and professional summary</p>
+            <p className="text-sm text-slate-400">Your basic contact information and professional summary</p>
           </div>
         </div>
 
@@ -225,7 +227,7 @@ export function PersonalInfoForm({
 
         {/* Professional Summary */}
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-200">
             <FileText className="w-4 h-4" />
             Professional Summary
             <FieldTooltip content="A compelling 2-3 sentence overview of your professional background, key skills, and career objectives. This is your elevator pitch to employers." />
@@ -236,10 +238,12 @@ export function PersonalInfoForm({
             placeholder="Write a compelling professional summary that highlights your key achievements, skills, and career objectives. This is your elevator pitch to potential employers..."
             className={cn(
               "w-full px-3 py-2 border rounded-md text-sm transition-colors resize-y",
+              "text-slate-100 bg-slate-800 placeholder-slate-400 border-slate-600",
               "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-launch-blue-200",
+              "hover:border-slate-500 focus:border-launch-blue focus:bg-slate-700",
               errors.summary
-                ? "border-red-300 bg-red-50"
-                : "border-gray-300 hover:border-gray-400 focus:border-launch-blue"
+                ? "border-red-400 bg-red-900/20"
+                : ""
             )}
           />
           {errors.summary && (
@@ -248,14 +252,14 @@ export function PersonalInfoForm({
               {errors.summary.message}
             </p>
           )}
-          <div className="flex justify-between text-xs text-gray-500">
+          <div className="flex justify-between text-xs text-slate-400">
             <span>💡 Tip: Keep it concise but impactful (2-3 sentences)</span>
             <span>{watchedData.summary?.length || 0}/500</span>
           </div>
         </div>
 
         {/* Enhanced Progress and Undo/Redo Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-700">
           <div className="flex items-center gap-4">
             {autoSave ? (
               <ProgressIndicator 

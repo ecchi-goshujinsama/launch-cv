@@ -138,7 +138,7 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
                 <h2 className="text-2xl font-bold mission-text mb-2">
                   Pre-flight Data Import
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-slate-400">
                   Import your existing resume or start your mission from scratch
                 </p>
               </div>
@@ -193,7 +193,7 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
                 <h3 className="text-xl font-semibold mission-text">
                   Mission Control Processing...
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-slate-400">
                   Analyzing your resume data for launch readiness
                 </p>
                 <div className="flex justify-center space-x-1">
@@ -253,7 +253,7 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
                 <h3 className="text-2xl font-bold text-green-700">
                   Mission Data Ready! 🚀
                 </h3>
-                <p className="text-gray-600 max-w-md mx-auto">
+                <p className="text-slate-400 max-w-md mx-auto">
                   Your resume data has been successfully imported and is ready for Mission Control. 
                   Prepare for launch sequence!
                 </p>
@@ -296,18 +296,18 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
         {currentStep !== 'complete' && (
           <MissionCard variant="bordered" className="mb-6">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Import Progress</span>
+              <span className="text-sm font-medium text-slate-200">Import Progress</span>
               <div className="flex items-center gap-2">
                 {['upload', 'parsing', 'review'].map((step, index) => (
                   <React.Fragment key={step}>
                     <div className={cn(
                       "w-3 h-3 rounded-full transition-colors",
                       currentStep === step ? "bg-launch-blue animate-pulse" :
-                      ['upload', 'parsing', 'review'].indexOf(currentStep) > index ? "bg-green-500" : "bg-gray-300"
+                      ['upload', 'parsing', 'review'].indexOf(currentStep) > index ? "bg-green-500" : "bg-slate-600"
                     )} />
                     {index < 2 && <div className={cn(
                       "w-8 h-0.5 transition-colors",
-                      ['upload', 'parsing', 'review'].indexOf(currentStep) > index ? "bg-green-500" : "bg-gray-300"
+                      ['upload', 'parsing', 'review'].indexOf(currentStep) > index ? "bg-green-500" : "bg-slate-600"
                     )} />}
                   </React.Fragment>
                 ))}

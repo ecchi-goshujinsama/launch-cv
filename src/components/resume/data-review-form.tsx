@@ -250,7 +250,7 @@ export function DataReviewForm({
     const error = getFieldError(name);
     return (
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-slate-200">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -260,9 +260,11 @@ export function DataReviewForm({
           placeholder={placeholder}
           className={cn(
             "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-offset-1",
+            "text-slate-100 bg-slate-800 placeholder-slate-400 border-slate-600",
+            "hover:border-slate-500 focus:border-launch-blue focus:bg-slate-700",
             error 
-              ? "border-red-300 focus:ring-red-200" 
-              : "border-gray-300 focus:ring-launch-blue-200"
+              ? "border-red-400 bg-red-900/20 focus:ring-red-200" 
+              : "focus:ring-launch-blue-200"
           )}
         />
         {error && (
@@ -279,16 +281,18 @@ export function DataReviewForm({
     const error = getFieldError(name);
     return (
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
+        <label className="block text-sm font-medium text-slate-200">{label}</label>
         <textarea
           {...register(name as any)}
           rows={rows}
           placeholder={placeholder}
           className={cn(
             "w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-offset-1 resize-y",
+            "text-slate-100 bg-slate-800 placeholder-slate-400 border-slate-600",
+            "hover:border-slate-500 focus:border-launch-blue focus:bg-slate-700",
             error 
-              ? "border-red-300 focus:ring-red-200" 
-              : "border-gray-300 focus:ring-launch-blue-200"
+              ? "border-red-400 bg-red-900/20 focus:ring-red-200" 
+              : "focus:ring-launch-blue-200"
           )}
         />
         {error && (

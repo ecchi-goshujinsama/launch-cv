@@ -1,0 +1,36 @@
+John Smith
+john.smith@email.com
+(555) 123-4567
+New York, NY
+
+PROFESSIONAL SUMMARY
+Experienced software engineer with 5+ years of experience in web development and system architecture.
+
+WORK EXPERIENCE
+
+Senior Software Engineer
+ABC Technology Company
+January 2020 - Present
+• Led development of web applications using React and Node.js
+• Implemented CI/CD pipelines reducing deployment time by 50%
+• Mentored junior developers and conducted code reviews
+
+Software Developer
+XYZ Solutions Inc.
+June 2018 - December 2019
+• Developed REST APIs using Python and Django
+• Collaborated with cross-functional teams on product features
+• Improved database performance by 30%
+
+EDUCATION
+
+Bachelor of Science in Computer Science
+University of California, Berkeley
+2014 - 2018
+
+SKILLS
+
+Programming Languages: JavaScript, Python, TypeScript, Java
+Frameworks: React, Node.js, Django, Express
+Databases: PostgreSQL, MongoDB, Redis
+Tools: Git, Docker, AWS, Jenkins

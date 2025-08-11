@@ -302,7 +302,7 @@ export function PreFlightCheck({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold mission-text">Mission Status</h3>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-slate-300">
                 Confidence: {Math.round(parsedData.confidence * 100)}%
               </div>
             </div>
@@ -310,37 +310,37 @@ export function PreFlightCheck({
             <div className="grid md:grid-cols-3 gap-4">
               <div className={cn(
                 "p-3 rounded-lg border",
-                errorCount > 0 ? "bg-red-50 border-red-200" : "bg-green-50 border-green-200"
+                errorCount > 0 ? "bg-red-900/20 border-red-500/30 text-red-200" : "bg-green-900/20 border-green-500/30 text-green-200"
               )}>
                 <div className="flex items-center gap-2">
                   {errorCount > 0 ? (
-                    <AlertCircle className="w-5 h-5 text-red-500" />
+                    <AlertCircle className="w-5 h-5 text-red-400" />
                   ) : (
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <CheckCircle2 className="w-5 h-5 text-green-400" />
                   )}
-                  <span className="font-medium">
+                  <span className="font-medium text-slate-100">
                     {errorCount > 0 ? `${errorCount} Errors` : 'All Clear'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   {errorCount > 0 ? 'Must fix before launch' : 'Ready for launch'}
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg border bg-amber-50 border-amber-200">
+              <div className="p-3 rounded-lg border bg-amber-900/20 border-amber-500/30 text-amber-200">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
-                  <span className="font-medium">{warningCount} Warnings</span>
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  <span className="font-medium text-slate-100">{warningCount} Warnings</span>
                 </div>
-                <p className="text-xs text-gray-600 mt-1">Recommended fixes</p>
+                <p className="text-xs text-slate-400 mt-1">Recommended fixes</p>
               </div>
 
-              <div className="p-3 rounded-lg border bg-blue-50 border-blue-200">
+              <div className="p-3 rounded-lg border bg-blue-900/20 border-blue-500/30 text-blue-200">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-blue-500" />
-                  <span className="font-medium">{infoCount} Suggestions</span>
+                  <CheckCircle2 className="w-5 h-5 text-blue-400" />
+                  <span className="font-medium text-slate-100">{infoCount} Suggestions</span>
                 </div>
-                <p className="text-xs text-gray-600 mt-1">Optional improvements</p>
+                <p className="text-xs text-slate-400 mt-1">Optional improvements</p>
               </div>
             </div>
 
@@ -397,22 +397,22 @@ export function PreFlightCheck({
             <h3 className="font-semibold mission-text">Extracted Resume Sections</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Work Experience</h4>
+                <h4 className="font-medium text-slate-100 mb-2">Work Experience</h4>
                 {editedData.sections.experience && editedData.sections.experience.length > 0 ? (
                   <div className="space-y-2">
                     {editedData.sections.experience.slice(0, 3).map((exp, index) => (
-                      <div key={index} className="text-sm p-2 bg-gray-50 rounded">
-                        <div className="font-medium">{exp.title || 'Untitled Position'}</div>
-                        <div className="text-gray-600">{exp.company || 'Company not specified'}</div>
+                      <div key={index} className="text-sm p-2 bg-slate-800/50 border border-slate-600 rounded">
+                        <div className="font-medium text-slate-100">{exp.title || 'Untitled Position'}</div>
+                        <div className="text-slate-300">{exp.company || 'Company not specified'}</div>
                         {exp.startDate && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-slate-400">
                             {exp.startDate} - {exp.current ? 'Present' : exp.endDate || 'End date not specified'}
                           </div>
                         )}
                       </div>
                     ))}
                     {editedData.sections.experience.length > 3 && (
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-slate-400">
                         +{editedData.sections.experience.length - 3} more entries
                       </div>
                     )}
@@ -423,24 +423,24 @@ export function PreFlightCheck({
               </div>
 
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Skills & Other Sections</h4>
-                <div className="space-y-2 text-sm">
+                <h4 className="font-medium text-slate-100 mb-2">Skills & Other Sections</h4>
+                <div className="space-y-2 text-sm text-slate-300">
                   <div>
-                    <span className="font-medium">Skills:</span> {' '}
+                    <span className="font-medium text-slate-100">Skills:</span> {' '}
                     {editedData.sections.skills && editedData.sections.skills.length > 0
                       ? `${editedData.sections.skills.length} skills identified`
                       : 'No skills found'
                     }
                   </div>
                   <div>
-                    <span className="font-medium">Education:</span> {' '}
+                    <span className="font-medium text-slate-100">Education:</span> {' '}
                     {editedData.sections.education && editedData.sections.education.length > 0
                       ? `${editedData.sections.education.length} education entries`
                       : 'No education found'
                     }
                   </div>
                   <div>
-                    <span className="font-medium">Projects:</span> {' '}
+                    <span className="font-medium text-slate-100">Projects:</span> {' '}
                     {editedData.sections.projects && editedData.sections.projects.length > 0
                       ? `${editedData.sections.projects.length} projects found`
                       : 'No projects found'

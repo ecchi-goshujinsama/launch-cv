@@ -1,25 +1,29 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { MissionHeader, MissionFooter } from '@/components/layout';
-import { MissionPrep } from '@/components/resume';
+import { ImportFlow } from '@/components/import/import-flow';
+import { useResumeStore } from '@/lib/stores/resume-store';
 
 export default function ImportPage() {
-  const handleFileProcessed = (file: File) => {
-    console.log('File processed:', file.name);
+  const router = useRouter();
+  const { createResume } = useResumeStore();
+
+  const handleImportComplete = (resumeId: string) => {
+    console.log('Import completed, resume ID:', resumeId);
+    router.push('/builder');
   };
 
   const handleManualEntry = () => {
     console.log('Manual entry selected');
-    // TODO: Navigate to manual entry flow
-  };
-
-  const handleContinue = () => {
-    console.log('Continue to pre-flight check');
-    // TODO: Navigate to pre-flight check
+    // Create a blank resume for manual entry
+    createResume('New Resume', 'classic-professional');
+    router.push('/builder');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <MissionHeader 
         title="LaunchCV"
         subtitle="Pre-flight Data Import"
@@ -28,11 +32,19 @@ export default function ImportPage() {
       />
       
       <main className="py-12">
-        <MissionPrep
-          onFileProcessed={handleFileProcessed}
-          onManualEntry={handleManualEntry}
-          onContinue={handleContinue}
+        <ImportFlow
+          onComplete={handleImportComplete}
+          className="max-w-4xl mx-auto px-4"
         />
+        
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleManualEntry}
+            className="px-6 py-3 bg-slate-800 border border-slate-600 rounded-lg text-slate-100 hover:bg-slate-700 transition-colors"
+          >
+            Skip to Manual Entry
+          </button>
+        </div>
       </main>
       
       <MissionFooter />

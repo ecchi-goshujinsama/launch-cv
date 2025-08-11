@@ -38,7 +38,7 @@ const demoMissionSteps: MissionStep[] = [
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <MissionHeader />
       
       <main className="py-12">
@@ -106,7 +106,7 @@ export default function Home() {
                 variant="mission"
                 hover
               >
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-slate-400">
                   <div>• Intelligent text extraction</div>
                   <div>• Automatic data parsing</div>
                   <div>• Manual review interface</div>
@@ -120,7 +120,7 @@ export default function Home() {
                 variant="mission"
                 hover
               >
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-slate-400">
                   <div>• Real-time editing</div>
                   <div>• Multiple templates</div>
                   <div>• Auto-save functionality</div>
@@ -134,7 +134,7 @@ export default function Home() {
                 variant="mission"
                 hover
               >
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-slate-400">
                   <div>• Professional PDF output</div>
                   <div>• ATS-friendly formats</div>
                   <div>• Career launch tracking</div>
@@ -150,7 +150,7 @@ export default function Home() {
                 <div className="brand-text-gradient text-2xl font-bold">
                   Mission Status: Foundation Complete! 🚀
                 </div>
-                <p className="text-gray-600">
+                <p className="text-slate-400">
                   LaunchCV foundation systems are operational and ready for the next phase of development.
                 </p>
                 <div className="flex justify-center gap-4">

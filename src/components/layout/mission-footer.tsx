@@ -23,7 +23,7 @@ export function MissionFooter({
 
   return (
     <footer className={cn(
-      'bg-white border-t border-gray-200 py-8 px-6',
+      'bg-slate-800 border-t border-slate-700 py-8 px-6',
       className
     )}>
       <div className="max-w-7xl mx-auto">
@@ -37,11 +37,11 @@ export function MissionFooter({
                 </div>
                 <span className="font-bold text-lg brand-text-gradient">LaunchCV</span>
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <p className="text-slate-400 text-sm leading-relaxed">
                 Launch your career with precision-crafted, tailored resumes. 
                 Every professional deserves a resume that opens doors to new opportunities.
               </p>
-              <div className="flex items-center gap-1 text-sm text-gray-500">
+              <div className="flex items-center gap-1 text-sm text-slate-400">
                 Made with <Heart className="w-4 h-4 text-rocket-orange mx-1" /> for career launchers
               </div>
             </div>
@@ -49,18 +49,18 @@ export function MissionFooter({
 
           {/* Mission Stats/Info */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-gray-900">Mission Stats</h3>
+            <h3 className="font-semibold text-slate-100">Mission Stats</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Careers Launched:</span>
+                <span className="text-slate-400">Careers Launched:</span>
                 <span className="mission-text font-medium">∞</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Success Rate:</span>
+                <span className="text-slate-400">Success Rate:</span>
                 <span className="text-green-600 font-medium">100%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Mission Status:</span>
+                <span className="text-slate-400">Mission Status:</span>
                 <span className="accent-text font-medium">Active</span>
               </div>
             </div>
@@ -70,13 +70,13 @@ export function MissionFooter({
           <div className="space-y-4">
             {showLinks && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Mission Control</h3>
+                <h3 className="font-semibold text-slate-100 mb-3">Mission Control</h3>
                 <div className="flex gap-4">
                   <a
                     href="https://github.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-launch-blue transition-colors duration-200"
+                    className="text-slate-400 hover:text-launch-blue transition-colors duration-200"
                     aria-label="GitHub"
                   >
                     <Github className="w-5 h-5" />
@@ -85,7 +85,7 @@ export function MissionFooter({
                     href="https://twitter.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-launch-blue transition-colors duration-200"
+                    className="text-slate-400 hover:text-launch-blue transition-colors duration-200"
                     aria-label="Twitter"
                   >
                     <Twitter className="w-5 h-5" />
@@ -95,7 +95,7 @@ export function MissionFooter({
             )}
 
             {showVersion && (
-              <div className="space-y-2 text-sm text-gray-500">
+              <div className="space-y-2 text-sm text-slate-400">
                 <div>Version {version}</div>
                 <div>© {currentYear} LaunchCV</div>
               </div>
@@ -104,7 +104,7 @@ export function MissionFooter({
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+        <div className="mt-8 pt-6 border-t border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
           <div className="flex items-center gap-4">
             <span>Ready for launch? Your next career move starts here.</span>
           </div>

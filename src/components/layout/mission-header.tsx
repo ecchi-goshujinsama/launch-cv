@@ -46,7 +46,7 @@ export function MissionHeader({
 
   return (
     <header className={cn(
-      'bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-40',
+      'bg-slate-800 border-b border-slate-700 px-6 py-4 sticky top-0 z-40',
       className
     )}>
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -60,7 +60,7 @@ export function MissionHeader({
               <h1 className="text-xl font-bold brand-text-gradient">
                 {title}
               </h1>
-              <p className="text-sm text-gray-600">{subtitle}</p>
+              <p className="text-sm text-slate-400">{subtitle}</p>
             </div>
           </div>
           

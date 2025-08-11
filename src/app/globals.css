@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0f172a;
+  --foreground: #f1f5f9;
   
   /* LaunchCV Brand Colors */
   --launch-blue: #2563eb;
@@ -354,6 +354,24 @@ p {
   padding: 1rem;
 }
 
+/* Form Input Styling for Dark Mode */
+input, textarea, select {
+  color: #f1f5f9;
+  background-color: #1e293b;
+  border-color: #475569;
+  -webkit-text-fill-color: #f1f5f9;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #94a3b8;
+  -webkit-text-fill-color: #94a3b8;
+}
+
+input:focus, textarea:focus, select:focus {
+  background-color: #334155;
+  border-color: #2563eb;
+}
+
 /* Enhanced Mobile Responsiveness and Performance */
 @media (max-width: 768px) {
   .launch-heading {
@@ -391,6 +409,8 @@ p {
     font-size: 16px !important;
     -webkit-appearance: none;
     border-radius: 0;
+    color: #f1f5f9 !important; /* Light text for dark mode */
+    background-color: #1e293b !important; /* Dark background */
   }
   
   /* Optimized scrolling performance */

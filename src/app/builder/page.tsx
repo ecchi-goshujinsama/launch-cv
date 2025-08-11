@@ -6,8 +6,11 @@ import { BuilderLayout } from '@/components/builder/builder-layout';
 import { PreviewContainer } from '@/components/preview/preview-container';
 import { KeyboardShortcutsModal } from '@/components/ui/keyboard-shortcuts-modal';
 import { LaunchButton } from '@/components/ui/launch-button';
+import { CompletionProgress, CompactCompletionProgress } from '@/components/ui/completion-progress';
 import { useKeyboardShortcuts, createResumeBuilderShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
 import { useSwipeNavigation, useIsMobile } from '@/lib/hooks/use-touch-interactions';
+import { useMilestoneTracker } from '@/lib/hooks/use-completion-timer';
+import { useAutoSave, useSaveStatus } from '@/lib/hooks/use-auto-save';
 import { 
   PersonalInfoForm, 
   ExperienceForm, 
@@ -34,6 +37,10 @@ export default function BuilderPage() {
   // Mobile and touch detection
   const { isMobile, isTouchDevice } = useIsMobile();
   
+  // Completion tracking and auto-save
+  const milestoneTracker = useMilestoneTracker();
+  const saveStatus = useSaveStatus();
+  
   // Available sections for swipe navigation
   const sections = ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'];
   
@@ -52,7 +59,8 @@ export default function BuilderPage() {
   // Keyboard shortcuts setup
   const keyboardActions = {
     save: () => {
-      // Trigger form save - handled by individual forms
+      // Trigger manual save
+      saveStatus.manualSave();
       console.log('Manual save triggered');
     },
     undo: () => {
@@ -110,6 +118,21 @@ export default function BuilderPage() {
               <span className="block text-xs text-slate-400 mt-1">👈 Swipe to navigate sections</span>
             )}
           </p>
+        </div>
+
+        {/* Completion Progress */}
+        <CompletionProgress showDetailed={!isMobile} />
+
+        {/* Save Status */}
+        <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+          <div className={`w-2 h-2 rounded-full ${
+            saveStatus.statusColor === 'green' ? 'bg-green-500' :
+            saveStatus.statusColor === 'blue' ? 'bg-blue-500 animate-pulse' :
+            saveStatus.statusColor === 'amber' ? 'bg-amber-500' :
+            saveStatus.statusColor === 'red' ? 'bg-red-500' :
+            'bg-slate-500'
+          }`} />
+          <span>{saveStatus.statusMessage}</span>
         </div>
 
         {/* Enhanced Section Navigation */}
@@ -224,6 +247,7 @@ export default function BuilderPage() {
               initialData={currentResume.personalInfo}
               onSave={() => {
                 // The PersonalInfoForm should handle saving via store
+                milestoneTracker.trackPersonalInfoComplete();
               }}
             />
           )}
@@ -236,6 +260,7 @@ export default function BuilderPage() {
               }
               onSave={() => {
                 // The ExperienceForm should handle saving via store
+                milestoneTracker.trackExperienceComplete();
               }}
             />
           )}
@@ -248,6 +273,7 @@ export default function BuilderPage() {
               }
               onSave={() => {
                 // The EducationForm should handle saving via store
+                milestoneTracker.trackEducationComplete();
               }}
             />
           )}
@@ -262,6 +288,7 @@ export default function BuilderPage() {
               }
               onSave={() => {
                 // The SkillsForm should handle saving via store
+                milestoneTracker.trackSkillsComplete();
               }}
             />
           )}

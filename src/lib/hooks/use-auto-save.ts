@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { debounce } from 'lodash-es';
 
 export type AutoSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -302,5 +302,48 @@ export function useAutoSaveStatus(autoSaveHook: ReturnType<typeof useAutoSave>) 
     color: getStatusColor(),
     icon: getStatusIcon(),
     showRetry: autoSaveHook.status === 'error' && autoSaveHook.canRetry
+  };
+}
+
+// Simple hook for save status in builder context
+export function useSaveStatus() {
+  const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  
+  const manualSave = useCallback(() => {
+    setStatus('saving');
+    // Simulate save operation
+    setTimeout(() => {
+      setStatus('saved');
+      setLastSaved(new Date());
+      // Return to idle after 3 seconds
+      setTimeout(() => setStatus('idle'), 3000);
+    }, 500);
+  }, []);
+  
+  const statusMessage = useMemo(() => {
+    switch (status) {
+      case 'saving': return 'Saving changes...';
+      case 'saved': return 'All changes saved';
+      case 'error': return 'Save failed';
+      case 'idle': return lastSaved ? `Saved ${lastSaved.toLocaleTimeString()}` : 'Auto-save ready';
+    }
+  }, [status, lastSaved]);
+  
+  const statusColor = useMemo(() => {
+    switch (status) {
+      case 'saving': return 'blue';
+      case 'saved': return 'green';
+      case 'error': return 'red';
+      case 'idle': return 'gray';
+    }
+  }, [status]);
+  
+  return {
+    status,
+    statusMessage,
+    statusColor,
+    lastSaved,
+    manualSave
   };
 }

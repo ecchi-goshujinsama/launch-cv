@@ -20,6 +20,8 @@ import {
   CertificationsForm,
   useBulkEditModal
 } from '@/components/builder';
+import { TemplateSwitcher } from '@/components/templates/template-switcher';
+import { ExportSection } from '@/components/export/export-section';
 import { Plus, Keyboard, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 // import { SectionManager } from '@/components/builder/section-manager';
@@ -42,7 +44,7 @@ export default function BuilderPage() {
   const saveStatus = useSaveStatus();
   
   // Available sections for swipe navigation
-  const sections = ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'];
+  const sections = ['personal', 'experience', 'education', 'skills', 'projects', 'certifications', 'template', 'export'];
   
   // Swipe navigation between sections
   const { 
@@ -315,6 +317,40 @@ export default function BuilderPage() {
                 // The CertificationsForm should handle saving via store
               }}
             />
+          )}
+
+          {activeSection === 'template' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-slate-100 mb-2">Template Selection</h2>
+                <p className="text-slate-400">
+                  Choose a professional template for your resume
+                </p>
+              </div>
+              <TemplateSwitcher 
+                onTemplateSelected={(templateId) => {
+                  milestoneTracker.trackTemplateSelected();
+                  console.log('Template selected:', templateId);
+                }}
+                compact={false}
+              />
+            </div>
+          )}
+
+          {activeSection === 'export' && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-xl font-semibold text-slate-100 mb-2">Export Resume</h2>
+                <p className="text-slate-400">
+                  Download your resume as a professional PDF
+                </p>
+              </div>
+              <ExportSection 
+                onExport={() => {
+                  milestoneTracker.trackExportReady();
+                }}
+              />
+            </div>
           )}
         </div>
       </div>

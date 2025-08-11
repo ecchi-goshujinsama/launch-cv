@@ -58,12 +58,13 @@ export function CreativeRenderer({
     .sort((a, b) => a.order - b.order);
 
   // Helper function to render decorative elements
-  const renderDecorative = (type: 'star' | 'sparkle' | 'heart' | 'zap', size = 4) => {
+  const renderDecorative = (type: 'star' | 'sparkle' | 'heart' | 'zap' | 'award', size = 4) => {
     const icons = {
       star: Star,
       sparkle: Sparkles,
       heart: Heart,
-      zap: Zap
+      zap: Zap,
+      award: Award
     };
     
     // Map size to Tailwind classes to avoid dynamic class generation issues
@@ -77,6 +78,12 @@ export function CreativeRenderer({
     
     const Icon = icons[type];
     const className = sizeClasses[size as keyof typeof sizeClasses] || 'w-4 h-4';
+    
+    // Defensive check to ensure Icon exists
+    if (!Icon) {
+      console.warn(`Icon not found for type: ${type}`);
+      return null;
+    }
     
     return <Icon className={className} style={{ color: appliedColorScheme.accent }} />;
   };

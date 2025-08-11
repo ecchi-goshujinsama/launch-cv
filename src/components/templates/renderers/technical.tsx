@@ -238,8 +238,10 @@ export function TechnicalRenderer({
                       {item.category}
                     </h3>
                     <div className="space-y-2">
-                      {item.skills?.slice(0, 5).map((skill: string) => (
-                        renderSkillLevel(skill, 'intermediate')
+                      {item.skills?.slice(0, 5).map((skill: string, skillIdx: number) => (
+                        <div key={skillIdx}>
+                          {renderSkillLevel(skill, 'intermediate')}
+                        </div>
                       ))}
                     </div>
                   </div>

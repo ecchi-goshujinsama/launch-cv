@@ -463,12 +463,12 @@ export const creativeTemplate: Template = {
   },
   typography: {
     headings: {
-      fontFamily: 'Inter, system-ui, sans-serif',
+      fontFamily: 'Helvetica',
       fontWeight: '800',
       letterSpacing: '-0.05em'
     },
     body: {
-      fontFamily: 'Inter, system-ui, sans-serif',
+      fontFamily: 'Helvetica',
       fontSize: '10pt',
       lineHeight: '1.6'
     },

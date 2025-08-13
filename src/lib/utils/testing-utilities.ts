@@ -117,8 +117,8 @@ export const createMockTemplate = (): Template => ({
     accent: '#f97316',
   },
   fonts: {
-    heading: 'Inter',
-    body: 'Inter',
+    heading: 'Helvetica',
+    body: 'Helvetica',
   },
   layout: {
     columns: 1,

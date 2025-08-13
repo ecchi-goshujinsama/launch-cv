@@ -2,27 +2,27 @@ import React from 'react';
 import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
 import type { PDFRenderContext } from '../../lib/pdf/types';
 
-// Register fonts for better typography
-Font.register({
-  family: 'Inter',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2' },
-    { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2', fontWeight: 'bold' },
-  ],
-});
+// Register fonts for better typography - use system fonts to avoid loading issues
+// Font.register({
+//   family: 'Inter',
+//   fonts: [
+//     { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2' },
+//     { src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2', fontWeight: 'bold' },
+//   ],
+// });
 
-Font.register({
-  family: 'Source Sans Pro',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/sourcesanspro/v21/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7lujVj9w.woff2' },
-    { src: 'https://fonts.gstatic.com/s/sourcesanspro/v21/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdu3cOWxw.woff2', fontWeight: 'bold' },
-  ],
-});
+// Font.register({
+//   family: 'Source Sans Pro',
+//   fonts: [
+//     { src: 'https://fonts.gstatic.com/s/sourcesanspro/v21/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7lujVj9w.woff2' },
+//     { src: 'https://fonts.gstatic.com/s/sourcesanspro/v21/6xKydSBYKcSV-LCoeQqfX1RYOo3ik4zwlxdu3cOWxw.woff2', fontWeight: 'bold' },
+//   ],
+// });
 
 // Create common PDF styles
 export const commonStyles = StyleSheet.create({
   page: {
-    fontFamily: 'Inter',
+    fontFamily: 'Helvetica',
     fontSize: 11,
     lineHeight: 1.4,
     padding: 40,

@@ -70,13 +70,15 @@ export const commonStyles = StyleSheet.create({
     borderBottomStyle: 'solid',
   },
   item: {
-    marginBottom: 12,
+    marginBottom: 16,
+    pageBreakInside: false,
   },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 4,
+    marginBottom: 6,
+    wrap: false,
   },
   itemTitle: {
     fontSize: 12,
@@ -104,8 +106,9 @@ export const commonStyles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 1.4,
     color: '#2a2a2a',
-    marginBottom: 2,
+    marginBottom: 3,
     marginLeft: 12,
+    textAlign: 'left',
   },
   skillsGrid: {
     flexDirection: 'row',

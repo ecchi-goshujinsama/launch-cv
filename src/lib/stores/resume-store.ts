@@ -61,6 +61,48 @@ const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
 
+const groupSkillsByCategory = (skills: string[]): Record<string, string[]> => {
+  const categories: Record<string, string[]> = {
+    'System Administration': [],
+    'Cloud & Virtualization': [],
+    'Programming & Development': [],
+    'Security & Compliance': [],
+    'Database & Storage': [],
+    'Networking': [],
+    'General': []
+  };
+
+  // Categorize skills based on keywords
+  skills.forEach(skill => {
+    const skillLower = skill.toLowerCase();
+    
+    if (skillLower.includes('windows') || skillLower.includes('linux') || skillLower.includes('system admin') || skillLower.includes('server')) {
+      categories['System Administration'].push(skill);
+    } else if (skillLower.includes('azure') || skillLower.includes('aws') || skillLower.includes('cloud') || skillLower.includes('vmware') || skillLower.includes('virtualization')) {
+      categories['Cloud & Virtualization'].push(skill);
+    } else if (skillLower.includes('java') || skillLower.includes('python') || skillLower.includes('programming') || skillLower.includes('development') || skillLower.includes('sql') || skillLower.includes('asp.net')) {
+      categories['Programming & Development'].push(skill);
+    } else if (skillLower.includes('security') || skillLower.includes('compliance') || skillLower.includes('firewall') || skillLower.includes('endpoint')) {
+      categories['Security & Compliance'].push(skill);
+    } else if (skillLower.includes('database') || skillLower.includes('backup') || skillLower.includes('storage') || skillLower.includes('cohesity')) {
+      categories['Database & Storage'].push(skill);
+    } else if (skillLower.includes('network') || skillLower.includes('vpn') || skillLower.includes('routing') || skillLower.includes('fortigate')) {
+      categories['Networking'].push(skill);
+    } else {
+      categories['General'].push(skill);
+    }
+  });
+
+  // Remove empty categories
+  Object.keys(categories).forEach(key => {
+    if (categories[key].length === 0) {
+      delete categories[key];
+    }
+  });
+
+  return categories;
+};
+
 const createDefaultResume = (title: string, templateId: string): Resume => ({
   id: generateId(),
   title,
@@ -168,16 +210,29 @@ export const useResumeStore = create<ResumeStore>()(
 
             // Add experience section if data exists
             if (parsedData.sections.experience && parsedData.sections.experience.length > 0) {
-              const experienceItems: ExperienceItem[] = parsedData.sections.experience.map(exp => ({
-                id: generateId(),
-                company: exp.company || '',
-                position: exp.title || '',
-                startDate: exp.startDate || '',
-                endDate: exp.current ? null : exp.endDate || '',
-                location: exp.location || '',
-                description: exp.description ? [exp.description] : [],
-                skills: []
-              }));
+              const experienceItems: ExperienceItem[] = parsedData.sections.experience.map(exp => {
+                // Parse description into individual bullet points
+                let descriptionArray: string[] = [];
+                if (exp.description) {
+                  // Split by bullet points and clean up
+                  descriptionArray = exp.description
+                    .split(/•|·|\*|-|\n/)
+                    .map(item => item.trim())
+                    .filter(item => item.length > 0 && !item.match(/^[A-Z\s]+$/)) // Remove empty items and section headers
+                    .slice(0, 8); // Limit to 8 bullet points for better PDF formatting
+                }
+
+                return {
+                  id: generateId(),
+                  company: exp.company || '',
+                  position: exp.title || '',
+                  startDate: exp.startDate || '',
+                  endDate: exp.current ? null : exp.endDate || '',
+                  location: exp.location || '',
+                  description: descriptionArray,
+                  skills: []
+                };
+              });
 
               newResume.sections.push({
                 id: generateId(),
@@ -216,18 +271,25 @@ export const useResumeStore = create<ResumeStore>()(
 
             // Add skills section if data exists
             if (parsedData.sections.skills && parsedData.sections.skills.length > 0) {
-              const skillsItem: SkillsItem = {
+              // Group skills into logical categories for better organization
+              const skillsGrouped = groupSkillsByCategory(parsedData.sections.skills);
+              const skillsItems: SkillsItem[] = Object.entries(skillsGrouped).map(([category, skills]) => ({
                 id: generateId(),
-                category: 'General',
-                skills: parsedData.sections.skills,
+                category: category,
+                skills: skills,
                 proficiency: 'intermediate'
-              };
+              }));
 
               newResume.sections.push({
                 id: generateId(),
                 type: 'skills',
                 title: 'Skills',
-                items: [skillsItem],
+                items: skillsItems.length > 0 ? skillsItems : [{
+                  id: generateId(),
+                  category: 'Technical Skills',
+                  skills: parsedData.sections.skills,
+                  proficiency: 'intermediate'
+                }],
                 order: 2,
                 visible: true
               });

@@ -213,9 +213,9 @@ const ProjectItemPDF: React.FC<{ item: ProjectItem }> = ({ item }) => (
 const SkillsItemPDF: React.FC<{ item: SkillsItem }> = ({ item }) => (
   <View style={styles.item}>
     <Text style={styles.itemTitle}>{item.category}</Text>
-    <View style={styles.skillsGrid}>
+    <View style={{ ...styles.skillsGrid, marginTop: 6, gap: 4 }}>
       {item.skills.map((skill, index) => (
-        <Text key={index} style={styles.skillItem}>{skill}</Text>
+        <Text key={index} style={{ ...styles.skillItem, marginRight: 4, marginBottom: 3 }}>{skill}</Text>
       ))}
     </View>
   </View>

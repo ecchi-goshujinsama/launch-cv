@@ -117,7 +117,7 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
   const linkedinMatches = text.match(REGEX_PATTERNS.linkedin);
   const linkedin = linkedinMatches?.[0];
   
-  // Extract website/portfolio - be more specific to avoid email domains
+  // Extract website/portfolio - be more specific to avoid email domains and false positives
   const websiteMatches = text.match(REGEX_PATTERNS.website);
   const website = websiteMatches?.find(url => 
     !url.includes('linkedin.com') && 
@@ -126,9 +126,16 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
     !url.includes('yahoo.com') &&
     !url.includes('hotmail.com') &&
     !url.includes('outlook.com') &&
+    // Exclude common false positives that aren't actually websites
+    !url.toLowerCase().includes('procedures.') &&
+    !url.toLowerCase().includes('reports.') &&
+    !url.toLowerCase().includes('system.') &&
+    !url.toLowerCase().includes('server.') &&
     // Only accept if it looks like a real website (has protocol or www, or is a proper domain)
     (url.startsWith('http') || url.startsWith('www.') || 
-     (url.includes('.') && !emails.some(email => email.includes(url))))
+     (url.includes('.') && !emails.some(email => email.includes(url)) &&
+      // Additional validation: ensure it has a valid TLD and doesn't look like technical text
+      url.match(/\.[a-z]{2,}$/i) && !url.match(/^[a-z]+\.[A-Z][a-z]+$/)))
   );
   
   // Extract location - be more specific to avoid matching profile text

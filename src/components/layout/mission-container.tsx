@@ -154,10 +154,19 @@ export function MissionCard({
       className={cn(
         variantClasses[variant],
         hover && 'hover:shadow-md hover:scale-[1.02] transition-all duration-200',
-        onClick && 'cursor-pointer',
+        onClick && 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-launch-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900',
         className
       )}
       onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (!onClick) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
       {(title || subtitle || icon) && (
         <div className="mb-4">

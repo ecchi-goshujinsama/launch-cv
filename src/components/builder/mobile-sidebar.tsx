@@ -158,6 +158,7 @@ export function MobileSidebar({
                   
                   return (
                     <button
+                      type="button"
                       key={section.id}
                       onClick={() => handleSectionClick(section.id)}
                       className={cn(
@@ -166,6 +167,7 @@ export function MobileSidebar({
                           ? "bg-launch-blue text-white" 
                           : "text-gray-700 hover:bg-gray-100"
                       )}
+                      aria-current={isActive ? 'page' : undefined}
                     >
                       <div className={cn(
                         "flex-shrink-0",
@@ -205,16 +207,17 @@ export function MobileSidebar({
 
             {/* Quick Actions */}
             <div className="px-2">
-              <h3 className="text-sm font-medium text-gray-900 px-3 py-2">Quick Actions</h3>
-              <div className="space-y-1">
                 <button
+                  type="button"
                   onClick={() => {
                     onPreviewToggle();
                     onToggle();
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <Eye className="w-4 h-4 text-gray-500" />
+                  <Eye className="w-4 h-4 text-gray-500" aria-hidden="true" focusable="false" />
+                  <span>Toggle Preview</span>
+                </button>
                   <span>Toggle Preview</span>
                 </button>
                 

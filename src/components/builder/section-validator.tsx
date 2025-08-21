@@ -76,7 +76,8 @@ export function SectionValidator({
   const [lastValidated, setLastValidated] = useState<Date | null>(null);
 
   // Validate individual section
-  const validateSection = (section: ResumeSection): ValidationResult => {
+  // Validate individual section
+  const validateSection = React.useCallback((section: ResumeSection): ValidationResult => {
     const sectionData = resumeData[section.type];
     const schema = sectionValidationSchemas[section.type as keyof typeof sectionValidationSchemas];
     
@@ -169,7 +170,8 @@ export function SectionValidator({
         completeness: 0
       };
     }
-  };
+  }, [resumeData]);
+  }, [resumeData]);
 
   // Validate all sections
   const validateAllSections = React.useCallback(async () => {

@@ -258,12 +258,19 @@ export function DatePicker({
   }, [viewDate]);
 
   const isDateDisabled = (date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Normalize all dates to start of day for consistent comparison
+    const normalizeDate = (d: Date) => {
+      const normalized = new Date(d);
+      normalized.setHours(0, 0, 0, 0);
+      return normalized;
+    };
     
-    if (!allowFuture && date > today) return true;
-    if (minDateObj && date < minDateObj) return true;
-    if (maxDateObj && date > maxDateObj) return true;
+    const today = normalizeDate(new Date());
+    const normalizedDate = normalizeDate(date);
+
+    if (!allowFuture && normalizedDate > today) return true;
+    if (minDateObj && normalizedDate < normalizeDate(minDateObj)) return true;
+    if (maxDateObj && normalizedDate > normalizeDate(maxDateObj)) return true;
     
     return false;
   };
@@ -336,8 +343,8 @@ export function DatePicker({
               {DAYS.map(day => (
                 <div key={day} className="p-2 text-xs font-medium text-gray-500 text-center">
                   {day}
-                </div>
-              ))}
+                const isSelected = selectedDate &&
+                  date.toDateString() === selectedDate.toDateString();
             </div>
 
             {/* Calendar days */}

@@ -133,23 +133,16 @@ export function ProjectsForm({
     }
   };
 
-  const addHighlight = (projectIndex: number) => {
-    const currentHighlights = watchedData.projects[projectIndex]?.highlights || [];
-    const newHighlights = [...currentHighlights, ''];
-    
-    // Update the form manually for dynamic arrays
-    const updatedProjects = [...watchedData.projects];
-    const currentProject = updatedProjects[projectIndex];
-    updatedProjects[projectIndex] = {
-      ...currentProject,
-      name: currentProject?.name || '',
-      description: currentProject?.description || '',
-      technologies: currentProject?.technologies || [],
-      startDate: currentProject?.startDate || '',
-      endDate: currentProject?.endDate || null,
-      highlights: newHighlights
-    };
-  };
+ const {
+   register,
+   handleSubmit,
+   control,
+   watch,
+   setValue,
+   formState: { errors, isDirty, isValid }
+ } = useForm<ProjectsFormData>({
+   // …your options…
+ });
 
   const removeHighlight = (projectIndex: number, highlightIndex: number) => {
     const currentHighlights = watchedData.projects[projectIndex]?.highlights || [];
@@ -158,25 +151,17 @@ export function ProjectsForm({
       
       // Update the form manually
       const updatedProjects = [...watchedData.projects];
-      const currentProject = updatedProjects[projectIndex];
-      updatedProjects[projectIndex] = {
-        ...currentProject,
-        name: currentProject?.name || '',
-        description: currentProject?.description || '',
-        technologies: currentProject?.technologies || [],
-        startDate: currentProject?.startDate || '',
-        endDate: currentProject?.endDate || null,
-        highlights: newHighlights
-      };
+  const removeHighlight = (projectIndex: number, highlightIndex: number) => {
+    const currentHighlights = watchedData.projects[projectIndex]?.highlights || [];
+    if (currentHighlights.length > 1) {
+      const newHighlights = currentHighlights.filter((_, i) => i !== highlightIndex);
+
+      setValue(`projects.${projectIndex}.highlights`, newHighlights, {
+        shouldDirty: true,
+        shouldValidate: true
+      });
     }
   };
-
-  const renderField = (
-    name: string,
-    label: string,
-    type: 'text' | 'textarea' | 'url' = 'text',
-    icon?: React.ReactNode,
-    placeholder?: string,
     required = false,
     rows = 3
   ) => {

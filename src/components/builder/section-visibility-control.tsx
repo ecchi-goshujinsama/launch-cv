@@ -113,7 +113,7 @@ export function SectionVisibilityControl({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-launch-blue/10 rounded-lg flex items-center justify-center">
               <Eye className="w-5 h-5 text-launch-blue" />
-            </div>
+                <li>• Required sections cannot be completely hidden</li>
             <div>
               <h3 className="text-lg font-semibold mission-text">Section Visibility</h3>
               <p className="text-sm text-gray-600">Control which sections appear on your resume</p>
@@ -189,8 +189,17 @@ export function SectionVisibilityControl({
           <LaunchButton
             variant="outline"
             size="sm"
-            onClick={() => onToggleAll(false)}
-            disabled={noneVisible}
+          <LaunchButton
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              sections.forEach(section => {
+                if (!section.required && section.visible) {
+                  onToggleSection(section.id);
+                }
+              });
+            }}
+            disabled={sections.filter(s => !s.required && s.visible).length === 0}
             icon="none"
           >
             <EyeOff className="w-4 h-4 mr-2" />

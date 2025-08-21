@@ -45,9 +45,10 @@ export const CreativePDF: React.FC<CreativePDFProps> = ({ context }) => {
       <View style={styles.container}>
         <PDFHeader context={context} />
         
-        {resume.sections
+        {(resume?.sections ?? [])
           .filter(section => section.visible)
-          .sort((a, b) => a.order - b.order)
+          .slice()
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
           .map(section => (
             <View key={section.id} style={styles.section}>
               <Text style={styles.sectionTitle}>{section.title}</Text>

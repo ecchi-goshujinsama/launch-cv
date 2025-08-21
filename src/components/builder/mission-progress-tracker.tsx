@@ -129,9 +129,12 @@ export function MissionProgressTracker({
     const inProgressItems = progressItems.filter(item => item.status === 'in_progress').length;
     const errorItems = progressItems.filter(item => item.status === 'error').length;
     
-    const overallProgress = Math.round((completedWeight / totalWeight) * 100);
-    const requiredProgress = Math.round((completedRequired.length / requiredItems.length) * 100);
-    
+    const overallProgress =
+      totalWeight > 0 ? Math.round((completedWeight / totalWeight) * 100) : 0;
+    const requiredProgress =
+      requiredItems.length > 0
+        ? Math.round((completedRequired.length / requiredItems.length) * 100)
+        : 0;
     const estimatedTotalTime = progressItems.reduce((sum, item) => sum + (item.estimatedTime || 0), 0);
     const estimatedRemainingTime = progressItems
       .filter(item => item.status === 'pending')

@@ -266,7 +266,27 @@ export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
         </LaunchButton>
         
         <LaunchButton
-          onClick={() => window.location.reload()}
+// at the top of src/components/export/career-launched-success.tsx
+import { useRouter } from 'next/navigation';
+
+export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
+  resumeName,
+  templateName,
+  onComplete,
+}) => {
+  const router = useRouter();
+
+  return (
+    <LaunchButton
+      onClick={() => router.refresh()}
+      variant="outline"
+      className="gap-2 animate-fadeIn"
+      style={{ animationDelay: '1.7s' }}
+    >
+      Launch Another
+    </LaunchButton>
+  );
+};
           variant="outline"
           className="gap-2 animate-fadeIn"
           style={{ animationDelay: '1.7s' }}

@@ -57,9 +57,23 @@ export function BuilderLayout({
   }, [layoutMode]);
 
   // Enhanced mobile experience with touch feedback
+  const timeoutRef = React.useRef<NodeJS.Timeout>();
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Enhanced mobile experience with touch feedback
   const showTouchFeedback = (message: string) => {
     setTouchFeedback(message);
-    setTimeout(() => setTouchFeedback(''), 1500);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => setTouchFeedback(''), 1500);
   };
 
   const handleLayoutChange = (newLayout: LayoutMode) => {

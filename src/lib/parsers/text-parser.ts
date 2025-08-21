@@ -119,24 +119,59 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
   
   // Extract website/portfolio - be more specific to avoid email domains and false positives
   const websiteMatches = text.match(REGEX_PATTERNS.website);
-  const website = websiteMatches?.find(url => 
-    !url.includes('linkedin.com') && 
-    !url.includes('mailto:') &&
-    !url.includes('gmail.com') &&
-    !url.includes('yahoo.com') &&
-    !url.includes('hotmail.com') &&
-    !url.includes('outlook.com') &&
-    // Exclude common false positives that aren't actually websites
-    !url.toLowerCase().includes('procedures.') &&
-    !url.toLowerCase().includes('reports.') &&
-    !url.toLowerCase().includes('system.') &&
-    !url.toLowerCase().includes('server.') &&
-    // Only accept if it looks like a real website (has protocol or www, or is a proper domain)
-    (url.startsWith('http') || url.startsWith('www.') || 
-     (url.includes('.') && !emails.some(email => email.includes(url)) &&
-      // Additional validation: ensure it has a valid TLD and doesn't look like technical text
-      url.match(/\.[a-z]{2,}$/i) && !url.match(/^[a-z]+\.[A-Z][a-z]+$/)))
-  );
+  const website = websiteMatches?.find(url => {
+    const urlLower = url.toLowerCase();
+    
+    // Exclude known email domains
+    if (url.includes('linkedin.com') || url.includes('mailto:') ||
+        url.includes('gmail.com') || url.includes('yahoo.com') ||
+        url.includes('hotmail.com') || url.includes('outlook.com')) {
+      return false;
+    }
+    
+    // Exclude common technical terms and programming languages that match domain pattern
+    const technicalTerms = [
+      'asp.net', 'vb.net', 'c#.net', '.net', 'node.js', 'vue.js', 'angular.js',
+      'procedures.updated', 'reports.generated', 'system.admin', 'server.config',
+      'database.sql', 'api.json', 'config.xml', 'script.js', 'style.css',
+      'index.html', 'main.py', 'app.java', 'component.tsx', 'service.ts'
+    ];
+    
+    if (technicalTerms.some(term => urlLower.includes(term))) {
+      return false;
+    }
+    
+    // Exclude patterns that look like technical terms (word.WORD or WORD.word format)
+    if (url.match(/^[a-zA-Z]+\.[A-Z]{2,}$/)) {
+      return false;
+    }
+    
+    // Only accept if it looks like a real website
+    const hasProtocol = url.startsWith('http') || url.startsWith('www.');
+    const isValidDomain = url.includes('.') && 
+                         !emails.some(email => email.includes(url)) &&
+                         url.match(/\.[a-z]{2,}$/i);
+    
+    // Must have protocol/www OR be a valid domain that doesn't look like a file extension
+    if (hasProtocol) {
+      return true;
+    }
+    
+    if (isValidDomain) {
+      // Additional check: ensure it's not a file extension or technical term
+      const parts = url.split('.');
+      if (parts.length === 2) {
+        const [firstPart, secondPart] = parts;
+        // Reject if it looks like: filename.extension, config.setting, etc.
+        if (secondPart.length <= 4 && secondPart.match(/^[A-Z]{2,4}$/i)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    return false;
+  });
   
   // Extract location - be more specific to avoid matching profile text
   let location = '';

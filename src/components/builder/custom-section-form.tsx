@@ -62,6 +62,7 @@ export function CustomSectionForm({
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors, isDirty, isValid }
   } = useForm<CustomSectionData>({
     resolver: zodResolver(customSectionSchema) as any,
@@ -85,6 +86,7 @@ export function CustomSectionForm({
   });
 
   const watchedData = watch();
+  const [createdSectionId, setCreatedSectionId] = React.useState<string | undefined>(sectionId);
 
   // Auto-save functionality
   React.useEffect(() => {
@@ -95,18 +97,29 @@ export function CustomSectionForm({
           description: item.description.filter(desc => desc.trim() !== '')
         }));
 
-        if (sectionId) {
-          updateResumeSection(sectionId, watchedData.title, processedItems);
+        if (createdSectionId) {
+          updateResumeSection(createdSectionId, watchedData.title, processedItems);
         } else {
-          addResumeSection('custom', watchedData.title, processedItems);
+          const newSectionId = addResumeSection('custom', watchedData.title, processedItems);
+          setCreatedSectionId(newSectionId);
         }
-        
+
         onSave(watchedData.title, processedItems);
       }, 1000);
 
       return () => clearTimeout(timeoutId);
     }
     return undefined;
+  }, [
+    watchedData,
+    isDirty,
+    isValid,
+    autoSave,
+    onSave,
+    createdSectionId,
+    updateResumeSection,
+    addResumeSection
+  ]);
   }, [watchedData, isDirty, isValid, autoSave, onSave, sectionId, updateResumeSection, addResumeSection]);
 
   const handleFormSubmit = (data: CustomSectionData) => {
@@ -141,19 +154,17 @@ export function CustomSectionForm({
     }
   };
 
-  const addDescription = (itemIndex: number) => {
+  const removeDescription = (itemIndex: number, descIndex: number) => {
     const currentDescriptions = watchedData.items[itemIndex]?.description || [];
-    const newDescriptions = [...currentDescriptions, ''];
-    
-    // Update form manually for dynamic arrays
-    const updatedItems = [...watchedData.items];
-    updatedItems[itemIndex] = {
-      ...updatedItems[itemIndex],
-      title: updatedItems[itemIndex]?.title || '',
-      description: newDescriptions
-    };
+    if (currentDescriptions.length > 1) {
+      const newDescriptions = currentDescriptions.filter((_, i) => i !== descIndex);
+      
+      setValue(`items.${itemIndex}.description`, newDescriptions, {
+        shouldDirty: true,
+        shouldValidate: true
+      });
+    }
   };
-
   const removeDescription = (itemIndex: number, descIndex: number) => {
     const currentDescriptions = watchedData.items[itemIndex]?.description || [];
     if (currentDescriptions.length > 1) {

@@ -21,21 +21,27 @@ export const LaunchCelebration: React.FC<LaunchCelebrationProps> = ({
   const [animationPhase, setAnimationPhase] = useState<'entering' | 'celebrating' | 'exiting'>('entering');
 
   useEffect(() => {
+    const timers: NodeJS.Timeout[] = [];
+
     const timeline = [
       { phase: 'celebrating', delay: 500 },
-      { phase: 'exiting', delay: duration - 500 },
+      { phase: 'exiting',    delay: duration - 500 },
     ] as const;
 
     timeline.forEach(({ phase, delay }) => {
-      setTimeout(() => setAnimationPhase(phase), delay);
+      const timer = setTimeout(() => setAnimationPhase(phase), delay);
+      timers.push(timer);
     });
 
     const timer = setTimeout(() => {
       setVisible(false);
       onComplete?.();
     }, duration);
+    timers.push(timer);
 
-    return () => clearTimeout(timer);
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, [duration, onComplete]);
 
   const getCelebrationConfig = () => {
@@ -153,8 +159,24 @@ export const LaunchCelebration: React.FC<LaunchCelebrationProps> = ({
         {/* Animated background gradient */}
         <div className={cn(
           'absolute inset-0 rounded-3xl opacity-10 animate-pulse',
-          `bg-gradient-to-br ${config.color}`
-        )} />
+// Around lines 156-157
+<div className={cn(
+  'absolute inset-0 rounded-3xl opacity-10 animate-pulse',
+  'bg-gradient-to-br', config.color
+)} />
+
+// Around line 163
+<div className={cn(
+  'w-24 h-24 mx-auto rounded-full flex items-center justify-center relative',
+  'bg-gradient-to-br', config.color,
+  animationPhase === 'celebrating' && 'animate-bounce'
+)} />
+
+// Around line 212
+<div className={cn(
+  'w-2 h-2 rounded-full animate-pulse',
+  'bg-gradient-to-r', config.color
+)} />
 
         {/* Main icon with animation */}
         <div className="relative mb-6">

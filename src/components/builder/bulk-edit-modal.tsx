@@ -97,11 +97,10 @@ export function BulkEditModal({ isOpen, onClose, className }: BulkEditModalProps
 
   const handleBulkDelete = () => {
     if (window.confirm('Are you sure you want to delete the selected sections? This action cannot be undone.')) {
-      selectedSections.forEach(sectionId => {
-        // Remove section entirely
-        // Note: This would need a removeSection method in the store
-        console.log('Delete section:', sectionId);
-      });
+      // Disable section deletion until removeSection is implemented
+      // selectedSections.forEach(sectionId => {
+      //   removeSection(sectionId);
+      // });
 
       // Delete selected items within sections
       Object.entries(selectedItems).forEach(([sectionId, itemIds]) => {

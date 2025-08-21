@@ -42,7 +42,7 @@ export function TemplateRenderer({
     );
   }
 
-  if (!template) {
+  if (!template || !TemplateComponent) {
     return (
       <div className={cn('w-full h-full flex items-center justify-center', className)}>
         <MissionCard className="p-8 text-center">
@@ -67,7 +67,7 @@ export function TemplateRenderer({
       <TemplateComponent
         resume={resume}
         template={template}
-        {...(customizations && { customizations })}
+        customizations={customizations}
         scale={scale}
         isPrintMode={isPrintMode}
       />

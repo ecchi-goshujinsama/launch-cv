@@ -33,10 +33,14 @@ export function useKeyboardShortcuts(
 
     const matchingShortcut = shortcuts.find(shortcut => {
       const keyMatches = shortcut.key.toLowerCase() === event.key.toLowerCase();
-      const ctrlMatches = (shortcut.ctrl || false) === (event.ctrlKey || event.metaKey);
+      const ctrlMatches = shortcut.ctrl
+        ? (event.ctrlKey || event.metaKey)
+        : !event.ctrlKey;
       const shiftMatches = (shortcut.shift || false) === event.shiftKey;
       const altMatches = (shortcut.alt || false) === event.altKey;
-      const metaMatches = (shortcut.meta || false) === event.metaKey;
+      const metaMatches = shortcut.meta
+        ? event.metaKey
+        : true;
 
       return keyMatches && ctrlMatches && shiftMatches && altMatches && metaMatches;
     });

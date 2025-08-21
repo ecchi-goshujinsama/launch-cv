@@ -5,5 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Re-export form utilities
+// Re-export utilities
 export * from './form-utils';
+export * from './deep-merge';

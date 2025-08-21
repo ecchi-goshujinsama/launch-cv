@@ -83,34 +83,69 @@ export function ExecutiveRenderer({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
             <div className="space-y-2">
               {resume.personalInfo.email && (
-                <div className="flex items-center text-white/90">
-                  <span className="text-sm font-medium">{resume.personalInfo.email}</span>
-                </div>
-              )}
-              {resume.personalInfo.phone && (
-                <div className="flex items-center text-white/90">
-                  <span className="text-sm font-medium">{resume.personalInfo.phone}</span>
-                </div>
-              )}
-              {resume.personalInfo.location && (
-                <div className="flex items-center text-white/90">
-                  <span className="text-sm font-medium">{resume.personalInfo.location}</span>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              {resume.personalInfo.linkedin && (
-                <div className="flex items-center">
-                  <span className="text-sm font-medium text-white/90">{resume.personalInfo.linkedin}</span>
-                </div>
-              )}
-              {resume.personalInfo.website && (
-                <div className="flex items-center">
-                  <span className="text-sm font-medium text-white/90">{resume.personalInfo.website}</span>
-                </div>
-              )}
-            </div>
+                {resume.personalInfo.email && (
+                  <div className="flex items-center text-white/90">
+                    <a
+                      href={`mailto:${resume.personalInfo.email}`}
+                      className="text-sm font-medium hover:underline"
+                    >
+                      {resume.personalInfo.email}
+                    </a>
+                  </div>
+                )}
+                {resume.personalInfo.phone && (
+                  <div className="flex items-center text-white/90">
+                    <a
+                      href={`tel:${resume.personalInfo.phone}`}
+                      className="text-sm font-medium hover:underline"
+                    >
+                      {resume.personalInfo.phone}
+                    </a>
+                  </div>
+                )}
+                {resume.personalInfo.location && (
+                  <div className="flex items-center text-white/90">
+                    <span className="text-sm font-medium">
+                      {resume.personalInfo.location}
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                {resume.personalInfo.linkedin && (
+                  <div className="flex items-center">
+                    <a
+                      href={
+                        resume.personalInfo.linkedin.startsWith('http')
+                          ? resume.personalInfo.linkedin
+                          : `https://linkedin.com/in/${resume.personalInfo.linkedin}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-white/90 hover:underline"
+                    >
+                      {resume.personalInfo.linkedin}
+                    </a>
+                  </div>
+                )}
+                {resume.personalInfo.website && (
+                  <div className="flex items-center">
+                    <a
+                      href={
+                        resume.personalInfo.website.startsWith('http')
+                          ? resume.personalInfo.website
+                          : `https://${resume.personalInfo.website}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-white/90 hover:underline"
+                    >
+                      {resume.personalInfo.website}
+                    </a>
+                  </div>
+                )}
+              </div>
           </div>
         </div>
         
@@ -301,12 +336,17 @@ export function ExecutiveRenderer({
                       {item.category}
                     </h3>
                     <div className="space-y-2">
-                      {item.skills?.map((skill: string, skillIndex: number) => (
-                        <div key={skillIndex} className="flex items-center">
-                          <div 
-                            className="w-3 h-3 rounded-full mr-3"
-                            style={{ backgroundColor: appliedColorScheme.accent }}
-                          />
+                         {item.url && (
+                           <a 
+                             href={item.url} 
+                             target="_blank"
+                             rel="noopener noreferrer"
+                             className="text-sm font-semibold hover:underline"
+                             style={{ color: appliedColorScheme.accent }}
+                           >
+                             {item.url}
+                           </a>
+                         )}
                           <span className="text-sm font-medium" style={{ color: appliedColorScheme.text.primary }}>
                             {skill}
                           </span>

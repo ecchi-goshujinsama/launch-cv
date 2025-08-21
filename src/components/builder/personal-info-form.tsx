@@ -41,7 +41,7 @@ export function PersonalInfoForm({
     setValue,
     formState: { errors, isDirty, isValid }
   } = useForm<PersonalInfoFormData>({
-    resolver: zodResolver(personalFormSchema) as any,
+    resolver: zodResolver(personalFormSchema),
     defaultValues: {
       fullName: initialData?.fullName || '',
       email: initialData?.email || '',
@@ -78,9 +78,9 @@ export function PersonalInfoForm({
 
       return () => {
         clearTimeout(timeoutId);
-        if (saveStatus === 'saving') {
-          setSaveStatus('idle');
-        }
+        setSaveStatus(prevStatus =>
+          prevStatus === 'saving' ? 'idle' : prevStatus
+        );
       };
     }
     return undefined;
@@ -253,9 +253,9 @@ export function PersonalInfoForm({
             </p>
           )}
           <div className="flex justify-between text-xs text-slate-400">
-            <span>💡 Tip: Keep it concise but impactful (2-3 sentences)</span>
-            <span>{watchedData.summary?.length || 0}/500</span>
-          </div>
+ const personalFormSchema = personalInfoSchema.extend({
+  summary: z.string().max(500, 'Summary must be 500 characters or less').optional()
+ });
         </div>
 
         {/* Enhanced Progress and Undo/Redo Controls */}

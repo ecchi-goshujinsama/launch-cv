@@ -90,7 +90,13 @@ export function CreativeRenderer({
 
   // Helper function to render gradient backgrounds
   const getGradientStyle = (direction = '135deg', opacity = 0.1) => ({
-    background: `linear-gradient(${direction}, ${appliedColorScheme.primary}${Math.round(opacity * 255).toString(16)}, ${appliedColorScheme.secondary}${Math.round(opacity * 255).toString(16)}, ${appliedColorScheme.accent}${Math.round(opacity * 255).toString(16)})`
+    background: `linear-gradient(${direction}, ${appliedColorScheme.primary}${Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, '0')}, ${appliedColorScheme.secondary}${Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, '0')}, ${appliedColorScheme.accent}${Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, '0')})`
   });
 
   return (

@@ -19,19 +19,40 @@ import {
   // AlignCenter,
   // AlignRight - kept for future alignment features
 } from 'lucide-react';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
 import { Textarea } from './form-field';
 
-// Simple markdown-like text processor
+// Secure markdown processor using marked and DOMPurify
 const processText = (text: string): string => {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // **bold**
-    .replace(/\*(.*?)\*/g, '<em>$1</em>') // *italic*
-    .replace(/^- (.*)$/gm, '<li>$1</li>') // - bullet points
-    .replace(/^(\d+\.) (.*)$/gm, '<li>$1</li>') // 1. numbered lists
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>') // [text](url)
-    .replace(/^> (.*)$/gm, '<blockquote>$1</blockquote>') // > quotes
-    .replace(/\n/g, '<br>'); // line breaks
+  // Configure marked options
+  marked.setOptions({
+    breaks: true, // Convert line breaks to <br>
+    gfm: true,    // GitHub flavored markdown
+  });
+
+  // Parse markdown to HTML
+  const html = marked.parse(text) as string;
+
+  // Configure DOMPurify to allow safe HTML tags and attributes
+  const sanitizedHtml = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['strong', 'em', 'b', 'i', 'ul', 'ol', 'li', 'a', 'blockquote', 'br', 'p'],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+    ADD_ATTR: ['target', 'rel'], // Ensure these attributes are preserved
+  });
+
+  return sanitizedHtml;
+};
+
+// Additional safety wrapper to ensure HTML is always sanitized before rendering
+const getSanitizedHtml = (text: string): string => {
+  const processedHtml = processText(text);
+  // Double-sanitize as an extra safety measure
+  return DOMPurify.sanitize(processedHtml, {
+    ALLOWED_TAGS: ['strong', 'em', 'b', 'i', 'ul', 'ol', 'li', 'a', 'blockquote', 'br', 'p'],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
 };
 
 // Kept for future bidirectional conversion features
@@ -87,8 +108,12 @@ export function RichTextEditor({
     if (newValue !== history[historyIndex]) {
       const newHistory = history.slice(0, historyIndex + 1);
       newHistory.push(newValue);
+      // Limit history to last 50 states
+      if (newHistory.length > 50) {
+        newHistory.shift();
+      }
       setHistory(newHistory);
-      setHistoryIndex(newHistory.length - 1);
+      setHistoryIndex(Math.min(newHistory.length - 1, 49));
     }
   }, [history, historyIndex]);
 
@@ -132,12 +157,12 @@ export function RichTextEditor({
     const newValue = 
       value.substring(0, start) + 
       before + textToInsert + after + 
-      value.substring(end);
-    
-    handleChange(newValue);
-    
-    // Reset cursor position
-    setTimeout(() => {
+    // Reset cursor position after React updates
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const newCursorPos = start + before.length + textToInsert.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    });
       textarea.focus();
       const newCursorPos = start + before.length + textToInsert.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);
@@ -337,10 +362,10 @@ export function RichTextEditor({
           }}
         >
           {isPreview ? (
-            // Preview mode
+            // Preview mode - HTML is double-sanitized via DOMPurify for security
             <div 
               className="p-4 prose prose-sm max-w-none overflow-y-auto h-full"
-              dangerouslySetInnerHTML={{ __html: processText(value) }}
+              dangerouslySetInnerHTML={{ __html: getSanitizedHtml(value) }}
             />
           ) : (
             // Edit mode

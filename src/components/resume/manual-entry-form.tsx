@@ -281,8 +281,13 @@ export function ManualEntryForm({
   };
 
   const getFieldError = (fieldName: string) => {
-    const fieldError = errors as any;
-    return fieldName.split('.').reduce((err, key) => err?.[key], fieldError);
+    const keys = fieldName.split('.');
+    let current: any = errors;
+    for (const key of keys) {
+      if (!current) return undefined;
+      current = current[key];
+    }
+    return current as { message?: string } | undefined;
   };
 
   const renderInput = (
@@ -295,8 +300,8 @@ export function ManualEntryForm({
     const error = getFieldError(name);
     return (
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">
-          {label}
+          {...register(name as keyof ManualEntryFormData)}
+          type={type}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
         <input

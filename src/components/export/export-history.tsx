@@ -26,12 +26,25 @@ export const ExportHistory: React.FC<ExportHistoryProps> = ({ resumeId, limit = 
     ? getExportsByResumeId(resumeId) 
     : getRecentExports(limit);
 
+  const handleClearHistory = () => {
+    if (resumeId) {
+      // When filtered by resumeId, remove only the currently displayed exports
+      exports.forEach(exportEntry => {
+        removeExportEntry(exportEntry.id);
+      });
+    } else {
+      // When not filtered, clear all history
+      clearHistory();
+    }
+  };
+
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return 'Unknown';
-    
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${Math.round(bytes / Math.pow(1024, i) * 100) / 100} ${sizes[i]}`;
+    if (bytes == null) return 'Unknown';
+    if (bytes === 0) return '0 B';
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), sizes.length - 1);
+    const value = bytes / Math.pow(1024, i);
+    return `${value.toFixed(2)} ${sizes[i]}`;
   };
 
   const getStatusIcon = (success: boolean) => {
@@ -83,11 +96,11 @@ export const ExportHistory: React.FC<ExportHistoryProps> = ({ resumeId, limit = 
             <Button
               variant="outline"
               size="sm"
-              onClick={clearHistory}
+              onClick={handleClearHistory}
               className="text-red-600 hover:text-red-700"
             >
               <Trash2 className="w-4 h-4 mr-1" />
-              Clear All
+              {resumeId ? 'Clear Shown' : 'Clear All'}
             </Button>
           )}
         </div>

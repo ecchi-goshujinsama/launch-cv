@@ -89,17 +89,23 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
 
   // Handle data validation completion
   const handleDataValidated = (validatedData: ParsedResumeData) => {
-    // Create a new resume in the store from parsed data
-    const resumeId = createResumeFromParsedData(validatedData);
-    setCompletedResumeId(resumeId);
-    
-    setCurrentStep('complete');
-    
-    // Notify completion
-    if (onComplete) {
-      setTimeout(() => {
-        onComplete(resumeId);
-      }, 2000);
+    try {
+      // Create a new resume in the store from parsed data
+      const resumeId = createResumeFromParsedData(validatedData);
+      setCompletedResumeId(resumeId);
+      
+      setCurrentStep('complete');
+      
+      // Notify completion
+      if (onComplete) {
+        setTimeout(() => {
+          onComplete(resumeId);
+        }, 2000);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create resume';
+      setParseError(`Mission Control Alert: ${errorMessage}`);
+      setCurrentStep('review');
     }
   };
 
@@ -204,21 +210,20 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
                       style={{ animationDelay: `${i * 0.1}s` }}
                     />
                   ))}
-                </div>
-              </div>
-            </div>
-          </MissionCard>
-        );
-
       case 'review':
-        return parsedData ? (
+        if (!parsedData) {
+          // Handle the case where review step is reached without data
+          setCurrentStep('upload');
+          return null;
+        }
+        return (
           <PreFlightCheck
             parsedData={parsedData}
             onDataValidated={handleDataValidated}
             onEdit={handleEditData}
             onReparse={handleReparse}
           />
-        ) : (
+        );
           <DataReviewForm
             initialData={parsedData!}
             onSave={handleDataValidated}

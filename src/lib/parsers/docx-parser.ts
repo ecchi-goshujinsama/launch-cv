@@ -49,7 +49,7 @@ export async function parseDocxFile(
       }
     }
     
-    // Add PDF-specific metadata
+    // Add DOCX-specific metadata
     const parsedResult: ParsedResumeData = {
       ...parsedData,
       rawText: cleanText

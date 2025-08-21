@@ -9,7 +9,6 @@ export interface TooltipProps {
   children: React.ReactNode;
   position?: 'top' | 'bottom' | 'left' | 'right';
   className?: string;
-  variant?: 'info' | 'help';
   maxWidth?: string;
 }
 

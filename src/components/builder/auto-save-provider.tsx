@@ -31,7 +31,27 @@ export function useAutoSaveContext() {
 
 interface AutoSaveProviderProps {
   children: React.ReactNode;
-  formData: any;
+interface AutoSaveProviderProps<T = unknown> {
+  children: React.ReactNode;
+  formData: T;
+  storageKey: string;
+  apiSave?: (data: T) => Promise<void>;
+  enabled?: boolean;
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error, data: T) => void;
+}
+
+export function AutoSaveProvider<T = unknown>({
+  children,
+  formData,
+  storageKey,
+  apiSave,
+  enabled = true,
+  onSuccess,
+  onError
+}: AutoSaveProviderProps<T>) {
+  // existing implementation...
+}
   storageKey: string;
   apiSave?: (data: any) => Promise<void>;
   enabled?: boolean;
@@ -252,14 +272,15 @@ interface UnsavedDataBannerProps {
 }
 
 export function UnsavedDataBanner({
-  storageKey,
-  onRecover,
-  onDiscard,
-  className
-}: UnsavedDataBannerProps) {
-  const { hasUnsavedData, unsavedTimestamp } = useHasUnsavedData(storageKey);
-
-  const handleRecover = () => {
+  const handleDiscard = () => {
+    try {
+      localStorage.removeItem(storageKey);
+      onDiscard();
+    } catch (error) {
+      console.error('Failed to discard data:', error);
+      onError?.(error instanceof Error ? error : new Error('Failed to discard data'));
+    }
+  };
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {

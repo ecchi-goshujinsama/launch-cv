@@ -77,13 +77,6 @@ export function DragDropSection({
     }
   };
 
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    
-    if (draggedIndex === null || draggedIndex === dropIndex) {
-      return;
-    }
-
     const newSections = [...sections];
     const draggedSection = newSections[draggedIndex];
     
@@ -97,17 +90,12 @@ export function DragDropSection({
     newSections.splice(insertIndex, 0, draggedSection);
     
     // Update order property
-    newSections.forEach((section, index) => {
-      section.order = index;
-    });
+    const reorderedSections = newSections.map((section, index) => ({
+      ...section,
+      order: index
+    }));
     
-    onReorder(newSections);
-    
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-    setIsDragging(false);
-    dragCounterRef.current = 0;
-  };
+    onReorder(reorderedSections);
 
   const getSectionIcon = (type: ResumeSection['type']) => {
     switch (type) {

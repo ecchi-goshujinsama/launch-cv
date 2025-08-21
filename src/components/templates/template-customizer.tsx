@@ -56,7 +56,13 @@ function ColorPicker({ label, color, onChange, description }: ColorPickerProps) 
         <input
           type="text"
           value={color}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Allow partial input while typing, but validate complete hex colors
+            if (value === '' || value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
+              onChange(value);
+            }
+          }}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-launch-blue-200 focus:border-launch-blue"
           placeholder="#000000"
         />
@@ -210,14 +216,14 @@ export function TemplateCustomizer({
       label: 'Layout',
       icon: <Layout className="w-4 h-4" />,
       enabled: template.customization.layout.canChangeLayout
-    }
-  ];
-
-  const enabledTabs = tabs.filter(tab => tab.enabled);
-  
-  // Set first enabled tab as default
-  React.useEffect(() => {
-    if (enabledTabs.length > 0 && !enabledTabs.find(tab => tab.id === activeTab)) {
+ const enabledTabs = React.useMemo(
+   () => tabs.filter(tab => tab.enabled),
+   [
+     template.customization.colors.canChangeColors,
+     template.customization.fonts.canChangeFonts,
+     template.customization.layout.canChangeLayout
+   ]
+ );
       const firstTab = enabledTabs[0];
       if (firstTab) {
         setActiveTab(firstTab.id);
@@ -253,7 +259,7 @@ export function TemplateCustomizer({
                   <LaunchButton
                     variant="ghost"
                     size="sm"
-                    onClick={onReset}
+                    onClick={() => onReset?.()}
                     icon="none"
                   >
                     <RotateCcw className="w-4 h-4 mr-1" />

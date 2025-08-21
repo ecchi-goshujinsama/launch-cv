@@ -56,7 +56,11 @@ export function TemplateSwitcher({
   }, [templates.length, isLoading, loadTemplates]);
 
   const handleTemplateSelect = async (templateId: string) => {
-    if (!currentResume) return;
+    if (!currentResume) {
+      setIsApplying(false);
+      window.alert("No active resume selected — please open or create a resume before applying a template");
+      return;
+    }
 
     setIsApplying(true);
     try {

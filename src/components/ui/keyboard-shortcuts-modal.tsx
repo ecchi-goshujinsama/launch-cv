@@ -44,7 +44,20 @@ export function KeyboardShortcutsModal({
   }, {} as Record<string, (KeyboardShortcut & { displayKey: string })[]>);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className={cn(
+          "bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col",
+          className
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* …the rest of your modal content… */}
+      </div>
+    </div>
       <div className={cn(
         "bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col",
         className
@@ -60,33 +73,45 @@ export function KeyboardShortcutsModal({
               <p className="text-sm text-gray-600">Speed up your resume building with these shortcuts</p>
             </div>
           </div>
-          <LaunchButton
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            icon="none"
-          >
-            <X className="w-5 h-5" />
-          </LaunchButton>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-auto p-6">
-          <div className="space-y-6">
-            {Object.entries(groupedShortcuts).map(([category, categoryShortcuts]) => (
-              <div key={category}>
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="w-4 h-4 text-launch-blue" />
-                  <h3 className="font-medium text-gray-900 capitalize">{category}</h3>
-                </div>
-                <div className="space-y-2">
-                  {categoryShortcuts.map((shortcut, index) => (
-                    <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
-                      <span className="text-sm text-gray-700">{shortcut.description}</span>
-                      <div className="flex items-center gap-1">
-                        {shortcut.displayKey.split(' + ').map((key, keyIndex) => (
-                          <React.Fragment key={keyIndex}>
-                            <kbd className="px-2 py-1 text-xs font-mono bg-white border border-gray-300 rounded shadow-sm">
+         <div className="flex-1 overflow-auto p-6">
+           <div className="space-y-6" role="main" aria-label="Keyboard shortcuts grouped by category">
+             {Object.entries(groupedShortcuts).map(([category, categoryShortcuts]) => (
+               <section key={category} aria-labelledby={`category-${category}`}>
+                 <div className="flex items-center gap-2 mb-3">
+                   <Zap className="w-4 h-4 text-launch-blue" />
+                   <h3 id={`category-${category}`} className="font-medium text-gray-900 capitalize">
+                     {category}
+                   </h3>
+                 </div>
+                 <div className="space-y-2" role="list" aria-label={`${category} shortcuts`}>
+                   {categoryShortcuts.map((shortcut, index) => (
+                     <div
+                       key={index}
+                       className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md"
+                       role="listitem"
+                     >
+                       <span className="text-sm text-gray-700">
+                         {shortcut.description}
+                       </span>
+                       <div className="flex items-center gap-1">
+                         {shortcut.displayKey.split(' + ').map((key, keyIndex) => (
+                           <React.Fragment key={keyIndex}>
+                             <kbd className="px-2 py-1 text-xs font-mono bg-white border border-gray-300 rounded shadow-sm">
+                               {key}
+                             </kbd>
+                             {keyIndex < shortcut.displayKey.split(' + ').length - 1 && (
+                               <span className="text-xs text-gray-400">+</span>
+                             )}
+                           </React.Fragment>
+                         ))}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </section>
+             ))}
+           </div>
+         </div>
                               {key}
                             </kbd>
                             {keyIndex < shortcut.displayKey.split(' + ').length - 1 && (

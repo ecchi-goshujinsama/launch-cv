@@ -2,6 +2,14 @@
 
 import * as React from 'react';
 import { useResumeStore } from '@/lib/stores/resume-store';
+import { 
+  type ExperienceItem, 
+  type EducationItem, 
+  type ProjectItem, 
+  type CertificationItem,
+  type SkillsItem,
+  type ResumeSection
+} from '@/lib/types';
 import { BuilderLayout } from '@/components/builder/builder-layout';
 import { PreviewContainer } from '@/components/preview/preview-container';
 import { KeyboardShortcutsModal } from '@/components/ui/keyboard-shortcuts-modal';
@@ -27,6 +35,58 @@ import { cn } from '@/lib/utils';
 // import { SectionManager } from '@/components/builder/section-manager';
 // import { MissionProgressTracker } from '@/components/builder/mission-progress-tracker';
 // import { AutoSaveProvider } from '@/components/builder/auto-save-provider';
+
+// Type guard functions for safe type narrowing
+function isExperienceSection(section: ResumeSection): section is ResumeSection & { items: ExperienceItem[] } {
+  return section.type === 'experience';
+}
+
+function isEducationSection(section: ResumeSection): section is ResumeSection & { items: EducationItem[] } {
+  return section.type === 'education';
+}
+
+function isProjectsSection(section: ResumeSection): section is ResumeSection & { items: ProjectItem[] } {
+  return section.type === 'projects';
+}
+
+function isCertificationsSection(section: ResumeSection): section is ResumeSection & { items: CertificationItem[] } {
+  return section.type === 'certifications';
+}
+
+function isSkillsSection(section: ResumeSection): section is ResumeSection & { items: SkillsItem[] } {
+  return section.type === 'skills';
+}
+
+// Helper functions to safely extract typed items from sections
+function getExperienceItems(sections: ResumeSection[]): ExperienceItem[] {
+  const section = sections.find(isExperienceSection);
+  return section ? section.items : [];
+}
+
+function getEducationItems(sections: ResumeSection[]): EducationItem[] {
+  const section = sections.find(isEducationSection);
+  return section ? section.items : [];
+}
+
+function getProjectItems(sections: ResumeSection[]): ProjectItem[] {
+  const section = sections.find(isProjectsSection);
+  return section ? section.items : [];
+}
+
+function getCertificationItems(sections: ResumeSection[]): CertificationItem[] {
+  const section = sections.find(isCertificationsSection);
+  return section ? section.items : [];
+}
+
+function getSkillsItems(sections: ResumeSection[]): SkillsItem[] {
+  const section = sections.find(isSkillsSection);
+  return section ? section.items : [];
+}
+
+function extractSkillsFromItems(sections: ResumeSection[]): string[] {
+  const skillsItems = getSkillsItems(sections);
+  return skillsItems.flatMap((item) => Array.isArray(item.skills) ? item.skills : []);
+}
 
 export default function BuilderPage() {
   const { currentResume, createResume, updateResumeSection } = useResumeStore();
@@ -256,10 +316,7 @@ export default function BuilderPage() {
 
           {activeSection === 'experience' && (
             <ExperienceForm
-              initialData={
-                (currentResume.sections
-                  .find(s => s.type === 'experience')?.items || []) as any[]
-              }
+              initialData={getExperienceItems(currentResume.sections)}
               onSave={() => {
                 // The ExperienceForm should handle saving via store
                 milestoneTracker.trackExperienceComplete();
@@ -269,10 +326,7 @@ export default function BuilderPage() {
 
           {activeSection === 'education' && (
             <EducationForm
-              initialData={
-                (currentResume.sections
-                  .find(s => s.type === 'education')?.items || []) as any[]
-              }
+              initialData={getEducationItems(currentResume.sections)}
               onSave={() => {
                 // The EducationForm should handle saving via store
                 milestoneTracker.trackEducationComplete();
@@ -282,12 +336,7 @@ export default function BuilderPage() {
 
           {activeSection === 'skills' && (
             <SkillsForm
-              initialData={
-                // Extract skills from SkillsItem objects
-                (currentResume.sections
-                  .find(s => s.type === 'skills')?.items || [])
-                  .flatMap((item: any) => item.skills || [])
-              }
+              initialData={extractSkillsFromItems(currentResume.sections)}
               onSave={() => {
                 // The SkillsForm should handle saving via store
                 milestoneTracker.trackSkillsComplete();
@@ -297,10 +346,7 @@ export default function BuilderPage() {
 
           {activeSection === 'projects' && (
             <ProjectsForm
-              initialData={
-                (currentResume.sections
-                  .find(s => s.type === 'projects')?.items || []) as any[]
-              }
+              initialData={getProjectItems(currentResume.sections)}
               onSave={() => {
                 // The ProjectsForm should handle saving via store
               }}
@@ -309,10 +355,7 @@ export default function BuilderPage() {
 
           {activeSection === 'certifications' && (
             <CertificationsForm
-              initialData={
-                (currentResume.sections
-                  .find(s => s.type === 'certifications')?.items || []) as any[]
-              }
+              initialData={getCertificationItems(currentResume.sections)}
               onSave={() => {
                 // The CertificationsForm should handle saving via store
               }}

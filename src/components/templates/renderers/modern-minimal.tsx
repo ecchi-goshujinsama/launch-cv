@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from '@/lib/utils';
+import { cn, deepMerge } from '@/lib/utils';
 import type { Resume } from '@/lib/types';
 import type { Template, TemplateCustomizations } from '@/lib/types/template';
 
@@ -22,21 +22,10 @@ export function ModernMinimalRenderer({
   scale = 1,
   isPrintMode = false
 }: ModernMinimalRendererProps) {
-  // Apply customizations to template
-  const appliedColorScheme = {
-    ...template.colorScheme,
-    ...customizations.colorScheme
-  };
-
-  const appliedTypography = {
-    ...template.typography,
-    ...customizations.typography
-  };
-
-  const appliedLayout = {
-    ...template.layout,
-    ...customizations.layout
-  };
+  // Apply customizations to template using safe deep merge
+  const appliedColorScheme = deepMerge(template.colorScheme, customizations?.colorScheme);
+  const appliedTypography = deepMerge(template.typography, customizations?.typography);
+  const appliedLayout = deepMerge(template.layout, customizations?.layout);
 
   // Get visible sections in order
   const visibleSections = resume.sections

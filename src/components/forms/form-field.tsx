@@ -105,7 +105,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             "placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2",
             "disabled:cursor-not-allowed disabled:opacity-50",
             leftIcon && "pl-10",
+            leftIcon && "pl-10",
             (rightIcon || isPassword) && "pr-10",
+            isPassword && (error || warning || success) && "pr-16",
             error && "border-red-300 focus:ring-red-200 focus:border-red-500",
             warning && "border-amber-300 focus:ring-amber-200 focus:border-amber-500",
             success && "border-green-300 focus:ring-green-200 focus:border-green-500",
@@ -120,7 +122,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className={cn(
+              "absolute top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600",
+              (error || warning || success) ? "right-9" : "right-3"
+            )}
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>

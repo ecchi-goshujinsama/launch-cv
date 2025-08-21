@@ -8,6 +8,11 @@ import type { TemplatePreviewProps, Template } from '@/lib/types/template';
 import type { Resume } from '@/lib/types';
 import { getTemplateRenderer } from './renderers';
 import { 
+  adjustGradientForContrast,
+  getAccessibleFallbackGradient,
+  CONTRAST_RATIOS 
+} from '@/lib/utils/contrast';
+import { 
   Eye, 
   Star, 
   Award,
@@ -98,6 +103,55 @@ const sampleResumeData: Resume = {
   updatedAt: new Date()
 };
 
+/**
+ * Generate accessible gradient styles with contrast validation
+ */
+function getAccessibleGradientStyles(
+  template: Template,
+  textColor: string = template.colorScheme.text.primary
+) {
+  const { primary, secondary } = template.colorScheme.background;
+  
+  // Adjust gradient for accessibility
+  const adjustment = adjustGradientForContrast(
+    primary,
+    secondary,
+    textColor,
+    CONTRAST_RATIOS.NORMAL_TEXT
+  );
+  
+  const baseGradient = `linear-gradient(135deg, ${adjustment.primary} 0%, ${adjustment.secondary} 100%)`;
+  
+  // Build the complete style object
+  const styles: React.CSSProperties = {
+    background: baseGradient
+  };
+  
+  // Add overlay if needed for additional contrast
+  if (adjustment.needsOverlay && adjustment.overlayColor && adjustment.overlayOpacity) {
+    styles.position = 'relative';
+    styles.background = `
+      ${baseGradient},
+      ${adjustment.overlayColor}
+    `;
+    styles.backgroundBlendMode = 'overlay';
+    styles.opacity = 1 - adjustment.overlayOpacity;
+  }
+  
+  return {
+    styles,
+    isUsingFallback: adjustment.needsOverlay,
+    overlayStyles: adjustment.needsOverlay ? {
+      position: 'absolute' as const,
+      inset: '0',
+      background: adjustment.overlayColor,
+      opacity: adjustment.overlayOpacity,
+      pointerEvents: 'none' as const,
+      borderRadius: 'inherit'
+    } : undefined
+  };
+}
+
 interface TemplateCardProps {
   template: Template;
   isSelected?: boolean;
@@ -123,6 +177,12 @@ export function TemplateCard({
     large: 'w-64 h-80'
   };
 
+  // Generate accessible gradient styles
+  const primaryTextContrast = React.useMemo(
+    () => getAccessibleGradientStyles(template, template.colorScheme.text.primary),
+    [template]
+  );
+
   return (
     <MissionCard 
       className={cn(
@@ -139,14 +199,17 @@ export function TemplateCard({
         'relative overflow-hidden rounded-md bg-gray-100 flex-1 mb-3',
         'group-hover:scale-105 transition-transform duration-300'
       )}>
-        {/* Placeholder for template preview */}
+        {/* Accessible template preview with contrast validation */}
         <div 
           className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center"
-          style={{
-            background: `linear-gradient(135deg, ${template.colorScheme.background.primary} 0%, ${template.colorScheme.background.secondary} 100%)`
-          }}
+          style={primaryTextContrast.styles}
         >
-          <div className="text-center space-y-1 p-2">
+          {/* Accessibility overlay if needed */}
+          {primaryTextContrast.overlayStyles && (
+            <div style={primaryTextContrast.overlayStyles} />
+          )}
+          
+          <div className="text-center space-y-1 p-2 relative z-10">
             <div 
               className="text-sm font-semibold"
               style={{ color: template.colorScheme.text.primary }}
@@ -296,6 +359,18 @@ export function TemplatePreview({
     ? { ...template.colorScheme, ...customizations.colorScheme }
     : template.colorScheme;
 
+  // Create template with applied customizations for accessibility calculation
+  const adjustedTemplate = React.useMemo(() => ({
+    ...template,
+    colorScheme: appliedColorScheme
+  }), [template, appliedColorScheme]);
+
+  // Generate accessible styles for this template preview
+  const accessibleStyles = React.useMemo(
+    () => getAccessibleGradientStyles(adjustedTemplate),
+    [adjustedTemplate]
+  );
+
   // Get the appropriate renderer component
   const TemplateRenderer = getTemplateRenderer(template.id);
   
@@ -323,14 +398,18 @@ export function TemplatePreview({
       {...props}
     >
       <div 
-        className="w-full h-full border-2 border-gray-200 rounded-lg shadow-sm overflow-hidden"
+        className="w-full h-full border-2 border-gray-200 rounded-lg shadow-sm overflow-hidden relative"
         style={{
-          backgroundColor: appliedColorScheme.background.primary,
+          ...accessibleStyles.styles,
           borderColor: appliedColorScheme.borders
         }}
       >
+        {/* Accessibility overlay if needed */}
+        {accessibleStyles.overlayStyles && (
+          <div style={accessibleStyles.overlayStyles} />
+        )}
         {/* Template Preview Content - Render actual template */}
-        <div className="w-full h-full overflow-hidden">
+        <div className="w-full h-full overflow-hidden relative z-10">
           <TemplateRenderer
             resume={sampleData}
             template={template}

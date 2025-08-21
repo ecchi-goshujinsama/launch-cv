@@ -66,7 +66,7 @@ export const useCompletionTimer = (): CompletionTimerHook => {
     }
   }, [isTracking, startTime]);
 
-  const elapsedSeconds = startTime && !pauseStartRef.current
+  const elapsedSeconds = startTime
     ? Math.floor((currentTime.getTime() - startTime.getTime()) / 1000) - pausedTime
     : 0;
 

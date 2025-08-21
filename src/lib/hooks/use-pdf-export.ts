@@ -13,7 +13,7 @@ export interface PDFExportState {
 export interface PDFExportActions {
   generatePDF: (resume: Resume, template: Template, options?: Partial<PDFExportOptions>) => Promise<void>;
   downloadPDF: (resume: Resume, template: Template, options?: Partial<PDFExportOptions>) => Promise<void>;
-  previewPDF: (resume: Resume, template: Template, options?: Partial<PDFExportOptions>) => Promise<string | null>;
+  previewPDF: (resume: Resume, template: Template, options?: Partial<PDFExportOptions>) => Promise<string>;
   reset: () => void;
 }
 
@@ -105,7 +105,7 @@ export const usePDFExport = (): PDFExportHook => {
     resume: Resume, 
     template: Template, 
     options: Partial<PDFExportOptions> = {}
-  ): Promise<string | null> => {
+  ): Promise<string> => {
     updateState({ isGenerating: true, error: null, progress: 0, isComplete: false });
 
     try {
@@ -115,15 +115,15 @@ export const usePDFExport = (): PDFExportHook => {
         previewUrl = await PDFGenerator.generatePreviewBlob(resume, template, options);
       });
 
-      return previewUrl;
+      return previewUrl!;
     } catch (error) {
       console.error('PDF preview generation failed:', error);
       updateState({ 
-        error: error.message || 'PDF preview generation failed', 
+        error: error?.message || 'PDF preview generation failed',
         isGenerating: false,
         progress: 0,
       });
-      return null;
+      throw error;
     }
   }, [simulateProgress, updateState]);
 

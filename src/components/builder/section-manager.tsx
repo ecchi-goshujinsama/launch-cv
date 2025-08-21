@@ -128,12 +128,9 @@ export function SectionManager({
       newSections[targetIndex] = sectionA;
     }
 
-    // Update order property
-    newSections.forEach((section, index) => {
-      section.order = index;
-    });
-
-    onSectionReorder(newSections);
+    // Update order property immutably to avoid mutating props
+    const reordered = newSections.map((s, idx) => ({ ...s, order: idx }));
+    onSectionReorder(reordered);
   };
 
   const handleAddSection = (type: SectionType) => {

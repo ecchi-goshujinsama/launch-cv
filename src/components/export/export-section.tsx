@@ -6,7 +6,7 @@ import useTemplateStore from '@/lib/stores/template-store';
 import { usePDFExport } from '@/lib/hooks/use-pdf-export';
 import { getTemplateById } from '@/lib/templates';
 import { LaunchButton } from '@/components/ui/launch-button';
-// import { div className="bg-slate-800 border border-slate-600 rounded-lg" } from '@/components/layout/mission-card';
+
 import { 
   Download, 
   FileText, 
@@ -62,9 +62,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
 
     try {
       const previewUrl = await previewPDF(testResume, currentTemplate);
-      if (previewUrl) {
-        window.open(previewUrl, '_blank');
-      }
+      window.open(previewUrl, '_blank');
     } catch (error) {
       console.error('Preview failed:', error);
     }
@@ -254,7 +252,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
                   onClick={handleDownload}
                   disabled={false}
                   icon="rocket"
-                  iconPosition="right"
+                  disabled={!canExport}
                   animation="rocket"
                   className="w-full"
                 >

@@ -74,10 +74,13 @@ export const LAZY_TEMPLATE_MAP = {
 
 // Utility to get lazy template component
 export const getLazyTemplateComponent = (templateId: string) => {
-  return LAZY_TEMPLATE_MAP[templateId as keyof typeof LAZY_TEMPLATE_MAP];
-};
+  const component = LAZY_TEMPLATE_MAP[templateId as keyof typeof LAZY_TEMPLATE_MAP];
+  if (!component) {
+    console.warn(`Unknown template ID: ${templateId}`);
+  }
+import React from 'react';
+import { lazy } from 'react';
 
-// Pre-configured lazy loading with custom fallbacks
 export const createOptimizedLazyComponent = <T extends React.ComponentType<any>>(
   factory: () => Promise<{ default: T }>,
   componentName: string
@@ -95,6 +98,10 @@ export const createOptimizedLazyComponent = <T extends React.ComponentType<any>>
             <p className="text-sm">Please refresh the page</p>
           </div>
         )) as T
+      };
+    }
+  });
+};
       };
     }
   });

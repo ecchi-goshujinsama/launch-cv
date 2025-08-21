@@ -231,13 +231,39 @@ export function useIsMobile() {
   return { 
     isMobile, 
     isTouchDevice,
-    isDesktop: !isMobile && !isTouchDevice
+   return { 
+     isMobile, 
+     isTouchDevice,
+     isDesktop: !isMobile,
+     isTouchDesktop: !isMobile && isTouchDevice
+   };
   };
 }
 
 // Hook for handling swipe navigation between sections
 export function useSwipeNavigation(
-  sections: string[], 
+  const currentIndex = sections.indexOf(currentSection);
+
+  // Handle invalid current section
+  if (currentIndex === -1) {
+    console.warn(`Current section "${currentSection}" not found in sections array`);
+  }
+
+  const swipeToNext = useCallback(() => {
+    if (!enabled || currentIndex === -1 || currentIndex >= sections.length - 1) return;
+    const nextSection = sections[currentIndex + 1];
+    if (nextSection) {
+      onSectionChange(nextSection);
+    }
+  }, [enabled, currentIndex, sections, onSectionChange]);
+
+  const swipeToPrevious = useCallback(() => {
+    if (!enabled || currentIndex <= 0) return;  // -1 is already handled by <= 0
+    const previousSection = sections[currentIndex - 1];
+    if (previousSection) {
+      onSectionChange(previousSection);
+    }
+  }, [enabled, currentIndex, sections, onSectionChange]);
   currentSection: string, 
   onSectionChange: (section: string) => void,
   enabled = true

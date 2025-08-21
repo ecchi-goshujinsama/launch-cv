@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { debounce } from 'lodash-es';
+import isEqual from 'lodash-es/isEqual';
 
 export type AutoSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-interface AutoSaveOptions {
+interface AutoSaveOptions<T> {
   delay?: number; // Debounce delay in milliseconds
   maxRetries?: number; // Maximum retry attempts on failure
   retryDelay?: number; // Delay between retries in milliseconds
-  onSave?: (data: any) => Promise<void> | void;
-  onSuccess?: (data: any) => void;
-  onError?: (error: Error, data: any) => void;
+  onSave?: (data: T) => Promise<void> | void;
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error, data: T) => void;
   enabled?: boolean; // Allow disabling auto-save
 }
 
@@ -24,7 +25,7 @@ interface AutoSaveState {
 
 export function useAutoSave<T>(
   data: T,
-  options: AutoSaveOptions = {}
+  options: AutoSaveOptions<T> = {}
 ) {
   const {
     delay = 1000,
@@ -65,30 +66,42 @@ export function useAutoSave<T>(
       onSuccess?.(dataToSave);
 
       // Reset to idle after 3 seconds
-      setTimeout(() => {
+      // Reset to idle after 3 seconds
+      saveTimeoutRef.current = setTimeout(() => {
         setState(prev => prev.status === 'saved' ? { ...prev, status: 'idle' } : prev);
       }, 3000);
 
     } catch (error) {
       const saveError = error instanceof Error ? error : new Error('Save failed');
       
-      setState(prev => ({
-        ...prev,
-        status: 'error',
-        error: saveError,
-        retryCount: prev.retryCount + 1
-      }));
+      setState(prev => {
+        const newRetryCount = prev.retryCount + 1;
+        const newState = {
+          ...prev,
+          status: 'error' as const,
+          error: saveError,
+          retryCount: newRetryCount
+        };
+
+        // Clear existing retry timeout before potentially setting a new one
+        if (retryTimeoutRef.current) {
+          clearTimeout(retryTimeoutRef.current);
+          retryTimeoutRef.current = undefined;
+        }
+
+        // Schedule retry if under max retries using the updated retry count
+        if (newRetryCount < maxRetries) {
+          retryTimeoutRef.current = setTimeout(() => {
+            saveData(dataToSave);
+          }, retryDelay);
+        }
+
+        return newState;
+      });
 
       onError?.(saveError, dataToSave);
-
-      // Retry if under max retries
-      if (state.retryCount < maxRetries) {
-        retryTimeoutRef.current = setTimeout(() => {
-          saveData(dataToSave);
-        }, retryDelay);
-      }
     }
-  }, [onSave, enabled, onSuccess, onError, maxRetries, retryDelay, state.retryCount]);
+  }, [onSave, enabled, onSuccess, onError, maxRetries, retryDelay]);
 
   // Create debounced save function
   const debouncedSave = useCallback(
@@ -104,7 +117,7 @@ export function useAutoSave<T>(
     if (!enabled || !onSave) return;
 
     // Skip if data hasn't actually changed
-    if (JSON.stringify(data) === JSON.stringify(lastDataRef.current)) {
+    if (isEqual(data, lastDataRef.current)) {
       return;
     }
 
@@ -258,7 +271,13 @@ export function useFormAutoSave<T>(
 }
 
 // Hook for auto-save status display
-export function useAutoSaveStatus(autoSaveHook: ReturnType<typeof useAutoSave>) {
+export function useAutoSaveStatus(autoSaveHook: {
+  status: AutoSaveStatus;
+  lastSaved: Date | null;
+  error: Error | null;
+  retryCount: number;
+  canRetry: boolean;
+}) {
   const getStatusText = () => {
     switch (autoSaveHook.status) {
       case 'saving':

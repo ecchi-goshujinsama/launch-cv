@@ -110,9 +110,9 @@ export function CompletionProgress({
           <div className="text-lg font-mono text-launch-blue">
             {timer.getFormattedTime()}
           </div>
-          {showEstimate && progress > 0 && progress < 100 && (
+          {showEstimate && progress > 0 && progress < 100 && estimatedTotal > timer.elapsedSeconds && (
             <div className="text-xs text-slate-400">
-              Est. {Math.ceil((estimatedTotal - timer.elapsedSeconds) / 60)}m remaining
+              Est. {Math.max(1, Math.ceil((estimatedTotal - timer.elapsedSeconds) / 60))}m remaining
             </div>
           )}
         </div>
@@ -149,14 +149,18 @@ export function CompletionProgress({
         <div className="mt-4 pt-4 border-t border-slate-700">
           <div className="space-y-2">
             <div className="text-xs font-medium text-slate-300 mb-2">Milestones</div>
-            {timer.milestones.slice(-3).map((milestone, index) => (
-              <div key={milestone.id} className="flex justify-between text-xs">
-                <span className="text-slate-400">{milestone.name}</span>
-                <span className="text-slate-500 font-mono">
-                  {Math.floor(milestone.elapsedSeconds / 60)}:{(milestone.elapsedSeconds % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
-            ))}
+            {timer.milestones && timer.milestones.length > 0 ? (
+              timer.milestones.slice(-3).map((milestone, index) => (
+                <div key={`${milestone.id ?? milestone.name}-${milestone.elapsedSeconds}-${index}`} className="flex justify-between text-xs">
+                  <span className="text-slate-400">{milestone.name}</span>
+                  <span className="text-slate-500 font-mono">
+                    {Math.floor(milestone.elapsedSeconds / 60)}:{(milestone.elapsedSeconds % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-xs text-slate-500 italic">No milestones yet</div>
+            )}
           </div>
         </div>
       )}

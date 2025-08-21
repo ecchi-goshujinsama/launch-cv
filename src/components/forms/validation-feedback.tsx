@@ -239,14 +239,40 @@ export function ValidationSummary({
             </div>
           </div>
           
-          <div className="text-center p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="text-2xl font-bold text-amber-700">{warningCount}</div>
-            <div className="text-xs text-amber-600 uppercase font-medium">Warnings</div>
+          <div className={cn(
+            "text-center p-3 border rounded-lg",
+            warningCount > 0 ? "bg-amber-50 border-amber-200" : "bg-gray-50 border-gray-200"
+          )}>
+            <div className={cn(
+              "text-2xl font-bold",
+              warningCount > 0 ? "text-amber-700" : "text-gray-500"
+            )}>
+              {warningCount}
+            </div>
+            <div className={cn(
+              "text-xs uppercase font-medium",
+              warningCount > 0 ? "text-amber-600" : "text-gray-500"
+            )}>
+              Warnings
+            </div>
           </div>
-          
-          <div className="text-center p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div className="text-2xl font-bold text-green-700">{successCount}</div>
-            <div className="text-xs text-green-600 uppercase font-medium">Complete</div>
+
+          <div className={cn(
+            "text-center p-3 border rounded-lg",
+            successCount > 0 ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"
+          )}>
+            <div className={cn(
+              "text-2xl font-bold",
+              successCount > 0 ? "text-green-700" : "text-gray-500"
+            )}>
+              {successCount}
+            </div>
+            <div className={cn(
+              "text-xs uppercase font-medium",
+              successCount > 0 ? "text-green-600" : "text-gray-500"
+            )}>
+              Complete
+            </div>
           </div>
           
           <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">

@@ -36,14 +36,7 @@ export function PreFlightCheck({
   const [editedData, setEditedData] = useState<ParsedResumeData>(parsedData);
   const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
 
-  // Debug logging to see what data is being received
-  React.useEffect(() => {
-    console.log('=== PreFlightCheck DEBUG ===');
-    console.log('Parsed data received:', parsedData);
-    console.log('Experience sections:', parsedData.sections?.experience);
-    console.log('Skills sections:', parsedData.sections?.skills);
-    console.log('=== END PreFlightCheck DEBUG ===');
-  }, [parsedData]);
+
 
   // Run validation on mount and data changes
   React.useEffect(() => {
@@ -165,17 +158,43 @@ export function PreFlightCheck({
       // Handle nested field updates
       if (field.includes('.')) {
         const parts = field.split('.');
-        let current = updated as any;
+  const handleFieldEdit = (field: string, value: string) => {
+    setEditedData(prev => {
+      const updated = { ...prev };
+      
+      // Handle nested field updates
+      if (field.includes('.')) {
+        const parts = field.split('.');
+        let current: any = updated;
         
         for (let i = 0; i < parts.length - 1; i++) {
           const part = parts[i];
-          if (part && !current[part]) {
-            current[part] = {};
-          }
-          if (part) {
+          if (!part) continue;
+          
+          // Handle array index access
+          const arrayMatch = part.match(/^(\w+)$/);
+          if (arrayMatch && !isNaN(Number(parts[i + 1]))) {
+            // This is an array field
+            if (!current[part]) {
+              current[part] = [];
+            }
+            current = current[part];
+          } else if (!isNaN(Number(part))) {
+            // This is an array index
+            const index = Number(part);
+            if (!current[index]) {
+              current[index] = {};
+            }
+            current = current[index];
+          } else {
+            // Regular object field
+            if (!current[part]) {
+              current[part] = {};
+            }
             current = current[part];
           }
         }
+        
         const lastPart = parts[parts.length - 1];
         if (lastPart) {
           current[lastPart] = value;
@@ -190,13 +209,6 @@ export function PreFlightCheck({
       return updated;
     });
   };
-
-  const handleSaveEdit = () => {
-    setEditMode(null);
-  };
-
-  const getIssueIcon = (severity: ValidationIssue['severity']) => {
-    switch (severity) {
       case 'error':
         return <AlertCircle className="w-4 h-4 text-red-500" />;
       case 'warning':

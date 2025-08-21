@@ -108,9 +108,7 @@ export function EducationForm({
     }
   };
 
-  // const moveEducation = (from: number, to: number) => {
-  //   move(from, to);
-  // };
+
 
   const renderField = (
     name: string,
@@ -135,9 +133,13 @@ export function EducationForm({
           placeholder={placeholder}
           step={type === 'number' ? '0.1' : undefined}
           min={type === 'number' ? '0' : undefined}
-          max={type === 'number' ? '4' : undefined}
-          className={cn(
-            "w-full px-3 py-2 border rounded-md text-sm transition-colors",
+   renderField(
+     `education.${index}.gpa`,
+     'GPA (Optional)',
+     'number',
+     <Award className="w-4 h-4" />,
+     '3.8'
+   )
             "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-launch-blue-200",
             fieldError
               ? "border-red-300 bg-red-50"
@@ -189,10 +191,12 @@ export function EducationForm({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <button
-                      type="button"
-                      className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
-                      onMouseDown={(e) => {
-                        // Drag functionality would be implemented here
+                      <button
+                        type="button"
+                        className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
+                        disabled
+                        title="Drag to reorder (coming soon)"
+                      >
                         e.preventDefault();
                       }}
                     >
@@ -203,7 +207,7 @@ export function EducationForm({
                         ? `${watchedData.education[index].degree} - ${watchedData.education[index].institution}`
                         : `Education ${index + 1}`
                       }
-                    </h4>
+                      <li>• Only include GPA if it's 3.5 or higher</li>
                   </div>
                   {fields.length > 1 && (
                     <LaunchButton

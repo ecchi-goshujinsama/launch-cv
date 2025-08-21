@@ -65,8 +65,8 @@ const MissionProgress = React.forwardRef<HTMLDivElement, MissionProgressProps>(
   ) => {
     const completedSteps = steps.filter(step => step.status === 'completed').length;
     const totalSteps = steps.length;
-    const progressPercentage = (completedSteps / totalSteps) * 100;
-    const isComplete = completedSteps === totalSteps;
+    const progressPercentage = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+    const isComplete = totalSteps > 0 ? completedSteps === totalSteps : false;
 
     const getStepIcon = (step: MissionStep) => {
       if (step.icon) return step.icon;

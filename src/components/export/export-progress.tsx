@@ -222,13 +222,13 @@ export const ExportProgress: React.FC<ExportProgressProps> = ({
             <span>Template "{templateName}" loaded</span>
           </div>
           <div className="flex items-center">
-            <span className={progress > 50 ? "text-green-400" : "text-yellow-400"} mr-2">
+            <span className={`${progress > 50 ? 'text-green-400' : 'text-yellow-400'} mr-2`}>
               {progress > 50 ? "✓" : "○"}
             </span>
             <span>PDF engine initialized</span>
           </div>
           <div className="flex items-center">
-            <span className={progress > 80 ? "text-green-400" : "text-gray-500"} mr-2">
+            <span className={`${progress > 80 ? 'text-green-400' : 'text-gray-500'} mr-2`}>
               {progress > 80 ? "✓" : "○"}
             </span>
             <span>Document compilation complete</span>

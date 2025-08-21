@@ -143,6 +143,7 @@ export function SkillsForm({
 
   const handleFormSubmit = () => {
     onSave(skills);
+    setIsDirty(false);
   };
 
   const getCategoryIcon = (category: 'technical' | 'soft' | 'tools') => {

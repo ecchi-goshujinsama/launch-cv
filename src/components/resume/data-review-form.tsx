@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, Minus, AlertCircle, CheckCircle2, Edit3, Trash2 } from 'lucide-react';
@@ -120,47 +120,50 @@ export function DataReviewForm({
   }, [isDirty]);
 
   const onSubmit = (data: DataReviewFormData) => {
+    // Helper function to check if a value is present (not null/undefined)
+    const isPresent = (v: any) => v !== undefined && v !== null;
+
     // Transform back to ParsedResumeData format
     const transformedData: ParsedResumeData = {
       personalInfo: {
-        ...(data.personalInfo.fullName && { fullName: data.personalInfo.fullName }),
-        ...(data.personalInfo.email && { email: data.personalInfo.email }),
-        ...(data.personalInfo.phone && { phone: data.personalInfo.phone }),
-        ...(data.personalInfo.location && { location: data.personalInfo.location }),
-        ...(data.personalInfo.linkedin && { linkedin: data.personalInfo.linkedin }),
-        ...(data.personalInfo.website && { website: data.personalInfo.website }),
-        ...(data.personalInfo.summary && { summary: data.personalInfo.summary })
+        ...(isPresent(data.personalInfo.fullName) && { fullName: data.personalInfo.fullName }),
+        ...(isPresent(data.personalInfo.email) && { email: data.personalInfo.email }),
+        ...(isPresent(data.personalInfo.phone) && { phone: data.personalInfo.phone }),
+        ...(isPresent(data.personalInfo.location) && { location: data.personalInfo.location }),
+        ...(isPresent(data.personalInfo.linkedin) && { linkedin: data.personalInfo.linkedin }),
+        ...(isPresent(data.personalInfo.website) && { website: data.personalInfo.website }),
+        ...(isPresent(data.personalInfo.summary) && { summary: data.personalInfo.summary })
       },
       sections: {
         ...(data.experience.length > 0 && {
           experience: data.experience.map(exp => ({
-            ...(exp.title && { title: exp.title }),
-            ...(exp.company && { company: exp.company }),
-            ...(exp.location && { location: exp.location }),
-            ...(exp.startDate && { startDate: exp.startDate }),
-            ...(exp.endDate && { endDate: exp.endDate }),
-            ...(exp.description && { description: exp.description }),
-            ...(exp.current !== undefined && { current: exp.current })
+            ...(isPresent(exp.title) && { title: exp.title }),
+            ...(isPresent(exp.company) && { company: exp.company }),
+            ...(isPresent(exp.location) && { location: exp.location }),
+            ...(isPresent(exp.startDate) && { startDate: exp.startDate }),
+            ...(isPresent(exp.endDate) && { endDate: exp.endDate }),
+            ...(isPresent(exp.description) && { description: exp.description }),
+            ...(isPresent(exp.current) && { current: exp.current })
           }))
         }),
         ...(data.education.length > 0 && {
           education: data.education.map(edu => ({
-            ...(edu.institution && { institution: edu.institution }),
-            ...(edu.degree && { degree: edu.degree }),
-            ...(edu.field && { field: edu.field }),
-            ...(edu.location && { location: edu.location }),
-            ...(edu.startDate && { startDate: edu.startDate }),
-            ...(edu.endDate && { endDate: edu.endDate }),
-            ...(edu.gpa && { gpa: edu.gpa })
+            ...(isPresent(edu.institution) && { institution: edu.institution }),
+            ...(isPresent(edu.degree) && { degree: edu.degree }),
+            ...(isPresent(edu.field) && { field: edu.field }),
+            ...(isPresent(edu.location) && { location: edu.location }),
+            ...(isPresent(edu.startDate) && { startDate: edu.startDate }),
+            ...(isPresent(edu.endDate) && { endDate: edu.endDate }),
+            ...(isPresent(edu.gpa) && { gpa: edu.gpa })
           }))
         }),
         ...(data.skills.length > 0 && { skills: data.skills }),
         ...(data.projects && data.projects.length > 0 && {
           projects: data.projects.map(project => ({
-            ...(project.name && { name: project.name }),
-            ...(project.description && { description: project.description }),
-            ...(project.technologies && { technologies: project.technologies }),
-            ...(project.url && { url: project.url })
+            ...(isPresent(project.name) && { name: project.name }),
+            ...(isPresent(project.description) && { description: project.description }),
+            ...(isPresent(project.technologies) && { technologies: project.technologies }),
+            ...(isPresent(project.url) && { url: project.url })
           }))
         })
       },
@@ -236,12 +239,16 @@ export function DataReviewForm({
   };
 
   const getFieldError = (fieldName: string) => {
-    const fieldError = errors as any;
-    return fieldName.split('.').reduce((err, key) => err?.[key], fieldError);
+    return fieldName.split('.').reduce((err, key) => {
+      if (err && typeof err === 'object' && key in err) {
+        return (err as Record<string, any>)[key];
+      }
+      return undefined;
+    }, errors as Record<string, any>);
   };
 
   const renderInputField = (
-    name: string,
+    name: FieldPath<DataReviewFormData>,
     label: string,
     type: 'text' | 'email' | 'url' = 'text',
     required = false,
@@ -255,7 +262,7 @@ export function DataReviewForm({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
         <input
-          {...register(name as any)}
+          {...register(name)}
           type={type}
           placeholder={placeholder}
           className={cn(
@@ -277,13 +284,13 @@ export function DataReviewForm({
     );
   };
 
-  const renderTextareaField = (name: string, label: string, rows = 3, placeholder?: string) => {
+  const renderTextareaField = (name: FieldPath<DataReviewFormData>, label: string, rows = 3, placeholder?: string) => {
     const error = getFieldError(name);
     return (
       <div className="space-y-1">
         <label className="block text-sm font-medium text-slate-200">{label}</label>
         <textarea
-          {...register(name as any)}
+          {...register(name)}
           rows={rows}
           placeholder={placeholder}
           className={cn(

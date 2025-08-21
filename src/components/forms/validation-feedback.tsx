@@ -43,12 +43,12 @@ export function ValidationFeedback({
 
   const getIcon = (level: ValidationLevel) => {
     switch (level) {
-      case 'error': return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'warning': return <AlertTriangle className="w-4 h-4 text-amber-500" />;
-      case 'info': return <Info className="w-4 h-4 text-blue-500" />;
-      case 'success': return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case 'tip': return <Lightbulb className="w-4 h-4 text-purple-500" />;
-      default: return <Info className="w-4 h-4 text-gray-500" />;
+      case 'error': return <XCircle className="w-4 h-4 text-red-500" aria-hidden="true" focusable={false} />;
+      case 'warning': return <AlertTriangle className="w-4 h-4 text-amber-500" aria-hidden="true" focusable={false} />;
+      case 'info': return <Info className="w-4 h-4 text-blue-500" aria-hidden="true" focusable={false} />;
+      case 'success': return <CheckCircle2 className="w-4 h-4 text-green-500" aria-hidden="true" focusable={false} />;
+      case 'tip': return <Lightbulb className="w-4 h-4 text-purple-500" aria-hidden="true" focusable={false} />;
+      default: return <Info className="w-4 h-4 text-gray-500" aria-hidden="true" focusable={false} />;
     }
   };
 
@@ -65,7 +65,7 @@ export function ValidationFeedback({
 
   if (compact) {
     return (
-      <div className={cn("space-y-1", className)}>
+      <div className={cn("space-y-1", className)} role="status" aria-live="polite" aria-atomic="true">
         {messages.map((msg, index) => (
           <div key={index} className={cn(
             "flex items-start gap-2 text-sm p-2 rounded border",
@@ -148,25 +148,25 @@ export function ValidationSummary({
         <div className="flex items-center gap-2 text-sm">
           {errorCount > 0 && (
             <span className="flex items-center gap-1 text-red-600">
-              <XCircle className="w-4 h-4" />
+              <XCircle className="w-4 h-4" aria-hidden="true" focusable={false} />
               {errorCount}
             </span>
           )}
           {warningCount > 0 && (
             <span className="flex items-center gap-1 text-amber-600">
-              <AlertTriangle className="w-4 h-4" />
+              <AlertTriangle className="w-4 h-4" aria-hidden="true" focusable={false} />
               {warningCount}
             </span>
           )}
           <span className="flex items-center gap-1 text-green-600">
-            <CheckCircle2 className="w-4 h-4" />
+            <CheckCircle2 className="w-4 h-4" aria-hidden="true" focusable={false} />
             {successCount}
           </span>
         </div>
         
         {showProgress && (
           <div className="flex-1">
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={completionPercentage}>
               <div 
                 className="bg-launch-blue rounded-full h-2 transition-all duration-300"
                 style={{ width: `${completionPercentage}%` }}
@@ -189,7 +189,7 @@ export function ValidationSummary({
         <div className="flex items-center justify-between pb-3 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-launch-blue/10 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-launch-blue" />
+              <Shield className="w-5 h-5 text-launch-blue" aria-hidden="true" focusable={false} />
             </div>
             <div>
               <h3 className="text-lg font-semibold mission-text">Form Validation</h3>
@@ -210,7 +210,7 @@ export function ValidationSummary({
               <span>Form Completion</span>
               <span>{successCount}/{totalFields} fields</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full bg-gray-200 rounded-full h-3" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={completionPercentage}>
               <div 
                 className="bg-gradient-to-r from-launch-blue to-rocket-orange rounded-full h-3 transition-all duration-500"
                 style={{ width: `${completionPercentage}%` }}
@@ -282,9 +282,9 @@ export function ValidationSummary({
         </div>
 
         {/* Mission status */}
-        <div className="p-4 bg-gradient-to-r from-launch-blue/5 to-rocket-orange/5 rounded-lg border border-launch-blue/20">
+        <div className="p-4 bg-gradient-to-r from-launch-blue/5 to-rocket-orange/5 rounded-lg border border-launch-blue/20" role="status" aria-live="polite">
           <div className="flex items-center gap-3 mb-2">
-            <Target className="w-5 h-5 text-launch-blue" />
+            <Target className="w-5 h-5 text-launch-blue" aria-hidden="true" focusable={false} />
             <h4 className="font-medium text-launch-blue">Mission Status</h4>
           </div>
           <div className="text-sm text-gray-700">
@@ -319,11 +319,11 @@ export function FieldValidationIndicator({
   const getIcon = () => {
     switch (status) {
       case 'validating': 
-        return <div className="w-4 h-4 border-2 border-launch-blue border-t-transparent rounded-full animate-spin" />;
+        return <div className="w-4 h-4 border-2 border-launch-blue border-t-transparent rounded-full animate-spin" aria-hidden="true" />;
       case 'valid': 
-        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+        return <CheckCircle2 className="w-4 h-4 text-green-500" aria-hidden="true" focusable={false} />;
       case 'invalid': 
-        return <XCircle className="w-4 h-4 text-red-500" />;
+        return <XCircle className="w-4 h-4 text-red-500" aria-hidden="true" focusable={false} />;
       default: 
         return null;
     }
@@ -341,7 +341,7 @@ export function FieldValidationIndicator({
   if (status === 'idle') return null;
 
   return (
-    <div className={cn("flex items-center gap-2 text-sm", getColor(), className)}>
+    <div className={cn("flex items-center gap-2 text-sm", getColor(), className)} role="status" aria-live="polite">
       {getIcon()}
       {message && <span>{message}</span>}
     </div>
@@ -367,23 +367,24 @@ export function ValidationProgress({
   const completedSections = sections.filter(s => s.completed && s.errors === 0).length;
   const totalErrors = sections.reduce((sum, s) => sum + s.errors, 0);
   const totalWarnings = sections.reduce((sum, s) => sum + s.warnings, 0);
+  const progressPct = totalSections === 0 ? 0 : Math.round((completedSections / totalSections) * 100);
   
   return (
     <div className={cn("space-y-4", className)}>
       {/* Overall progress */}
       <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
         <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-launch-blue" />
+          <TrendingUp className="w-4 h-4 text-launch-blue" aria-hidden="true" focusable={false} />
           <span className="font-medium">Overall Progress</span>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-sm text-gray-600">
             {completedSections}/{totalSections} sections
           </div>
-          <div className="w-24 bg-gray-200 rounded-full h-2">
+          <div className="w-24 bg-gray-200 rounded-full h-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPct}>
             <div 
               className="bg-launch-blue rounded-full h-2 transition-all duration-300"
-              style={{ width: `${Math.round((completedSections / totalSections) * 100)}%` }}
+              style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
@@ -424,7 +425,7 @@ export function ValidationProgress({
       {(totalErrors > 0 || totalWarnings > 0) && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
           <div className="flex items-center gap-2 text-sm">
-            <BarChart3 className="w-4 h-4 text-amber-600" />
+            <BarChart3 className="w-4 h-4 text-amber-600" aria-hidden="true" focusable={false} />
             <span className="font-medium text-amber-800">
               {totalErrors} error{totalErrors !== 1 ? 's' : ''} and {totalWarnings} warning{totalWarnings !== 1 ? 's' : ''} across all sections
             </span>

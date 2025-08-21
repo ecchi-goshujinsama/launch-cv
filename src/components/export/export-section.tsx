@@ -40,34 +40,6 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
   const templateId = currentResume?.templateId || selectedTemplateId || 'classic-professional';
   const currentTemplate = templates.find(t => t.id === templateId) || getTemplateById(templateId);
 
-  const handleDownload = async () => {
-    if (!testResume || !currentTemplate) {
-      console.error('Missing resume or template for export');
-      return;
-    }
-
-    try {
-      await downloadPDF(testResume, currentTemplate);
-      onExport?.();
-    } catch (error) {
-      console.error('Export failed:', error);
-    }
-  };
-
-  const handlePreview = async () => {
-    if (!testResume || !currentTemplate) {
-      console.error('Missing resume or template for preview');
-      return;
-    }
-
-    try {
-      const previewUrl = await previewPDF(testResume, currentTemplate);
-      window.open(previewUrl, '_blank');
-    } catch (error) {
-      console.error('Preview failed:', error);
-    }
-  };
-
   // Create a test resume with content for PDF export testing
   const testResume = currentResume || {
     id: 'test-resume',
@@ -116,6 +88,34 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
     },
     createdAt: new Date(),
     updatedAt: new Date()
+  };
+
+  const handleDownload = async () => {
+    if (!testResume || !currentTemplate) {
+      console.error('Missing resume or template for export');
+      return;
+    }
+
+    try {
+      await downloadPDF(testResume, currentTemplate);
+      onExport?.();
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+
+  const handlePreview = async () => {
+    if (!testResume || !currentTemplate) {
+      console.error('Missing resume or template for preview');
+      return;
+    }
+
+    try {
+      const previewUrl = await previewPDF(testResume, currentTemplate);
+      window.open(previewUrl, '_blank');
+    } catch (error) {
+      console.error('Preview failed:', error);
+    }
   };
 
   const canExport = currentTemplate && !isGenerating;
@@ -226,7 +226,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
                 </div>
               </div>
 
-              {!hasContent && (
+              {hasContent && (
                 <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                   <p className="text-sm text-green-400">
                     Ready to export! Using test data for PDF generation.
@@ -250,9 +250,8 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
                   variant="mission"
                   size="lg"
                   onClick={handleDownload}
-                  disabled={false}
-                  icon="rocket"
                   disabled={!canExport}
+                  icon="rocket"
                   animation="rocket"
                   className="w-full"
                 >
@@ -265,7 +264,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
                   <LaunchButton
                     variant="outline"
                     onClick={handlePreview}
-                    disabled={false}
+                    disabled={!canExport}
                     icon="none"
                     className="w-full"
                   >
@@ -279,7 +278,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
                       // TODO: Implement print functionality
                       console.log('Print resume');
                     }}
-                    disabled={false}
+                    disabled={!canExport}
                     icon="none"
                     className="w-full"
                   >

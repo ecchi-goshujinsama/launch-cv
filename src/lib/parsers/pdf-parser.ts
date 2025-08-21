@@ -16,7 +16,7 @@ export async function parsePdfFile(
     
     // Set up PDF.js worker
     if (typeof window !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.mjs';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/pdf.worker.mjs';
     }
     
     // Convert File to ArrayBuffer

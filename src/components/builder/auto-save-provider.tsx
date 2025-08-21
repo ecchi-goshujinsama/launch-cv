@@ -6,6 +6,7 @@ import { Save, RotateCcw, WifiOff, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { useFormAutoSave, useAutoSaveStatus, type AutoSaveStatus } from '@/lib/hooks/use-auto-save';
+import { MISSION_CONTROL_MESSAGES, createMissionMessage, type MissionMessage } from '@/lib/utils/mission-control-messages';
 
 interface AutoSaveContextValue {
   status: AutoSaveStatus;
@@ -29,8 +30,6 @@ export function useAutoSaveContext() {
   return context;
 }
 
-interface AutoSaveProviderProps {
-  children: React.ReactNode;
 interface AutoSaveProviderProps<T = unknown> {
   children: React.ReactNode;
   formData: T;
@@ -50,24 +49,6 @@ export function AutoSaveProvider<T = unknown>({
   onSuccess,
   onError
 }: AutoSaveProviderProps<T>) {
-  // existing implementation...
-}
-  storageKey: string;
-  apiSave?: (data: any) => Promise<void>;
-  enabled?: boolean;
-  onSuccess?: (data: any) => void;
-  onError?: (error: Error, data: any) => void;
-}
-
-export function AutoSaveProvider({
-  children,
-  formData,
-  storageKey,
-  apiSave,
-  enabled = true,
-  onSuccess,
-  onError
-}: AutoSaveProviderProps) {
   const [isOnline, setIsOnline] = React.useState(true);
 
   // Monitor online status
@@ -264,23 +245,24 @@ export function useHasUnsavedData(storageKey: string) {
 }
 
 // Recovery banner for unsaved data
-interface UnsavedDataBannerProps {
+interface UnsavedDataBannerProps<T = unknown> {
   storageKey: string;
-  onRecover: (data: any) => void;
+  onRecover: (data: T) => void;
   onDiscard: () => void;
+  onError?: (error: Error) => void;
   className?: string;
 }
 
-export function UnsavedDataBanner({
-  const handleDiscard = () => {
-    try {
-      localStorage.removeItem(storageKey);
-      onDiscard();
-    } catch (error) {
-      console.error('Failed to discard data:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to discard data'));
-    }
-  };
+export function UnsavedDataBanner<T = unknown>({
+  storageKey,
+  onRecover,
+  onDiscard,
+  onError,
+  className
+}: UnsavedDataBannerProps<T>) {
+  const { hasUnsavedData, unsavedTimestamp } = useHasUnsavedData(storageKey);
+
+  const handleRecover = () => {
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
@@ -290,6 +272,28 @@ export function UnsavedDataBanner({
       }
     } catch (error) {
       console.error('Failed to recover data:', error);
+      const errorMessage = error instanceof Error ? error : new Error('Failed to recover data');
+      
+      // Provide user feedback with mission control messaging
+      const missionMessage = createMissionMessage(
+        '⚠️ Mission Control Alert',
+        'Unable to recover your saved data. The storage may be corrupted. Your current work is safe.',
+        'error'
+      );
+      
+      // Alert fallback for user notification
+      if (typeof window !== 'undefined') {
+        alert(`${missionMessage.title}\n\n${missionMessage.message}`);
+      }
+      
+      onError?.(errorMessage);
+      
+      // Clean up stale storage key on failure
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (cleanupError) {
+        console.error('Failed to clean up stale storage:', cleanupError);
+      }
     }
   };
 
@@ -299,6 +303,21 @@ export function UnsavedDataBanner({
       onDiscard();
     } catch (error) {
       console.error('Failed to discard data:', error);
+      const errorMessage = error instanceof Error ? error : new Error('Failed to discard data');
+      
+      // Provide user feedback with mission control messaging
+      const missionMessage = createMissionMessage(
+        '⚠️ Mission Control Alert',
+        'Unable to clear saved data. Please try refreshing the page.',
+        'error'
+      );
+      
+      // Alert fallback for user notification
+      if (typeof window !== 'undefined') {
+        alert(`${missionMessage.title}\n\n${missionMessage.message}`);
+      }
+      
+      onError?.(errorMessage);
     }
   };
 

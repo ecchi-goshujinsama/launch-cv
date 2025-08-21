@@ -301,33 +301,41 @@ export function CreativeRenderer({
                 </h2>
                 
                 <div className="space-y-4">
-                  {visibleSections.find(s => s.type === 'skills')?.items?.map((item: any, index: number) => (
-                    <div key={index}>
-                      <h3 
-                        className="text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2"
-                        style={{ color: appliedColorScheme.text.primary }}
-                      >
-                        {renderDecorative('heart', 4)}
-                        {item.category}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {item.skills?.map((skill: string, skillIndex: number) => (
-                          <span 
-                            key={skillIndex}
-                            className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all hover:scale-105"
-                            style={{ 
-                              backgroundColor: `${appliedColorScheme.primary}15`,
-                              color: appliedColorScheme.primary,
-                              border: `1px solid ${appliedColorScheme.primary}30`
-                            }}
-                          >
-                            {renderDecorative('zap', 3)}
-                            {skill}
-                          </span>
-                        ))}
+                  {(() => {
+                    const skillsSection = visibleSections.find(s => s.type === 'skills');
+                    if (!Array.isArray(skillsSection?.items)) return null;
+                    
+                    return skillsSection.items.map((item: any, index: number) => (
+                      <div key={index}>
+                        <h3 
+                          className="text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2"
+                          style={{ color: appliedColorScheme.text.primary }}
+                        >
+                          {renderDecorative('heart', 4)}
+                          {item.category}
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {item.skills && Array.isArray(item.skills) 
+                            ? item.skills.map((skill: string, skillIndex: number) => (
+                                <span 
+                                  key={skillIndex}
+                                  className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-medium transition-all hover:scale-105"
+                                  style={{ 
+                                    backgroundColor: `${appliedColorScheme.primary}15`,
+                                    color: appliedColorScheme.primary,
+                                    border: `1px solid ${appliedColorScheme.primary}30`
+                                  }}
+                                >
+                                  {renderDecorative('zap', 3)}
+                                  {skill}
+                                </span>
+                              ))
+                            : null
+                          }
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
             </section>

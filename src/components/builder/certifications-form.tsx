@@ -292,17 +292,17 @@ export function CertificationsForm({
                     {renderField(
                       `certifications.${index}.issueDate`,
                       'Issue Date',
-                      'text',
-                      <Calendar className="w-4 h-4" />,
-                      'March 2023',
+                      'date',
+                      <Calendar className="w-4 h-4" aria-hidden="true" />,
+                      '',
                       true
                     )}
                     {renderField(
                       `certifications.${index}.expirationDate`,
                       'Expiration Date',
-                      'text',
-                      <Clock className="w-4 h-4" />,
-                      'March 2026 (or leave blank if no expiration)'
+                      'date',
+                      <Clock className="w-4 h-4" aria-hidden="true" />,
+                      ''
                     )}
                   </div>
 

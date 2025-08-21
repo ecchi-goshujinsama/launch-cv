@@ -5,8 +5,7 @@ export {
   Textarea,
   Select,
   Checkbox,
-  RadioGroup,
-  ValidationFeedback as FormValidationFeedback
+  RadioGroup
 } from './form-field';
 
 // Date picker components
@@ -25,6 +24,7 @@ export {
 // Validation feedback components
 export {
   ValidationFeedback,
+  ValidationFeedback as FormValidationFeedback,
   ValidationSummary,
   FieldValidationIndicator,
   ValidationProgress

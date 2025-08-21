@@ -21,6 +21,7 @@ import {
   educationSchema 
 } from '@/lib/validations/resume-schemas';
 import type { ResumeSection } from './section-manager';
+import type { ResumeData } from '@/lib/types';
 
 // Extended validation schemas for complete sections
 const sectionValidationSchemas = {
@@ -58,7 +59,7 @@ type SectionValidationResult = {
 
 interface SectionValidatorProps {
   sections: ResumeSection[];
-  resumeData: any; // The actual resume data
+  resumeData: ResumeData; // The actual resume data
   onValidationChange?: (results: SectionValidationResult) => void;
   autoValidate?: boolean;
   className?: string;
@@ -102,14 +103,14 @@ export function SectionValidator({
       // Section-specific completeness checks
       if (section.type === 'personalInfo') {
         const optionalFields = ['linkedin', 'website', 'summary'];
-        const missingOptional = optionalFields.filter(field => !sectionData[field]);
+        const missingOptional = optionalFields.filter(field => !sectionData?.[field]);
         completeness = Math.max(60, 100 - (missingOptional.length * 15));
         
-        if (!sectionData.summary) {
+        if (!sectionData?.summary) {
           warnings.push('Consider adding a professional summary to strengthen your profile');
           score -= 10;
         }
-        if (!sectionData.linkedin) {
+        if (!sectionData?.linkedin) {
           warnings.push('LinkedIn profile can enhance your professional presence');
           score -= 5;
         }
@@ -122,8 +123,8 @@ export function SectionValidator({
           score -= 10;
         }
         
-        experiences.forEach((exp: any, index: number) => {
-          if (!exp.description || exp.description.length < 50) {
+        experiences.forEach((exp, index: number) => {
+          if (!exp?.description || (Array.isArray(exp.description) ? exp.description.join(' ').length < 50 : exp.description.length < 50)) {
             warnings.push(`Experience ${index + 1}: Description could be more detailed`);
             score -= 5;
           }
@@ -170,7 +171,6 @@ export function SectionValidator({
         completeness: 0
       };
     }
-  }, [resumeData]);
   }, [resumeData]);
 
   // Validate all sections

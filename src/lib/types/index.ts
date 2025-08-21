@@ -29,12 +29,12 @@ export interface ResumeSection {
   visible: boolean;
 }
 
-export interface SectionItem {
+export interface BaseSectionItem {
   id: string;
-  [key: string]: unknown;
 }
 
-export interface ExperienceItem extends SectionItem {
+export interface ExperienceItem extends BaseSectionItem {
+  type: 'experience';
   company: string;
   position: string;
   startDate: string;
@@ -44,7 +44,8 @@ export interface ExperienceItem extends SectionItem {
   skills: string[];
 }
 
-export interface EducationItem extends SectionItem {
+export interface EducationItem extends BaseSectionItem {
+  type: 'education';
   institution: string;
   degree: string;
   field: string;
@@ -56,7 +57,8 @@ export interface EducationItem extends SectionItem {
   coursework?: string[];
 }
 
-export interface ProjectItem extends SectionItem {
+export interface ProjectItem extends BaseSectionItem {
+  type: 'projects';
   name: string;
   description: string;
   technologies: string[];
@@ -67,27 +69,67 @@ export interface ProjectItem extends SectionItem {
   highlights: string[];
 }
 
-export interface SkillsItem extends SectionItem {
+export interface SkillsItem extends BaseSectionItem {
+  type: 'skills';
   category: string;
   skills: string[];
   proficiency?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
 }
 
-export interface CertificationItem extends SectionItem {
+export interface CertificationItem extends BaseSectionItem {
+  type: 'certifications';
   name: string;
   issuer: string;
   issueDate: string;
   expirationDate?: string | null;
   credentialId?: string;
   url?: string;
+  date?: string;
+  expires?: string;
 }
 
-export interface CustomSectionItem extends SectionItem {
+export interface CustomSectionItem extends BaseSectionItem {
+  type: 'custom';
   title: string;
+  name?: string;
   subtitle?: string;
   date?: string;
   location?: string;
-  description: string[];
+  description: string | string[];
+}
+
+// Discriminated union for all section item types
+export type SectionItem = 
+  | ExperienceItem 
+  | EducationItem 
+  | ProjectItem 
+  | SkillsItem 
+  | CertificationItem 
+  | CustomSectionItem;
+
+// Type guard functions
+export function isExperienceItem(item: SectionItem): item is ExperienceItem {
+  return item.type === 'experience';
+}
+
+export function isEducationItem(item: SectionItem): item is EducationItem {
+  return item.type === 'education';
+}
+
+export function isProjectItem(item: SectionItem): item is ProjectItem {
+  return item.type === 'projects';
+}
+
+export function isSkillsItem(item: SectionItem): item is SkillsItem {
+  return item.type === 'skills';
+}
+
+export function isCertificationItem(item: SectionItem): item is CertificationItem {
+  return item.type === 'certifications';
+}
+
+export function isCustomSectionItem(item: SectionItem): item is CustomSectionItem {
+  return item.type === 'custom';
 }
 
 export interface ResumeMetadata {
@@ -121,6 +163,17 @@ export interface ResumeState {
   isLoading: boolean;
   isDirty: boolean;
   lastSaved: Date | null;
+}
+
+// Resume data structure for validation and manipulation
+export interface ResumeData {
+  personalInfo: PersonalInfo;
+  experience?: ExperienceItem[];
+  education?: EducationItem[];
+  skills?: string[];
+  projects?: ProjectItem[];
+  certifications?: CertificationItem[];
+  [key: string]: unknown;
 }
 
 // Form validation types

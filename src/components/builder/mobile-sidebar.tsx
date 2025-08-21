@@ -141,10 +141,12 @@ export function MobileSidebar({
               <h2 className="text-lg font-semibold text-white">Mission Control</h2>
             </div>
             <button
+              type="button"
               onClick={onToggle}
+              aria-label="Close sidebar"
               className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -215,14 +217,13 @@ export function MobileSidebar({
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <Eye className="w-4 h-4 text-gray-500" aria-hidden="true" focusable="false" />
-                  <span>Toggle Preview</span>
-                </button>
+                  <Eye className="w-4 h-4 text-gray-500" aria-hidden="true" />
                   <span>Toggle Preview</span>
                 </button>
                 
                 {onSave && (
                   <button
+                    type="button"
                     onClick={() => {
                       onSave();
                       onToggle();
@@ -230,7 +231,7 @@ export function MobileSidebar({
                     disabled={autoSaveStatus === 'saving'}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-gray-100 disabled:opacity-50 rounded-lg transition-colors"
                   >
-                    <Save className="w-4 h-4 text-gray-500" />
+                    <Save className="w-4 h-4 text-gray-500" aria-hidden="true" />
                     <span>Save Changes</span>
                   </button>
                 )}
@@ -257,7 +258,13 @@ export function MobileSidebar({
                 <div 
                   className="bg-launch-blue rounded-full h-2 transition-all duration-300"
                   style={{ 
-                    width: `${Math.round((sections.filter(s => s.isComplete).length / sections.length) * 100)}%` 
+                    width: `${(() => {
+                      const completedCount = sections.filter(s => s.isComplete).length;
+                      const totalCount = sections.length;
+                      const safeFraction = totalCount === 0 ? 0 : completedCount / totalCount;
+                      const percentage = Math.round(safeFraction * 100);
+                      return isFinite(percentage) ? percentage : 0;
+                    })()}%` 
                   }}
                 />
               </div>

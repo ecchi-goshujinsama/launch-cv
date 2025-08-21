@@ -2,8 +2,44 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import type { Resume } from '@/lib/types';
+import type { 
+  Resume, 
+  ExperienceItem, 
+  EducationItem, 
+  SkillsItem, 
+  ProjectItem, 
+  CertificationItem, 
+  CustomSectionItem 
+} from '@/lib/types';
 import type { Template, TemplateCustomizations } from '@/lib/types/template';
+
+// Union type for all possible section items
+type SectionItemUnion = ExperienceItem | EducationItem | SkillsItem | ProjectItem | CertificationItem | CustomSectionItem;
+
+// Type guards for discriminating between section item types
+function isExperienceItem(item: SectionItemUnion): item is ExperienceItem {
+  return 'company' in item && 'position' in item;
+}
+
+function isEducationItem(item: SectionItemUnion): item is EducationItem {
+  return 'institution' in item && 'degree' in item;
+}
+
+function isSkillsItem(item: SectionItemUnion): item is SkillsItem {
+  return 'category' in item && 'skills' in item && Array.isArray((item as SkillsItem).skills);
+}
+
+function isProjectItem(item: SectionItemUnion): item is ProjectItem {
+  return 'name' in item && 'technologies' in item;
+}
+
+function isCertificationItem(item: SectionItemUnion): item is CertificationItem {
+  return 'name' in item && 'issuer' in item && !('technologies' in item);
+}
+
+function isCustomSectionItem(item: SectionItemUnion): item is CustomSectionItem {
+  return 'title' in item && !('company' in item) && !('institution' in item) && !('category' in item) && !('technologies' in item) && !('issuer' in item);
+}
 
 interface ClassicProfessionalRendererProps {
   resume: Resume;
@@ -128,7 +164,9 @@ export function ClassicProfessionalRenderer({
             
             {section.type === 'experience' && (
               <div className="space-y-4">
-                {section.items?.map((item: any, index: number) => (
+                {(section.items as SectionItemUnion[])?.map((item, index: number) => {
+                  if (!isExperienceItem(item)) return null;
+                  return (
                   <div key={index} className="mb-4">
                     <div className="flex justify-between items-start mb-1">
                       <h3 className="font-semibold" style={{ color: appliedColorScheme.text.primary }}>
@@ -172,13 +210,16 @@ export function ClassicProfessionalRenderer({
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {section.type === 'education' && (
               <div className="space-y-3">
-                {section.items?.map((item: any, index: number) => (
+                {(section.items as SectionItemUnion[])?.map((item, index: number) => {
+                  if (!isEducationItem(item)) return null;
+                  return (
                   <div key={index} className="mb-3">
                     <div className="flex justify-between items-start">
                       <div>
@@ -200,13 +241,16 @@ export function ClassicProfessionalRenderer({
                       </p>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {section.type === 'skills' && (
               <div className="space-y-3">
-                {section.items?.map((item: any, index: number) => (
+                {(section.items as SectionItemUnion[])?.map((item, index: number) => {
+                  if (!isSkillsItem(item)) return null;
+                  return (
                   <div key={index}>
                     <h3 className="font-semibold mb-2" style={{ color: appliedColorScheme.text.primary }}>
                       {item.category}
@@ -226,13 +270,16 @@ export function ClassicProfessionalRenderer({
                       ))}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {section.type === 'projects' && (
               <div className="space-y-4">
-                {section.items?.map((item: any, index: number) => (
+                {(section.items as SectionItemUnion[])?.map((item, index: number) => {
+                  if (!isProjectItem(item)) return null;
+                  return (
                   <div key={index} className="mb-4">
                     <div className="flex justify-between items-start mb-1">
                       <h3 className="font-semibold" style={{ color: appliedColorScheme.text.primary }}>
@@ -271,13 +318,16 @@ export function ClassicProfessionalRenderer({
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {section.type === 'certifications' && (
               <div className="space-y-3">
-                {section.items?.map((item: any, index: number) => (
+                {(section.items as SectionItemUnion[])?.map((item, index: number) => {
+                  if (!isCertificationItem(item)) return null;
+                  return (
                   <div key={index} className="flex justify-between items-start">
                     <div>
                       <h3 className="font-semibold" style={{ color: appliedColorScheme.text.primary }}>
@@ -288,29 +338,35 @@ export function ClassicProfessionalRenderer({
                       </h4>
                     </div>
                     <div className="text-right text-sm" style={{ color: appliedColorScheme.text.secondary }}>
-                      {item.date && <div>{item.date}</div>}
-                      {item.expires && <div>Expires: {item.expires}</div>}
+                      {item.issueDate && <div>{item.issueDate}</div>}
+                      {item.expirationDate && <div>Expires: {item.expirationDate}</div>}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
             {/* Handle custom sections */}
             {!['experience', 'education', 'skills', 'projects', 'certifications'].includes(section.type) && (
               <div className="space-y-3">
-                {section.items?.map((item: any, index: number) => (
+                {(section.items as SectionItemUnion[])?.map((item, index: number) => {
+                  if (!isCustomSectionItem(item)) return null;
+                  return (
                   <div key={index}>
                     <h3 className="font-semibold" style={{ color: appliedColorScheme.text.primary }}>
-                      {item.title || item.name}
+                      {item.title}
                     </h3>
-                    {item.description && (
-                      <p className="text-sm mt-1" style={{ color: appliedColorScheme.text.primary }}>
-                        {item.description}
-                      </p>
+                    {item.description && Array.isArray(item.description) && (
+                      <div className="text-sm mt-1" style={{ color: appliedColorScheme.text.primary }}>
+                        {item.description.map((desc: string, descIndex: number) => (
+                          <p key={descIndex}>{desc}</p>
+                        ))}
+                      </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>

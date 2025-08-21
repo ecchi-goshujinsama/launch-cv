@@ -255,24 +255,29 @@ export function DragDropSection({
 }
 
 // Higher-order component for adding drag & drop to any section list
-export function withDragDrop<T extends { id: string; order: number }>(
-  Component: React.ComponentType<any>
+export function withDragDrop<T extends { id: string; order: number }, Props extends { items: T[]; onReorder: (items: T[]) => void }>(
+  Component: React.ComponentType<Props>
 ) {
-  return function DragDropWrapper(props: any) {
+  return function DragDropWrapper(props: Omit<Props, 'items' | 'onReorder'> & Partial<Pick<Props, 'items' | 'onReorder'>>) {
     const { items, onReorder, ...restProps } = props;
     
     const handleReorder = (newItems: T[]) => {
+      // Create new item objects without mutating originals
       const reorderedItems = newItems.map((item, index) => ({
         ...item,
         order: index
       }));
-      onReorder(reorderedItems);
+      
+      // Only call onReorder if provided
+      if (onReorder) {
+        onReorder(reorderedItems);
+      }
     };
 
     return (
       <Component
-        {...restProps}
-        items={items}
+        {...(restProps as Props)}
+        items={items || ([] as T[])}
         onReorder={handleReorder}
       />
     );

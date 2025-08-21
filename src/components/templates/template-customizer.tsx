@@ -343,9 +343,10 @@ export function TemplateCustomizer({
                   <ColorPicker
                     label="Text Color"
                     color={currentColorScheme.text.primary}
-                    onChange={(color) => updateColorScheme({ 
-                      text: { ...currentColorScheme.text, primary: color }
-                    })}
+                    onChange={(color) => updateColorScheme(prev => ({ 
+                      ...prev, 
+                      text: { ...prev.text, primary: color }
+                    }))}
                     description="Primary text color for body content"
                   />
                 </div>

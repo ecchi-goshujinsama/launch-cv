@@ -177,7 +177,7 @@ const ProjectItemPDF: React.FC<{ item: ProjectItem }> = ({ item }) => (
     {item.highlights?.map((highlight, index) => (
       <Text key={index} style={styles.bulletPoint}>• {highlight}</Text>
     ))}
-    {item.technologies.length > 0 && (
+    {Array.isArray(item.technologies) && item.technologies.length > 0 && (
       <View style={{ ...styles.skillsGrid, marginTop: 6 }}>
         {item.technologies.map((tech, index) => (
           <Text key={index} style={styles.skillItem}>{tech}</Text>

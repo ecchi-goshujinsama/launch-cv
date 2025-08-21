@@ -17,6 +17,25 @@ import {
   X,
   Settings
 } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import {
+  CSS,
+} from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionCard } from '@/components/layout';
@@ -32,6 +51,167 @@ const customSectionSchema = z.object({
 
 type CustomSectionData = z.infer<typeof customSectionSchema>;
 type CustomSectionItem = CustomSectionData['items'][0];
+
+interface SortableItemProps {
+  id: string;
+  index: number;
+  field: any;
+  watchedData: CustomSectionData;
+  fields: any[];
+  removeItem: (index: number) => void;
+  addDescription: (itemIndex: number) => void;
+  removeDescription: (itemIndex: number, descIndex: number) => void;
+  renderField: (name: string, label: string, type?: 'text' | 'textarea', icon?: React.ReactNode, placeholder?: string, required?: boolean) => JSX.Element;
+  register: any;
+  setValue: any;
+}
+
+function SortableItem({
+  id,
+  index,
+  field,
+  watchedData,
+  fields,
+  removeItem,
+  addDescription,
+  removeDescription,
+  renderField,
+  register,
+  setValue,
+}: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative">
+      <div className="p-4 border border-gray-200 rounded-lg space-y-4 bg-white">
+        {/* Item Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600 touch-none"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="w-4 h-4" />
+            </button>
+            <h4 className="font-medium text-gray-900">
+              {watchedData.items[index]?.title || `Item ${index + 1}`}
+            </h4>
+          </div>
+          {fields.length > 1 && (
+            <LaunchButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => removeItem(index)}
+              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4" />
+            </LaunchButton>
+          )}
+        </div>
+
+        {/* Main Fields Grid */}
+        <div className="grid md:grid-cols-2 gap-4">
+          {renderField(
+            `items.${index}.title`,
+            'Title',
+            'text',
+            <Type className="w-4 h-4" />,
+            'Award Name, Volunteer Role, Publication Title, etc.',
+            true
+          )}
+          {renderField(
+            `items.${index}.subtitle`,
+            'Subtitle',
+            'text',
+            <Type className="w-4 h-4" />,
+            'Organization, Company, Journal, etc.'
+          )}
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {renderField(
+            `items.${index}.date`,
+            'Date',
+            'text',
+            <Calendar className="w-4 h-4" />,
+            'March 2023'
+          )}
+          {renderField(
+            `items.${index}.location`,
+            'Location',
+            'text',
+            <MapPin className="w-4 h-4" />,
+            'New York, NY'
+          )}
+        </div>
+
+        {/* Description Points */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <FileText className="w-4 h-4" />
+              Description Points
+            </label>
+            <LaunchButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => addDescription(index)}
+              icon="none"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Add Point
+            </LaunchButton>
+          </div>
+          
+          <div className="space-y-2">
+            {(watchedData.items[index]?.description || ['']).map((_, descIndex) => (
+              <div key={descIndex} className="flex gap-2">
+                <input
+                  {...register(`items.${index}.description.${descIndex}` as any)}
+                  type="text"
+                  placeholder="Describe your role, achievements, or key details"
+                  className={cn(
+                    "flex-1 px-3 py-2 border rounded-md text-sm transition-colors",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-launch-blue-200",
+                    "border-gray-300 hover:border-gray-400 focus:border-launch-blue"
+                  )}
+                />
+                {(watchedData.items[index]?.description || []).length > 1 && (
+                  <LaunchButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeDescription(index, descIndex)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2"
+                  >
+                    <X className="w-3 h-3" />
+                  </LaunchButton>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface CustomSectionFormProps {
   sectionId?: string;
@@ -80,10 +260,17 @@ export function CustomSectionForm({
     mode: 'onBlur'
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control,
     name: 'items'
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const watchedData = watch();
   const [createdSectionId, setCreatedSectionId] = React.useState<string | undefined>(sectionId);
@@ -120,7 +307,6 @@ export function CustomSectionForm({
     updateResumeSection,
     addResumeSection
   ]);
-  }, [watchedData, isDirty, isValid, autoSave, onSave, sectionId, updateResumeSection, addResumeSection]);
 
   const handleFormSubmit = (data: CustomSectionData) => {
     const processedItems = data.items.map(item => ({
@@ -154,6 +340,16 @@ export function CustomSectionForm({
     }
   };
 
+  const addDescription = (itemIndex: number) => {
+    const currentDescriptions = watchedData.items[itemIndex]?.description || [''];
+    const newDescriptions = [...currentDescriptions, ''];
+    
+    setValue(`items.${itemIndex}.description`, newDescriptions, {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+  };
+
   const removeDescription = (itemIndex: number, descIndex: number) => {
     const currentDescriptions = watchedData.items[itemIndex]?.description || [];
     if (currentDescriptions.length > 1) {
@@ -165,17 +361,17 @@ export function CustomSectionForm({
       });
     }
   };
-  const removeDescription = (itemIndex: number, descIndex: number) => {
-    const currentDescriptions = watchedData.items[itemIndex]?.description || [];
-    if (currentDescriptions.length > 1) {
-      const newDescriptions = currentDescriptions.filter((_, i) => i !== descIndex);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = fields.findIndex(field => field.id === active.id);
+      const newIndex = fields.findIndex(field => field.id === over.id);
       
-      const updatedItems = [...watchedData.items];
-      updatedItems[itemIndex] = {
-        ...updatedItems[itemIndex],
-        title: updatedItems[itemIndex]?.title || '',
-        description: newDescriptions
-      };
+      if (oldIndex !== -1 && newIndex !== -1) {
+        move(oldIndex, newIndex);
+      }
     }
   };
 
@@ -324,126 +520,35 @@ export function CustomSectionForm({
         </div>
 
         {/* Section Items */}
-        <div className="space-y-6">
-          {fields.map((field, index) => (
-            <div key={field.id} className="relative">
-              <div className="p-4 border border-gray-200 rounded-lg space-y-4 bg-white">
-                {/* Item Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                      }}
-                    >
-                      <GripVertical className="w-4 h-4" />
-                    </button>
-                    <h4 className="font-medium text-gray-900">
-                      {watchedData.items[index]?.title || `Item ${index + 1}`}
-                    </h4>
-                  </div>
-                  {fields.length > 1 && (
-                    <LaunchButton
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </LaunchButton>
-                  )}
-                </div>
-
-                {/* Main Fields Grid */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  {renderField(
-                    `items.${index}.title`,
-                    'Title',
-                    'text',
-                    <Type className="w-4 h-4" />,
-                    'Award Name, Volunteer Role, Publication Title, etc.',
-                    true
-                  )}
-                  {renderField(
-                    `items.${index}.subtitle`,
-                    'Subtitle',
-                    'text',
-                    <Type className="w-4 h-4" />,
-                    'Organization, Company, Journal, etc.'
-                  )}
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  {renderField(
-                    `items.${index}.date`,
-                    'Date',
-                    'text',
-                    <Calendar className="w-4 h-4" />,
-                    'March 2023'
-                  )}
-                  {renderField(
-                    `items.${index}.location`,
-                    'Location',
-                    'text',
-                    <MapPin className="w-4 h-4" />,
-                    'New York, NY'
-                  )}
-                </div>
-
-                {/* Description Points */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-                      <FileText className="w-4 h-4" />
-                      Description Points
-                    </label>
-                    <LaunchButton
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => addDescription(index)}
-                      icon="none"
-                    >
-                      <Plus className="w-3 h-3 mr-1" />
-                      Add Point
-                    </LaunchButton>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {(watchedData.items[index]?.description || ['']).map((_, descIndex) => (
-                      <div key={descIndex} className="flex gap-2">
-                        <input
-                          {...register(`items.${index}.description.${descIndex}` as any)}
-                          type="text"
-                          placeholder="Describe your role, achievements, or key details"
-                          className={cn(
-                            "flex-1 px-3 py-2 border rounded-md text-sm transition-colors",
-                            "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-launch-blue-200",
-                            "border-gray-300 hover:border-gray-400 focus:border-launch-blue"
-                          )}
-                        />
-                        {(watchedData.items[index]?.description || []).length > 1 && (
-                          <LaunchButton
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeDescription(index, descIndex)}
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2"
-                          >
-                            <X className="w-3 h-3" />
-                          </LaunchButton>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+        <DndContext 
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext 
+            items={fields.map(field => field.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-6">
+              {fields.map((field, index) => (
+                <SortableItem
+                  key={field.id}
+                  id={field.id}
+                  index={index}
+                  field={field}
+                  watchedData={watchedData}
+                  fields={fields}
+                  removeItem={removeItem}
+                  addDescription={addDescription}
+                  removeDescription={removeDescription}
+                  renderField={renderField}
+                  register={register}
+                  setValue={setValue}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
 
         {/* Tips Section */}
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">

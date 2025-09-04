@@ -133,13 +133,8 @@ export function EducationForm({
           placeholder={placeholder}
           step={type === 'number' ? '0.1' : undefined}
           min={type === 'number' ? '0' : undefined}
-   renderField(
-     `education.${index}.gpa`,
-     'GPA (Optional)',
-     'number',
-     <Award className="w-4 h-4" />,
-     '3.8'
-   )
+          className={cn(
+            "w-full px-3 py-2 border rounded-md text-sm transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-launch-blue-200",
             fieldError
               ? "border-red-300 bg-red-50"
@@ -191,23 +186,27 @@ export function EducationForm({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <button
-                      <button
-                        type="button"
-                        className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
-                        disabled
-                        title="Drag to reorder (coming soon)"
-                      >
+                      type="button"
+                      className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
+                      disabled
+                      title="Drag to reorder (coming soon)"
+                      onClick={(e) => {
                         e.preventDefault();
                       }}
                     >
                       <GripVertical className="w-4 h-4" />
                     </button>
-                    <h4 className="font-medium text-gray-900">
-                      {watchedData.education[index]?.degree && watchedData.education[index]?.institution
-                        ? `${watchedData.education[index].degree} - ${watchedData.education[index].institution}`
-                        : `Education ${index + 1}`
-                      }
-                      <li>• Only include GPA if it's 3.5 or higher</li>
+                    <div>
+                      <h4 className="font-medium text-gray-900">
+                        {watchedData.education[index]?.degree && watchedData.education[index]?.institution
+                          ? `${watchedData.education[index].degree} - ${watchedData.education[index].institution}`
+                          : `Education ${index + 1}`
+                        }
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1">
+                        • Only include GPA if it's 3.5 or higher
+                      </p>
+                    </div>
                   </div>
                   {fields.length > 1 && (
                     <LaunchButton

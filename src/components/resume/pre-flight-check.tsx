@@ -2,18 +2,17 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, AlertCircle, Edit3, Save, RotateCcw } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Edit3, Save, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionContainer, MissionSection, MissionCard } from '@/components/layout';
 import type { ParsedResumeData } from '@/lib/parsers';
-import { validateEmail, validatePhone } from '@/lib/validations/resume-schemas';
 
 interface PreFlightCheckProps {
   parsedData: ParsedResumeData;
-  onDataValidated: (validatedData: ParsedResumeData) => void;
-  onEdit: () => void;
-  onReparse: () => void;
+  onDataValidated: (data: ParsedResumeData) => void;
+  onEdit?: () => void;
+  onReparse?: () => void;
   className?: string;
 }
 
@@ -32,25 +31,15 @@ export function PreFlightCheck({
   onReparse,
   className
 }: PreFlightCheckProps) {
-  const [editMode, setEditMode] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<ParsedResumeData>(parsedData);
-  const [validationIssues, setValidationIssues] = useState<ValidationIssue[]>([]);
+  const [editMode, setEditMode] = useState<string | null>(null);
 
-
-
-  // Run validation on mount and data changes
-  React.useEffect(() => {
-    const issues = validateResumeData(editedData);
-    setValidationIssues(issues);
-  }, [editedData]);
-
-  const validateResumeData = (data: ParsedResumeData): ValidationIssue[] => {
+  // Validate the parsed data
+  const validateData = (data: ParsedResumeData): ValidationIssue[] => {
     const issues: ValidationIssue[] = [];
 
     // Personal Info Validation
-    const personalInfo = data.personalInfo;
-
-    if (!personalInfo.fullName?.trim()) {
+    if (!data.personalInfo.fullName?.trim()) {
       issues.push({
         field: 'fullName',
         section: 'Personal Info',
@@ -59,37 +48,13 @@ export function PreFlightCheck({
       });
     }
 
-    if (!personalInfo.email?.trim()) {
+    if (!data.personalInfo.email?.trim()) {
       issues.push({
         field: 'email',
         section: 'Personal Info',
         message: 'Email address is required',
         severity: 'error'
       });
-    } else {
-      const emailValidation = validateEmail(personalInfo.email);
-      if (emailValidation !== true) {
-        issues.push({
-          field: 'email',
-          section: 'Personal Info',
-          message: typeof emailValidation === 'string' ? emailValidation : 'Invalid email format',
-          severity: 'error',
-          value: personalInfo.email
-        });
-      }
-    }
-
-    if (personalInfo.phone) {
-      const phoneValidation = validatePhone(personalInfo.phone);
-      if (phoneValidation !== true) {
-        issues.push({
-          field: 'phone',
-          section: 'Personal Info',
-          message: typeof phoneValidation === 'string' ? phoneValidation : 'Invalid phone format',
-          severity: 'warning',
-          value: personalInfo.phone
-        });
-      }
     }
 
     // Experience Section Validation
@@ -99,25 +64,6 @@ export function PreFlightCheck({
         section: 'Work Experience',
         message: 'At least one work experience entry is recommended',
         severity: 'warning'
-      });
-    } else {
-      data.sections.experience.forEach((exp, index) => {
-        if (!exp.title?.trim()) {
-          issues.push({
-            field: `experience.${index}.title`,
-            section: 'Work Experience',
-            message: `Job title is missing for experience entry ${index + 1}`,
-            severity: 'error'
-          });
-        }
-        if (!exp.company?.trim()) {
-          issues.push({
-            field: `experience.${index}.company`,
-            section: 'Work Experience',
-            message: `Company name is missing for experience entry ${index + 1}`,
-            severity: 'error'
-          });
-        }
       });
     }
 
@@ -132,14 +78,7 @@ export function PreFlightCheck({
     }
 
     // Confidence Score Analysis
-    if (data.confidence < 0.3) {
-      issues.push({
-        field: 'confidence',
-        section: 'Overall',
-        message: 'Low parsing confidence - consider manual review of all sections',
-        severity: 'error'
-      });
-    } else if (data.confidence < 0.6) {
+    if (data.confidence < 0.6) {
       issues.push({
         field: 'confidence',
         section: 'Overall',
@@ -151,72 +90,32 @@ export function PreFlightCheck({
     return issues;
   };
 
+  const [validationIssues] = useState<ValidationIssue[]>(validateData(editedData));
+
   const handleFieldEdit = (field: string, value: string) => {
-    setEditedData(prev => {
-      const updated = { ...prev };
-      
-      // Handle nested field updates
-      if (field.includes('.')) {
-        const parts = field.split('.');
-  const handleFieldEdit = (field: string, value: string) => {
-    setEditedData(prev => {
-      const updated = { ...prev };
-      
-      // Handle nested field updates
-      if (field.includes('.')) {
-        const parts = field.split('.');
-        let current: any = updated;
-        
-        for (let i = 0; i < parts.length - 1; i++) {
-          const part = parts[i];
-          if (!part) continue;
-          
-          // Handle array index access
-          const arrayMatch = part.match(/^(\w+)$/);
-          if (arrayMatch && !isNaN(Number(parts[i + 1]))) {
-            // This is an array field
-            if (!current[part]) {
-              current[part] = [];
-            }
-            current = current[part];
-          } else if (!isNaN(Number(part))) {
-            // This is an array index
-            const index = Number(part);
-            if (!current[index]) {
-              current[index] = {};
-            }
-            current = current[index];
-          } else {
-            // Regular object field
-            if (!current[part]) {
-              current[part] = {};
-            }
-            current = current[part];
-          }
-        }
-        
-        const lastPart = parts[parts.length - 1];
-        if (lastPart) {
-          current[lastPart] = value;
-        }
-      } else {
-        // Handle top-level personal info fields
-        if (updated.personalInfo) {
-          (updated.personalInfo as any)[field] = value;
-        }
+    setEditedData(prev => ({
+      ...prev,
+      personalInfo: {
+        ...prev.personalInfo,
+        [field]: value
       }
-      
-      return updated;
-    });
+    }));
   };
+
+  const handleSaveEdit = () => {
+    setEditMode(null);
+  };
+
+  const getIssueIcon = (severity: ValidationIssue['severity']) => {
+    switch (severity) {
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
+        return <AlertTriangle className="w-4 h-4 text-red-500" />;
       case 'warning':
         return <AlertTriangle className="w-4 h-4 text-amber-500" />;
       case 'info':
         return <CheckCircle2 className="w-4 h-4 text-blue-500" />;
       default:
-        return <AlertCircle className="w-4 h-4 text-gray-500" />;
+        return <AlertTriangle className="w-4 h-4 text-gray-500" />;
     }
   };
 
@@ -237,10 +136,10 @@ export function PreFlightCheck({
   const warningCount = validationIssues.filter(i => i.severity === 'warning').length;
   const infoCount = validationIssues.filter(i => i.severity === 'info').length;
 
-  // Allow proceeding with minor errors, only block for critical errors
+  // Only block for critical errors (missing name/email)
   const criticalErrors = validationIssues.filter(i => 
     i.severity === 'error' && 
-    (i.field === 'fullName' || i.field === 'email') // Only block for missing name/email
+    (i.field === 'fullName' || i.field === 'email')
   );
   const canProceed = criticalErrors.length === 0;
 
@@ -319,182 +218,151 @@ export function PreFlightCheck({
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className={cn(
-                "p-3 rounded-lg border",
-                errorCount > 0 ? "bg-red-900/20 border-red-500/30 text-red-200" : "bg-green-900/20 border-green-500/30 text-green-200"
-              )}>
-                <div className="flex items-center gap-2">
-                  {errorCount > 0 ? (
-                    <AlertCircle className="w-5 h-5 text-red-400" />
-                  ) : (
-                    <CheckCircle2 className="w-5 h-5 text-green-400" />
-                  )}
-                  <span className="font-medium text-slate-100">
-                    {errorCount > 0 ? `${errorCount} Errors` : 'All Clear'}
-                  </span>
+            <div className="flex items-center gap-4 text-sm">
+              {errorCount > 0 && (
+                <div className="flex items-center gap-1 text-red-600">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>{errorCount} error{errorCount !== 1 ? 's' : ''}</span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
-                  {errorCount > 0 ? 'Must fix before launch' : 'Ready for launch'}
-                </p>
-              </div>
-
-              <div className="p-3 rounded-lg border bg-amber-900/20 border-amber-500/30 text-amber-200">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-400" />
-                  <span className="font-medium text-slate-100">{warningCount} Warnings</span>
+              )}
+              {warningCount > 0 && (
+                <div className="flex items-center gap-1 text-amber-600">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>{warningCount} warning{warningCount !== 1 ? 's' : ''}</span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">Recommended fixes</p>
-              </div>
-
-              <div className="p-3 rounded-lg border bg-blue-900/20 border-blue-500/30 text-blue-200">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-blue-400" />
-                  <span className="font-medium text-slate-100">{infoCount} Suggestions</span>
+              )}
+              {infoCount > 0 && (
+                <div className="flex items-center gap-1 text-blue-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{infoCount} suggestion{infoCount !== 1 ? 's' : ''}</span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">Optional improvements</p>
-              </div>
+              )}
+              {validationIssues.length === 0 && (
+                <div className="flex items-center gap-1 text-green-600">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>All systems ready for launch!</span>
+                </div>
+              )}
             </div>
 
-            {/* Issues List */}
-            {validationIssues.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-gray-900">Issues to Address:</h4>
-                <div className="space-y-1 max-h-48 overflow-y-auto">
-                  {validationIssues.map((issue, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "p-2 rounded-md border text-sm",
-                        getIssueColor(issue.severity)
-                      )}
-                    >
-                      <div className="flex items-start gap-2">
-                        {getIssueIcon(issue.severity)}
-                        <div className="flex-1">
-                          <span className="font-medium">{issue.section}:</span> {issue.message}
-                          {issue.value && (
-                            <div className="text-xs text-gray-600 mt-1">
-                              Current value: &quot;{issue.value}&quot;
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Mission Status Indicator */}
+            <div className={cn(
+              "px-4 py-3 rounded-lg border text-sm",
+              canProceed 
+                ? "bg-green-50 border-green-200 text-green-800" 
+                : "bg-red-50 border-red-200 text-red-800"
+            )}>
+              {canProceed 
+                ? "✅ Ready for launch! All critical systems are operational."
+                : "⚠️  Critical systems need attention before launch can proceed."
+              }
+            </div>
           </div>
         </MissionCard>
 
-        {/* Personal Information Review */}
-        <MissionCard variant="mission" className="mb-6">
+        {/* Personal Information */}
+        <MissionCard variant="bordered" className="mb-6">
           <div className="space-y-4">
-            <h3 className="font-semibold mission-text">Personal Information</h3>
-            <div className="space-y-1 divide-y divide-gray-100">
+            <h3 className="text-lg font-semibold mission-text">Personal Information</h3>
+            <div className="space-y-2 border-t pt-4">
               {renderPersonalInfoField('fullName', 'Full Name', true)}
               {renderPersonalInfoField('email', 'Email Address', true)}
               {renderPersonalInfoField('phone', 'Phone Number')}
               {renderPersonalInfoField('location', 'Location')}
-              {renderPersonalInfoField('linkedin', 'LinkedIn Profile')}
-              {renderPersonalInfoField('website', 'Website/Portfolio')}
+              {renderPersonalInfoField('summary', 'Professional Summary')}
             </div>
           </div>
         </MissionCard>
 
-        {/* Extracted Sections Summary */}
-        <MissionCard variant="bordered" className="mb-6">
-          <div className="space-y-4">
-            <h3 className="font-semibold mission-text">Extracted Resume Sections</h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-slate-100 mb-2">Work Experience</h4>
-                {editedData.sections.experience && editedData.sections.experience.length > 0 ? (
-                  <div className="space-y-2">
-                    {editedData.sections.experience.slice(0, 3).map((exp, index) => (
-                      <div key={index} className="text-sm p-2 bg-slate-800/50 border border-slate-600 rounded">
-                        <div className="font-medium text-slate-100">{exp.title || 'Untitled Position'}</div>
-                        <div className="text-slate-300">{exp.company || 'Company not specified'}</div>
-                        {exp.startDate && (
-                          <div className="text-xs text-slate-400">
-                            {exp.startDate} - {exp.current ? 'Present' : exp.endDate || 'End date not specified'}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                    {editedData.sections.experience.length > 3 && (
-                      <div className="text-sm text-slate-400">
-                        +{editedData.sections.experience.length - 3} more entries
-                      </div>
+        {/* Experience Summary */}
+        {editedData.sections.experience && editedData.sections.experience.length > 0 && (
+          <MissionCard variant="bordered" className="mb-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mission-text">Work Experience</h3>
+              <div className="space-y-3">
+                {editedData.sections.experience.map((exp, index) => (
+                  <div key={exp.id || index} className="border-l-4 border-launch-blue pl-4">
+                    <div className="font-medium text-gray-900">{exp.title || 'No title'}</div>
+                    <div className="text-sm text-gray-600">{exp.company || 'No company'}</div>
+                    <div className="text-sm text-gray-500">{exp.startDate} - {exp.endDate || 'Present'}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </MissionCard>
+        )}
+
+        {/* Skills Summary */}
+        {editedData.sections.skills && editedData.sections.skills.length > 0 && (
+          <MissionCard variant="bordered" className="mb-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mission-text">Skills</h3>
+              <div className="flex flex-wrap gap-2">
+                {editedData.sections.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 text-xs bg-launch-blue-100 text-launch-blue rounded"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </MissionCard>
+        )}
+
+        {/* Validation Issues */}
+        {validationIssues.length > 0 && (
+          <MissionCard variant="bordered" className="mb-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mission-text">Mission Diagnostics</h3>
+              <div className="space-y-3">
+                {validationIssues.map((issue, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "flex items-start gap-3 p-3 rounded-lg border",
+                      getIssueColor(issue.severity)
                     )}
+                  >
+                    {getIssueIcon(issue.severity)}
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{issue.section}</div>
+                      <div className="text-sm text-gray-700">{issue.message}</div>
+                      {issue.value && (
+                        <div className="text-xs text-gray-500 mt-1">Current value: "{issue.value}"</div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">No work experience found</p>
-                )}
-              </div>
-
-              <div>
-                <h4 className="font-medium text-slate-100 mb-2">Skills & Other Sections</h4>
-                <div className="space-y-2 text-sm text-slate-300">
-                  <div>
-                    <span className="font-medium text-slate-100">Skills:</span> {' '}
-                    {editedData.sections.skills && editedData.sections.skills.length > 0
-                      ? `${editedData.sections.skills.length} skills identified`
-                      : 'No skills found'
-                    }
-                  </div>
-                  <div>
-                    <span className="font-medium text-slate-100">Education:</span> {' '}
-                    {editedData.sections.education && editedData.sections.education.length > 0
-                      ? `${editedData.sections.education.length} education entries`
-                      : 'No education found'
-                    }
-                  </div>
-                  <div>
-                    <span className="font-medium text-slate-100">Projects:</span> {' '}
-                    {editedData.sections.projects && editedData.sections.projects.length > 0
-                      ? `${editedData.sections.projects.length} projects found`
-                      : 'No projects found'
-                    }
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
-          </div>
-        </MissionCard>
+          </MissionCard>
+        )}
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-between">
+        <div className="flex justify-between">
           <div className="flex gap-3">
-            <LaunchButton
-              variant="ghost"
-              onClick={onReparse}
-              icon="none"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Re-parse File
-            </LaunchButton>
-            
-            <LaunchButton
-              variant="outline"
-              onClick={onEdit}
-            >
-              <Edit3 className="w-4 h-4 mr-2" />
-              Manual Edit
-            </LaunchButton>
+            {onReparse && (
+              <LaunchButton variant="outline" onClick={onReparse}>
+                Re-analyze Data
+              </LaunchButton>
+            )}
+            {onEdit && (
+              <LaunchButton variant="outline" onClick={onEdit}>
+                Manual Edit
+              </LaunchButton>
+            )}
           </div>
-          
+
           <LaunchButton
-            variant={canProceed ? "mission" : "outline"}
+            variant="mission"
             onClick={() => onDataValidated(editedData)}
             disabled={!canProceed}
-            icon={canProceed ? "rocket" : "none"}
-            iconPosition="right"
-            animation={canProceed ? "rocket" : undefined}
-            size="lg"
+            icon="rocket"
+            animation="rocket"
           >
-            {canProceed ? 'Launch Mission Control' : `Fix ${criticalErrors.length} Critical Error${criticalErrors.length !== 1 ? 's' : ''} First`}
+            {canProceed ? 'Proceed to Launch' : 'Fix Critical Issues'}
           </LaunchButton>
         </div>
       </MissionContainer>

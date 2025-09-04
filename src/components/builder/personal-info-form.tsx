@@ -253,9 +253,11 @@ export function PersonalInfoForm({
             </p>
           )}
           <div className="flex justify-between text-xs text-slate-400">
- const personalFormSchema = personalInfoSchema.extend({
-  summary: z.string().max(500, 'Summary must be 500 characters or less').optional()
- });
+            <span>Professional summary that captures your value proposition</span>
+            <span className={`${watchedData.summary?.length || 0 > 400 ? 'text-amber-400' : ''}`}>
+              {watchedData.summary?.length || 0}/500
+            </span>
+          </div>
         </div>
 
         {/* Enhanced Progress and Undo/Redo Controls */}

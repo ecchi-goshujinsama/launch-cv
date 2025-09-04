@@ -133,24 +133,14 @@ export function ProjectsForm({
     }
   };
 
- const {
-   register,
-   handleSubmit,
-   control,
-   watch,
-   setValue,
-   formState: { errors, isDirty, isValid }
- } = useForm<ProjectsFormData>({
-   // …your options…
- });
+  const addHighlight = (projectIndex: number) => {
+    const currentHighlights = watchedData.projects[projectIndex]?.highlights || [''];
+    setValue(`projects.${projectIndex}.highlights`, [...currentHighlights, ''], {
+      shouldDirty: true,
+      shouldValidate: true
+    });
+  };
 
-  const removeHighlight = (projectIndex: number, highlightIndex: number) => {
-    const currentHighlights = watchedData.projects[projectIndex]?.highlights || [];
-    if (currentHighlights.length > 1) {
-      const newHighlights = currentHighlights.filter((_, i) => i !== highlightIndex);
-      
-      // Update the form manually
-      const updatedProjects = [...watchedData.projects];
   const removeHighlight = (projectIndex: number, highlightIndex: number) => {
     const currentHighlights = watchedData.projects[projectIndex]?.highlights || [];
     if (currentHighlights.length > 1) {
@@ -162,6 +152,13 @@ export function ProjectsForm({
       });
     }
   };
+
+  const renderField = (
+    name: string,
+    label: string,
+    type: 'text' | 'url' | 'textarea' = 'text',
+    icon?: React.ReactNode,
+    placeholder?: string,
     required = false,
     rows = 3
   ) => {

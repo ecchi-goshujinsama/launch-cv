@@ -210,6 +210,12 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
                       style={{ animationDelay: `${i * 0.1}s` }}
                     />
                   ))}
+                </div>
+              </div>
+            </div>
+          </MissionCard>
+        );
+
       case 'review':
         if (!parsedData) {
           // Handle the case where review step is reached without data
@@ -222,12 +228,6 @@ export function ImportFlow({ onComplete, className }: ImportFlowProps) {
             onDataValidated={handleDataValidated}
             onEdit={handleEditData}
             onReparse={handleReparse}
-          />
-        );
-          <DataReviewForm
-            initialData={parsedData!}
-            onSave={handleDataValidated}
-            onCancel={handleFileRemove}
           />
         );
 

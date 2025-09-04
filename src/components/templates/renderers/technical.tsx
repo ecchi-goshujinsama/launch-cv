@@ -245,7 +245,6 @@ export function TechnicalRenderer({
                             : renderSkillLevel(skill.name, skill.level || 'intermediate')}
                         </div>
                       ))}
-                      ))}
                     </div>
                   </div>
                 ))}
@@ -272,11 +271,11 @@ export function TechnicalRenderer({
               <div className="flex justify-between">
                 <span style={{ color: appliedColorScheme.text.secondary }}>Projects:</span>
                 <span className="font-mono font-bold" style={{ color: appliedColorScheme.text.primary }}>
+                  {visibleSections.find(s => s.type === 'projects')?.items?.length || 0}
+                </span>
+              </div>
               <div className="flex justify-between">
                 <span style={{ color: appliedColorScheme.text.secondary }}>Experience:</span>
-                <span className="font-mono font-bold" style={{ color: appliedColorScheme.text.primary }}>
-                  {visibleSections.find(s => s.type === 'experience')?.items?.length || 0}
-                </span>
                 <span className="font-mono font-bold" style={{ color: appliedColorScheme.text.primary }}>
                   {visibleSections.find(s => s.type === 'experience')?.items?.length || 0}+ roles
                 </span>

@@ -79,13 +79,17 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
           setIsProcessing(false);
           return;
         }
-        // …rest of upload logic…
-      } catch (err) {
-        // error handling…
-      }
 
         // Complete progress
         setTimeout(() => {
+          setUploadProgress(100);
+          setTimeout(() => {
+            clearInterval(progressInterval);
+            setIsProcessing(false);
+            onFileSelect(file);
+          }, 300);
+        }, 200);
+        
       } catch (error) {
         clearInterval(progressInterval);
         console.error('File upload error:', error);
@@ -93,12 +97,6 @@ const FileUpload = React.forwardRef<HTMLDivElement, FileUploadProps>(
           ? `Mission Control Alert: ${error.message}`
           : 'Mission Control Alert: File upload failed. Please try again.';
         setUploadError(errorMessage);
-        setIsProcessing(false);
-      }
-
-      } catch {
-        clearInterval(progressInterval);
-        setUploadError('Mission Control Alert: File upload failed. Please try again.');
         setIsProcessing(false);
       }
     }, [validateFile, onFileSelect]);

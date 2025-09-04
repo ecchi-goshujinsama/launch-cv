@@ -231,17 +231,18 @@ export function useIsMobile() {
   return { 
     isMobile, 
     isTouchDevice,
-   return { 
-     isMobile, 
-     isTouchDevice,
-     isDesktop: !isMobile,
-     isTouchDesktop: !isMobile && isTouchDevice
-   };
+    isDesktop: !isMobile,
+    isTouchDesktop: !isMobile && isTouchDevice
   };
 }
 
 // Hook for handling swipe navigation between sections
 export function useSwipeNavigation(
+  sections: string[],
+  currentSection: string, 
+  onSectionChange: (section: string) => void,
+  enabled = true
+) {
   const currentIndex = sections.indexOf(currentSection);
 
   // Handle invalid current section
@@ -259,27 +260,6 @@ export function useSwipeNavigation(
 
   const swipeToPrevious = useCallback(() => {
     if (!enabled || currentIndex <= 0) return;  // -1 is already handled by <= 0
-    const previousSection = sections[currentIndex - 1];
-    if (previousSection) {
-      onSectionChange(previousSection);
-    }
-  }, [enabled, currentIndex, sections, onSectionChange]);
-  currentSection: string, 
-  onSectionChange: (section: string) => void,
-  enabled = true
-) {
-  const currentIndex = sections.indexOf(currentSection);
-
-  const swipeToNext = useCallback(() => {
-    if (!enabled || currentIndex >= sections.length - 1) return;
-    const nextSection = sections[currentIndex + 1];
-    if (nextSection) {
-      onSectionChange(nextSection);
-    }
-  }, [enabled, currentIndex, sections, onSectionChange]);
-
-  const swipeToPrevious = useCallback(() => {
-    if (!enabled || currentIndex <= 0) return;
     const previousSection = sections[currentIndex - 1];
     if (previousSection) {
       onSectionChange(previousSection);

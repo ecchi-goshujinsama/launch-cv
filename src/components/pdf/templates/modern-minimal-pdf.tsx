@@ -45,15 +45,15 @@ const styles = StyleSheet.create({
     ...commonStyles.itemSubtitle,
     color: '#6b7280',
     fontSize: 10,
+    fontWeight: 'normal',
   },
   bulletPoint: {
     ...commonStyles.bulletPoint,
-    fontSize: 9,
-    marginLeft: 0,
-    paddingLeft: 8,
-    borderLeftWidth: 1,
-    borderLeftColor: '#e5e7eb',
-    borderLeftStyle: 'solid',
+    fontSize: 10,
+    marginLeft: 8,
+    paddingLeft: 0,
+    marginBottom: 4,
+    lineHeight: 1.4,
   },
   skillItem: {
     ...commonStyles.skillItem,
@@ -157,7 +157,7 @@ const ExperienceItemPDF: React.FC<{ item: ExperienceItem }> = ({ item }) => (
       </Text>
     </View>
     {item.description.map((desc, index) => (
-      <Text key={index} style={styles.bulletPoint}>{desc}</Text>
+      <Text key={index} style={styles.bulletPoint}>• {desc}</Text>
     ))}
     {item.skills.length > 0 && (
       <View style={{ ...styles.skillsGrid, marginTop: 4 }}>
@@ -213,9 +213,9 @@ const ProjectItemPDF: React.FC<{ item: ProjectItem }> = ({ item }) => (
 const SkillsItemPDF: React.FC<{ item: SkillsItem }> = ({ item }) => (
   <View style={styles.item}>
     <Text style={styles.itemTitle}>{item.category}</Text>
-    <View style={{ ...styles.skillsGrid, marginTop: 6, gap: 4 }}>
+    <View style={{ ...styles.skillsGrid, marginTop: 6, gap: 4, flexWrap: 'wrap' }}>
       {item.skills.map((skill, index) => (
-        <Text key={index} style={{ ...styles.skillItem, marginRight: 4, marginBottom: 3 }}>{skill}</Text>
+        <Text key={index} style={{ ...styles.skillItem, marginRight: 6, marginBottom: 4 }}>{skill}</Text>
       ))}
     </View>
   </View>
@@ -247,7 +247,7 @@ const CustomSectionItemPDF: React.FC<{ item: CustomSectionItem }> = ({ item }) =
       )}
     </View>
     {item.description.map((desc, index) => (
-      <Text key={index} style={styles.bulletPoint}>{desc}</Text>
+      <Text key={index} style={styles.bulletPoint}>• {desc}</Text>
     ))}
   </View>
 );

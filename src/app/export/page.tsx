@@ -8,8 +8,8 @@ import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionContainer, MissionSection, MissionCard } from '@/components/layout';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import useTemplateStore from '@/lib/stores/template-store';
-import { generatePDF } from '@/lib/pdf/simple-pdf-generator';
-import type { ResumeData } from '@/lib/types';
+import { PDFGenerator } from '@/lib/pdf/generator';
+import type { Resume, Template as TemplateType } from '@/lib/types';
 
 interface Template {
   id: string;
@@ -21,11 +21,11 @@ interface Template {
 
 const AVAILABLE_TEMPLATES: Template[] = [
   {
-    id: 'modern-professional',
-    name: 'Modern Professional',
+    id: 'modern-minimal',
+    name: 'Modern Minimal',
     description: 'Clean, modern design perfect for corporate roles',
     category: 'modern',
-    preview: '/templates/modern-professional.png'
+    preview: '/templates/modern-minimal.png'
   },
   {
     id: 'technical',
@@ -35,18 +35,25 @@ const AVAILABLE_TEMPLATES: Template[] = [
     preview: '/templates/technical.png'
   },
   {
-    id: 'classic-formal',
-    name: 'Classic Formal',
+    id: 'classic-professional',
+    name: 'Classic Professional',
     description: 'Traditional, elegant design for conservative industries',
     category: 'classic',
-    preview: '/templates/classic-formal.png'
+    preview: '/templates/classic-professional.png'
   },
   {
-    id: 'creative-modern',
+    id: 'creative',
     name: 'Creative Modern',
     description: 'Vibrant, creative design for design and marketing roles',
     category: 'creative',
-    preview: '/templates/creative-modern.png'
+    preview: '/templates/creative.png'
+  },
+  {
+    id: 'executive',
+    name: 'Executive',
+    description: 'Premium design for senior-level positions',
+    category: 'modern',
+    preview: '/templates/executive.png'
   }
 ];
 
@@ -91,29 +98,30 @@ export default function ExportPage() {
         });
       }, 200);
 
-      // Generate PDF with selected template
-      const pdfBlob = await generatePDF(currentResume, {
-        template: selectedTemplate.id,
-        settings: {
-          colorScheme: 'blue',
-          fontSize: 'medium',
-          spacing: 'normal'
+      // Create proper template object
+      const templateObj: TemplateType = {
+        id: selectedTemplate.id,
+        name: selectedTemplate.name,
+        description: selectedTemplate.description,
+        category: selectedTemplate.category as 'professional' | 'modern' | 'creative' | 'technical' | 'executive',
+        previewImage: selectedTemplate.preview,
+        isAtsCompatible: true,
+        colorScheme: {
+          primary: '#2563eb',
+          secondary: '#1e40af',
+          accent: '#3b82f6'
         }
+      };
+
+      // Generate PDF using the proper React-PDF generator
+      await PDFGenerator.downloadPDF(currentResume, templateObj, {
+        format: 'a4',
+        compression: true,
       });
 
       // Complete progress
       setExportProgress(100);
       clearInterval(progressInterval);
-
-      // Download the PDF
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${currentResume.personalInfo.fullName}_Resume_${selectedTemplate.name}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
       // Reset progress after a delay
       setTimeout(() => {
@@ -247,11 +255,15 @@ export default function ExportPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Experience:</span>
-                    <span className="text-slate-200">{currentResume.sections.experience?.length || 0} positions</span>
+                    <span className="text-slate-200">
+                      {currentResume.sections.find(s => s.type === 'experience')?.items?.length || 0} positions
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Skills:</span>
-                    <span className="text-slate-200">{currentResume.sections.skills?.length || 0} skills</span>
+                    <span className="text-slate-200">
+                      {currentResume.sections.find(s => s.type === 'skills')?.items?.length || 0} skills
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Template:</span>

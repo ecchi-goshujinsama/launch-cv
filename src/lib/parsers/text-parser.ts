@@ -321,8 +321,13 @@ export function extractSections(text: string): ParsedResumeData['sections'] {
       }
     }
     
-    // Check for skills content in this section (can be same section as education)
-    if (sectionLower.includes('skills') || section.includes('System Administration') || section.includes('Linux Administration') || section.includes('Azure') || section.includes('VMware') || section.includes('Office 365')) {
+    // Check for skills content in this section
+    // Look for skills patterns even if embedded in sections with other content
+    const hasSkillsIndicators = sectionLower.includes('skills') ||
+                               (section.includes('System Administration') && section.includes('Linux Administration')) ||
+                               (section.includes('Azure') && section.includes('Intune') && section.includes('Active Directory') && section.includes('VMware'));
+    
+    if (hasSkillsIndicators) {
       console.log('Processing skills section:', section.substring(0, 100));
       const skillsResult = extractSkills(section);
       if (skillsResult.length > 0) {

@@ -214,12 +214,35 @@ export const useResumeStore = create<ResumeStore>()(
                 // Parse description into individual bullet points
                 let descriptionArray: string[] = [];
                 if (exp.description) {
-                  // Split by bullet points and clean up
-                  descriptionArray = exp.description
-                    .split(/•|·|\*|-|\n/)
+                  // First try to split by actual bullet points (•|·|\*) with following space
+                  // Only split by newlines if they're followed by bullet points
+                  const bulletSplit = exp.description
+                    .split(/(?=[•·*]\s)|(?=\n[•·*]\s)/)
                     .map(item => item.trim())
-                    .filter(item => item.length > 0 && !item.match(/^[A-Z\s]+$/)) // Remove empty items and section headers
-                    .slice(0, 8); // Limit to 8 bullet points for better PDF formatting
+                    .filter(item => item.length > 0);
+                  
+                  if (bulletSplit.length > 1) {
+                    // We found bullet-separated content
+                    descriptionArray = bulletSplit
+                      .map(item => item.replace(/^[•·*]\s*/, '')) // Remove leading bullet
+                      .filter(item => item.length > 0 && !item.match(/^[A-Z\s]+$/)) // Remove empty items and section headers
+                      .slice(0, 8);
+                  } else {
+                    // No bullets found, treat as single description or split by sentences
+                    const sentences = exp.description
+                      .split(/\.\s+(?=[A-Z])/) // Split by sentences (period + space + capital letter)
+                      .map(item => item.trim())
+                      .filter(item => item.length > 0);
+                    
+                    if (sentences.length > 1) {
+                      descriptionArray = sentences
+                        .map(sentence => sentence.endsWith('.') ? sentence : sentence + '.')
+                        .slice(0, 8);
+                    } else {
+                      // Single description, keep as is
+                      descriptionArray = [exp.description.trim()];
+                    }
+                  }
                 }
 
                 return {

@@ -4,9 +4,19 @@ export interface PDFExportOptions {
   templateId: string;
   fileName?: string;
   quality?: 'draft' | 'standard' | 'high';
-  format?: 'A4' | 'Letter';
+  format?: 'A4' | 'Letter' | 'a4' | 'letter';
   margins?: PDFMargins;
   colorProfile?: 'rgb' | 'cmyk';
+  compression?: boolean;
+  metadata?: {
+    title?: string;
+    author?: string;
+    subject?: string;
+    creator?: string;
+    producer?: string;
+    creationDate?: Date;
+    modDate?: Date;
+  };
 }
 
 export interface PDFMargins {

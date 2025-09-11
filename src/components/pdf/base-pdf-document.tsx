@@ -36,17 +36,17 @@ export const commonStyles = StyleSheet.create({
     marginBottom: 20,
   },
   name: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    marginBottom: 8,
-    textAlign: 'center',
+    marginBottom: 6,
+    textAlign: 'left',
   },
   contactInfo: {
-    fontSize: 10,
+    fontSize: 11,
     color: '#4a4a4a',
-    textAlign: 'center',
-    marginBottom: 4,
+    textAlign: 'left',
+    marginBottom: 8,
   },
   summary: {
     fontSize: 11,

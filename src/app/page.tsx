@@ -1,40 +1,8 @@
 import Link from 'next/link';
 import { Rocket, Target, Zap, CheckCircle } from 'lucide-react';
 import { LaunchButton } from '@/components/ui/launch-button';
-import { MissionProgress, type MissionStep } from '@/components/ui/mission-progress';
 import { MissionHeader, MissionFooter, MissionContainer, MissionSection, MissionCard, MissionGrid } from '@/components/layout';
 
-// Demo mission steps
-const demoMissionSteps: MissionStep[] = [
-  {
-    id: '1',
-    title: 'Foundation Setup',
-    description: 'Initialize LaunchCV with brand identity and core systems',
-    status: 'completed',
-    estimatedTime: '2-3 hours'
-  },
-  {
-    id: '2',
-    title: 'Import System',
-    description: 'Build resume import and data extraction engine',
-    status: 'pending',
-    estimatedTime: '4-5 hours'
-  },
-  {
-    id: '3',
-    title: 'Mission Control Builder',
-    description: 'Create the resume building interface',
-    status: 'pending',
-    estimatedTime: '6-8 hours'
-  },
-  {
-    id: '4',
-    title: 'Launch Sequence',
-    description: 'Implement PDF export and career launch',
-    status: 'pending',
-    estimatedTime: '3-4 hours'
-  }
-];
 
 export default function Home() {
   return (
@@ -76,21 +44,6 @@ export default function Home() {
             </div>
           </MissionSection>
 
-          {/* Mission Progress Demo */}
-          <MissionSection
-            title="Development Progress"
-            subtitle="Track the LaunchCV development mission in real-time"
-            className="mt-16"
-          >
-            <MissionCard variant="elevated">
-              <MissionProgress
-                steps={demoMissionSteps}
-                currentStep="1"
-                missionTitle="LaunchCV Development Mission"
-                variant="minimal"
-              />
-            </MissionCard>
-          </MissionSection>
 
           {/* Feature Grid */}
           <MissionSection

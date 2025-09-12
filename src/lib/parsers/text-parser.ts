@@ -784,8 +784,13 @@ function extractSkills(text: string): string[] {
           .filter(skill => skill.length > 1 && skill.length < 60);
         skills.push(...skillsFromLine);
         console.log('Added comma/semicolon separated skills:', skillsFromLine);
-      } else if (line.length > 2 && line.length < 60 && !line.match(/^\d+$/)) {
-        // Single skill per line (but not pure numbers)
+      } else if (line.length > 2 && line.length < 60 && 
+                 !line.match(/^\d+$/) && 
+                 !line.match(/^(Skills|2022\)|Associate Degree|Networking Security|Charlotte,|ECPI|[A-Z\s]+,\s*[A-Z]{2}|^\d{4}(-\d{4})?$)/i) &&
+                 !line.match(/^[^a-zA-Z]*$/) &&
+                 line.match(/[a-zA-Z]/) &&
+                 (!line.endsWith(')') || (line.endsWith(')') && line.includes('(')))) {
+        // Single skill per line with better filtering
         skills.push(line);
         console.log('Added single skill:', line);
       }

@@ -189,7 +189,7 @@ const ProjectItemPDF: React.FC<{ item: ProjectItem }> = ({ item }) => (
 
 const SkillsItemPDF: React.FC<{ item: SkillsItem }> = ({ item }) => (
   <View style={styles.item}>
-    <Text style={styles.itemTitle}>{item.category}</Text>
+    <Text style={styles.itemTitle}>{item.category || 'SKILLS'}</Text>
     <View style={styles.skillsGrid}>
       {item.skills?.map((skill, index) => (
         <Text key={index} style={styles.skillItem}>{skill}</Text>
@@ -229,8 +229,11 @@ const CustomSectionItemPDF: React.FC<{ item: CustomSectionItem }> = ({ item }) =
         <Text style={styles.itemDate}>{item.date}</Text>
       )}
     </View>
-    {item.description.map((desc, index) => (
-      <Text key={index} style={styles.bulletPoint}>• {desc}</Text>
-    ))}
+    {Array.isArray(item.description) ? 
+      item.description.map((desc, index) => (
+        <Text key={index} style={styles.bulletPoint}>• {desc}</Text>
+      )) :
+      <Text style={styles.bulletPoint}>• {item.description}</Text>
+    }
   </View>
 );

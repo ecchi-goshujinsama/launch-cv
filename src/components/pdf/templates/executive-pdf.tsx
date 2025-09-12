@@ -124,10 +124,10 @@ const ExperienceItemPDF: React.FC<{ item: ExperienceItem }> = ({ item }) => (
         {item.startDate} - {item.endDate || 'Present'}
       </Text>
     </View>
-    {item.description.map((desc, index) => (
+    {item.description?.map((desc, index) => (
       <Text key={index} style={styles.bulletPoint}>■ {desc}</Text>
     ))}
-    {item.skills.length > 0 && (
+    {item.skills?.length > 0 && (
       <View style={{ ...styles.skillsGrid, marginTop: 8 }}>
         {item.skills.map((skill, index) => (
           <Text key={index} style={styles.skillItem}>{skill}</Text>
@@ -163,10 +163,10 @@ const ProjectItemPDF: React.FC<{ item: ProjectItem }> = ({ item }) => (
       </Text>
     </View>
     <Text style={styles.bulletPoint}>■ {item.description}</Text>
-    {item.highlights.map((highlight, index) => (
+    {item.highlights?.map((highlight, index) => (
       <Text key={index} style={styles.bulletPoint}>■ {highlight}</Text>
     ))}
-    {item.technologies.length > 0 && (
+    {Array.isArray(item.technologies) && item.technologies.length > 0 && (
       <View style={{ ...styles.skillsGrid, marginTop: 8 }}>
         {item.technologies.map((tech, index) => (
           <Text key={index} style={styles.skillItem}>{tech}</Text>
@@ -178,9 +178,9 @@ const ProjectItemPDF: React.FC<{ item: ProjectItem }> = ({ item }) => (
 
 const SkillsItemPDF: React.FC<{ item: SkillsItem }> = ({ item }) => (
   <View style={styles.item}>
-    <Text style={styles.itemTitle}>{item.category.toUpperCase()}</Text>
+    <Text style={styles.itemTitle}>{item.category?.toUpperCase() || 'SKILLS'}</Text>
     <View style={{ ...styles.skillsGrid, marginTop: 8 }}>
-      {item.skills.map((skill, index) => (
+      {item.skills?.map((skill, index) => (
         <Text key={index} style={styles.skillItem}>{skill}</Text>
       ))}
     </View>

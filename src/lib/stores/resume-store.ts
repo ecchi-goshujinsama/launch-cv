@@ -247,6 +247,7 @@ export const useResumeStore = create<ResumeStore>()(
 
                 return {
                   id: generateId(),
+                  type: 'experience',
                   company: exp.company || '',
                   position: exp.title || '',
                   startDate: exp.startDate || '',
@@ -271,9 +272,10 @@ export const useResumeStore = create<ResumeStore>()(
             if (parsedData.sections.education && parsedData.sections.education.length > 0) {
               const educationItems: EducationItem[] = parsedData.sections.education.map(edu => ({
                 id: generateId(),
+                type: 'education',
                 institution: edu.institution || '',
                 degree: edu.degree || '',
-                field: edu.field || '',
+                field: edu.fieldOfStudy || edu.field || '',
                 startDate: edu.startDate || '',
                 endDate: edu.endDate || null,
                 location: edu.location || '',
@@ -294,10 +296,25 @@ export const useResumeStore = create<ResumeStore>()(
 
             // Add skills section if data exists
             if (parsedData.sections.skills && parsedData.sections.skills.length > 0) {
+              // Clean and filter skills first
+              const cleanSkills = parsedData.sections.skills
+                .filter(skill => {
+                  const cleanSkill = skill.trim();
+                  // Filter out invalid skills
+                  return cleanSkill.length > 1 && 
+                         !cleanSkill.match(/^(Skills|2022\)|Associate Degree|Networking Security|Charlotte,|ECPI|[A-Z\s]+,\s*[A-Z]{2}|^\d{4}(-\d{4})?$)/i) &&
+                         !cleanSkill.match(/^[^a-zA-Z]*$/) &&
+                         cleanSkill.match(/[a-zA-Z]/) &&
+                         cleanSkill !== 'Skills' &&
+                         (!cleanSkill.endsWith(')') || (cleanSkill.endsWith(')') && cleanSkill.includes('(')));
+                })
+                .map(skill => skill.trim());
+              
               // Group skills into logical categories for better organization
-              const skillsGrouped = groupSkillsByCategory(parsedData.sections.skills);
+              const skillsGrouped = groupSkillsByCategory(cleanSkills);
               const skillsItems: SkillsItem[] = Object.entries(skillsGrouped).map(([category, skills]) => ({
                 id: generateId(),
+                type: 'skills',
                 category: category,
                 skills: skills,
                 proficiency: 'intermediate'
@@ -309,8 +326,9 @@ export const useResumeStore = create<ResumeStore>()(
                 title: 'Skills',
                 items: skillsItems.length > 0 ? skillsItems : [{
                   id: generateId(),
+                  type: 'skills',
                   category: 'Technical Skills',
-                  skills: parsedData.sections.skills,
+                  skills: cleanSkills,
                   proficiency: 'intermediate'
                 }],
                 order: 2,

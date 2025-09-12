@@ -91,7 +91,7 @@ npm install
 # Start the development server
 npm run dev
 ```
-
+0- 
 Open [http://localhost:3000](http://localhost:3000) to see LaunchCV in action.
 
 ### Available Scripts

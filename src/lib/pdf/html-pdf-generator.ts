@@ -154,7 +154,7 @@ export class HTMLToPDFGenerator {
         timeout: 30000
       });
 
-      return pdfBuffer;
+      return Buffer.from(pdfBuffer);
     } catch (error) {
       throw new Error(`PDF generation failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
@@ -173,7 +173,7 @@ export class HTMLToPDFGenerator {
     options: Partial<HTMLToPDFOptions> = {}
   ): Promise<string> {
     const buffer = await this.generatePDF(resume, template, options);
-    const blob = new Blob([buffer], { type: 'application/pdf' });
+    const blob = new Blob([buffer.buffer], { type: 'application/pdf' });
     return URL.createObjectURL(blob);
   }
 

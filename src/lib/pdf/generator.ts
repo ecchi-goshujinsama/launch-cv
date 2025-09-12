@@ -1,25 +1,7 @@
-import React from 'react';
-import { pdf } from '@react-pdf/renderer';
 import type { Resume, Template } from '../types';
-import type { PDFExportOptions, PDFRenderContext } from './types';
-import { DEFAULT_PDF_OPTIONS } from './types';
+import type { PDFExportOptions } from './types';
+import { HTMLToPDFGenerator } from './html-pdf-generator';
 import { useExportStore } from '../stores/export-store';
-
-// PDF template components will be imported here
-import { ClassicProfessionalPDF } from '../../components/pdf/templates/classic-professional-pdf';
-import { ModernMinimalPDF } from '../../components/pdf/templates/modern-minimal-pdf';
-import { ExecutivePDF } from '../../components/pdf/templates/executive-pdf';
-import { TechnicalPDF } from '../../components/pdf/templates/technical-pdf';
-import { CreativePDF } from '../../components/pdf/templates/creative-pdf';
-
-// Template mapping for PDF export
-const PDF_TEMPLATES = {
-  'classic-professional': ClassicProfessionalPDF,
-  'modern-minimal': ModernMinimalPDF,
-  'executive': ExecutivePDF,
-  'technical': TechnicalPDF,
-  'creative': CreativePDF,
-} as const;
 
 export class PDFGenerator {
   static async generatePDF(
@@ -27,32 +9,17 @@ export class PDFGenerator {
     template: Template,
     options: Partial<PDFExportOptions> = {}
   ): Promise<Blob> {
-    const finalOptions: PDFExportOptions = {
-      ...DEFAULT_PDF_OPTIONS,
-      ...options,
-      templateId: template.id,
-    };
+    const buffer = await HTMLToPDFGenerator.generatePDF(resume, template, {
+      format: (options.format === 'letter' || options.format === 'Letter') ? 'Letter' : 'A4',
+      margin: options.margins ? {
+        top: `${options.margins.top}px`,
+        right: `${options.margins.right}px`,
+        bottom: `${options.margins.bottom}px`,
+        left: `${options.margins.left}px`
+      } : undefined
+    });
 
-    const context: PDFRenderContext = {
-      resume,
-      template,
-      options: finalOptions,
-    };
-
-    // Get the appropriate PDF template component
-    const PDFComponent = this.getPDFTemplate(template.id);
-    if (!PDFComponent) {
-      throw new Error(`PDF template not found for template ID: ${template.id}`);
-    }
-
-    try {
-      // Generate the PDF using React-PDF
-      const blob = await pdf(React.createElement(PDFComponent, { context })).toBlob();
-      return blob;
-    } catch (error) {
-      console.error('PDF Generation Error:', error);
-      throw new Error('Failed to generate PDF. Please try again.');
-    }
+    return new Blob([buffer.buffer], { type: 'application/pdf' });
   }
 
   static async downloadPDF(
@@ -66,10 +33,10 @@ export class PDFGenerator {
     try {
       const blob = await this.generatePDF(resume, template, options);
       
-      // Generate filename using the new naming convention
+      // Generate filename
       const fileName = options.fileName || this.generateAdvancedFileName(resume, template, options);
       
-      // Log export attempt to history
+      // Log export attempt
       exportId = this.logExportAttempt(resume, template, fileName);
       
       // Create download link
@@ -77,8 +44,6 @@ export class PDFGenerator {
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName;
-      
-      // Add print optimization attributes
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
       
@@ -86,7 +51,7 @@ export class PDFGenerator {
       document.body.appendChild(link);
       link.click();
       
-      // Log successful export
+      // Log success
       this.logExportSuccess(exportId, blob.size, Date.now() - startTime);
       
       // Cleanup
@@ -96,7 +61,6 @@ export class PDFGenerator {
       }, 100);
       
     } catch (error) {
-      // Log failed export
       if (exportId) {
         this.logExportFailure(exportId, error instanceof Error ? error.message : 'Unknown error');
       }
@@ -104,10 +68,15 @@ export class PDFGenerator {
     }
   }
 
-  private static getPDFTemplate(templateId: string) {
-    return PDF_TEMPLATES[templateId as keyof typeof PDF_TEMPLATES] || null;
+  static async generatePreviewBlob(
+    resume: Resume,
+    template: Template,
+    options: Partial<PDFExportOptions> = {}
+  ): Promise<string> {
+    return await HTMLToPDFGenerator.generatePreviewBlob(resume, template, options);
   }
 
+  // Keep existing utility methods
   private static generateFileName(resume: Resume, template: Template): string {
     const name = resume.personalInfo.fullName
       .replace(/[^a-zA-Z0-9]/g, '_')
@@ -122,26 +91,6 @@ export class PDFGenerator {
     const timestamp = new Date().toISOString().split('T')[0];
     
     return `${name}_Resume_${templateName}_${timestamp}.pdf`;
-  }
-
-  // Utility methods for PDF preview
-  static async generatePreviewBlob(
-    resume: Resume,
-    template: Template,
-    options: Partial<PDFExportOptions> = {}
-  ): Promise<string> {
-    const blob = await this.generatePDF(resume, template, options);
-    return URL.createObjectURL(blob);
-  }
-
-  // Method to check if template supports PDF export
-  static isTemplateSupported(templateId: string): boolean {
-    return templateId in PDF_TEMPLATES;
-  }
-
-  // Get supported template IDs
-  static getSupportedTemplateIds(): string[] {
-    return Object.keys(PDF_TEMPLATES);
   }
 
   // Advanced filename generation with export store integration
@@ -225,27 +174,25 @@ export class PDFGenerator {
     template: Template,
     options: Partial<PDFExportOptions> = {}
   ): Promise<Blob> {
-    const printOptions: PDFExportOptions = {
-      ...DEFAULT_PDF_OPTIONS,
-      ...options,
-      templateId: template.id,
-      // Print-specific optimizations
-      format: options.format || 'a4',
-      margins: options.margins || { top: 36, right: 36, bottom: 36, left: 36 }, // 0.5 inch margins
-      compression: true,
-      metadata: {
-        title: `${resume.personalInfo.fullName} - Resume`,
-        author: resume.personalInfo.fullName,
-        subject: `Resume - ${template.name}`,
-        creator: 'LaunchCV',
-        producer: 'LaunchCV PDF Generator',
-        creationDate: new Date(),
-        modDate: new Date(),
-        ...options.metadata,
+    const printOptions = {
+      format: ((options.format === 'letter' || options.format === 'Letter') ? 'Letter' : 'A4') as 'A4' | 'Letter',
+      margin: options.margins ? {
+        top: `${options.margins.top}px`,
+        right: `${options.margins.right}px`,
+        bottom: `${options.margins.bottom}px`,
+        left: `${options.margins.left}px`
+      } : {
+        top: '0.5in',
+        right: '0.5in', 
+        bottom: '0.5in',
+        left: '0.5in'
       },
+      printBackground: true,
+      preferCSSPageSize: true
     };
 
-    return this.generatePDF(resume, template, printOptions);
+    const buffer = await HTMLToPDFGenerator.generatePDF(resume, template, printOptions);
+    return new Blob([buffer.buffer], { type: 'application/pdf' });
   }
 
   // Browser print method
@@ -272,5 +219,17 @@ export class PDFGenerator {
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 10000);
+  }
+
+  // Template support methods (updated for HTML-to-PDF)
+  static isTemplateSupported(templateId: string): boolean {
+    // All templates are now supported via HTML-to-PDF
+    const supportedTemplates = ['classic-professional', 'modern-minimal', 'executive', 'technical', 'creative'];
+    return supportedTemplates.includes(templateId);
+  }
+
+  // Get supported template IDs
+  static getSupportedTemplateIds(): string[] {
+    return ['classic-professional', 'modern-minimal', 'executive', 'technical', 'creative'];
   }
 }

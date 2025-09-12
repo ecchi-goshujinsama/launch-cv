@@ -12,6 +12,7 @@ import type {
   CustomSectionItem 
 } from '@/lib/types';
 import type { Template, TemplateCustomizations } from '@/lib/types/template';
+import type { TemplateRendererProps } from './index';
 
 // Union type for all possible section items
 type SectionItemUnion = ExperienceItem | EducationItem | SkillsItem | ProjectItem | CertificationItem | CustomSectionItem;
@@ -41,14 +42,7 @@ function isCustomSectionItem(item: SectionItemUnion): item is CustomSectionItem 
   return 'title' in item && !('company' in item) && !('institution' in item) && !('category' in item) && !('technologies' in item) && !('issuer' in item);
 }
 
-interface ClassicProfessionalRendererProps {
-  resume: Resume;
-  template: Template;
-  customizations?: TemplateCustomizations;
-  className?: string;
-  scale?: number;
-  isPrintMode?: boolean;
-}
+interface ClassicProfessionalRendererProps extends TemplateRendererProps {}
 
 export function ClassicProfessionalRenderer({
   resume,
@@ -84,21 +78,22 @@ export function ClassicProfessionalRenderer({
       className={cn(
         'classic-professional-template bg-white font-serif text-slate-800',
         'w-full max-w-[8.5in] mx-auto',
-        isPrintMode ? 'min-h-[11in]' : 'min-h-[600px]',
+        isPrintMode ? 'min-h-[11in] print-optimized' : 'min-h-[600px]',
+        isPrintMode ? 'p-6' : '', // Add print-specific padding
         className
       )}
       style={{
-        transform: `scale(${scale})`,
+        transform: isPrintMode ? 'none' : `scale(${scale})`, // Don't scale in print mode
         transformOrigin: 'top left',
         fontFamily: appliedTypography.body.fontFamily,
-        fontSize: appliedTypography.body.fontSize,
+        fontSize: isPrintMode ? '11pt' : appliedTypography.body.fontSize, // Print-friendly font size
         lineHeight: appliedTypography.body.lineHeight,
-        padding: `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
+        padding: isPrintMode ? '0.5in' : `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
         backgroundColor: appliedColorScheme.background.primary
       }}
     >
       {/* Header Section */}
-      <header className="text-center mb-6 border-b-2 pb-4" style={{ borderColor: appliedColorScheme.borders }}>
+      <header className={cn("text-center mb-6 border-b-2 pb-4", isPrintMode && "print-break-inside-avoid")} style={{ borderColor: appliedColorScheme.borders }}>
         <h1 
           className="text-2xl font-bold mb-2"
           style={{ 
@@ -150,7 +145,7 @@ export function ClassicProfessionalRenderer({
       {/* Sections */}
       <div className="space-y-6">
         {visibleSections.map(section => (
-          <section key={section.id} className="mb-6">
+          <section key={section.id} className={cn("mb-6", isPrintMode && "pdf-section print-break-inside-avoid")}>
             <h2 
               className="text-lg font-bold mb-3 uppercase tracking-wide border-b pb-1"
               style={{ 

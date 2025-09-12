@@ -4,15 +4,9 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { Resume, SectionItem } from '@/lib/types';
 import type { Template, TemplateCustomizations } from '@/lib/types/template';
+import type { TemplateRendererProps } from './index';
 
-interface ExecutiveRendererProps {
-  resume: Resume;
-  template: Template;
-  customizations?: TemplateCustomizations;
-  className?: string;
-  scale?: number;
-  isPrintMode?: boolean;
-}
+interface ExecutiveRendererProps extends TemplateRendererProps {}
 
 export function ExecutiveRenderer({
   resume,
@@ -48,22 +42,23 @@ export function ExecutiveRenderer({
       className={cn(
         'executive-template bg-white text-slate-900',
         'w-full max-w-[8.5in] mx-auto',
-        isPrintMode ? 'min-h-[11in]' : 'min-h-[600px]',
+        isPrintMode ? 'min-h-[11in] print-optimized' : 'min-h-[600px]',
+        isPrintMode ? 'p-6' : '', // Add print-specific padding
         className
       )}
       style={{
-        transform: `scale(${scale})`,
+        transform: isPrintMode ? 'none' : `scale(${scale})`, // Don't scale in print mode
         transformOrigin: 'top left',
         fontFamily: appliedTypography.body.fontFamily,
-        fontSize: appliedTypography.body.fontSize,
+        fontSize: isPrintMode ? '11pt' : appliedTypography.body.fontSize, // Print-friendly font size
         lineHeight: appliedTypography.body.lineHeight,
-        padding: `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
+        padding: isPrintMode ? '0.5in' : `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
         backgroundColor: appliedColorScheme.background.primary
       }}
     >
       {/* Bold Header Section */}
       <header 
-        className="relative mb-10 p-8 -mx-8"
+        className={cn("relative mb-10 p-8 -mx-8", isPrintMode && "print-break-inside-avoid")}
         style={{ 
           background: `linear-gradient(135deg, ${appliedColorScheme.primary} 0%, ${appliedColorScheme.secondary} 100%)`,
           color: 'white'
@@ -189,7 +184,7 @@ export function ExecutiveRenderer({
       {/* Sections */}
       <div className="space-y-10">
         {visibleSections.map(section => (
-          <section key={section.id}>
+          <section key={section.id} className={cn(isPrintMode && "pdf-section print-break-inside-avoid")}>
             <div className="mb-6">
               <div className="flex items-center">
                 <div 

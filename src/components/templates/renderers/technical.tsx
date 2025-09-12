@@ -5,15 +5,9 @@ import { cn } from '@/lib/utils';
 import type { Resume } from '@/lib/types';
 import type { Template, TemplateCustomizations } from '@/lib/types/template';
 import { Github, ExternalLink, Code, Star, GitFork } from 'lucide-react';
+import type { TemplateRendererProps } from './index';
 
-interface TechnicalRendererProps {
-  resume: Resume;
-  template: Template;
-  customizations?: TemplateCustomizations;
-  className?: string;
-  scale?: number;
-  isPrintMode?: boolean;
-}
+interface TechnicalRendererProps extends TemplateRendererProps {}
 
 export function TechnicalRenderer({
   resume,
@@ -107,21 +101,22 @@ export function TechnicalRenderer({
       className={cn(
         'technical-template bg-white font-mono text-slate-900',
         'w-full max-w-[8.5in] mx-auto',
-        isPrintMode ? 'min-h-[11in]' : 'min-h-[600px]',
+        isPrintMode ? 'min-h-[11in] print-optimized' : 'min-h-[600px]',
+        isPrintMode ? 'p-6' : '', // Add print-specific padding
         className
       )}
       style={{
-        transform: `scale(${scale})`,
+        transform: isPrintMode ? 'none' : `scale(${scale})`, // Don't scale in print mode
         transformOrigin: 'top left',
         fontFamily: appliedTypography.body.fontFamily,
-        fontSize: appliedTypography.body.fontSize,
+        fontSize: isPrintMode ? '11pt' : appliedTypography.body.fontSize, // Print-friendly font size
         lineHeight: appliedTypography.body.lineHeight,
-        padding: `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
+        padding: isPrintMode ? '0.5in' : `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
         backgroundColor: appliedColorScheme.background.primary
       }}
     >
       {/* Technical Header Section */}
-      <header className="mb-8">
+      <header className={cn("mb-8", isPrintMode && "print-break-inside-avoid")}>
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 
@@ -203,12 +198,12 @@ export function TechnicalRenderer({
       </header>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className={cn("grid grid-cols-1 lg:grid-cols-3 gap-8", isPrintMode && "pdf-section")}>
         {/* Left Column - Skills & Tech Stack */}
         <div className="lg:col-span-1 space-y-6">
           {/* Skills Section */}
           {visibleSections.find(s => s.type === 'skills') && (
-            <section>
+            <section className={cn(isPrintMode && "pdf-section print-break-inside-avoid")}>
               <h2 
                 className="text-lg font-bold mb-4 flex items-center gap-2"
                 style={{ 
@@ -254,7 +249,7 @@ export function TechnicalRenderer({
 
           {/* Quick Stats */}
           <section 
-            className="p-4 rounded border"
+            className={cn("p-4 rounded border", isPrintMode && "pdf-section print-break-inside-avoid")}
             style={{ 
               borderColor: appliedColorScheme.borders,
               backgroundColor: appliedColorScheme.background.secondary
@@ -293,7 +288,7 @@ export function TechnicalRenderer({
         {/* Right Column - Experience & Projects */}
         <div className="lg:col-span-2 space-y-8">
           {visibleSections.filter(s => s.type !== 'skills').map(section => (
-            <section key={section.id}>
+            <section key={section.id} className={cn(isPrintMode && "pdf-section print-break-inside-avoid")}>
               <h2 
                 className="text-xl font-bold mb-4 flex items-center gap-2"
                 style={{ 

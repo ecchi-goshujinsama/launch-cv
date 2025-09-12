@@ -5,6 +5,19 @@ export { ExecutiveRenderer } from './executive';
 export { TechnicalRenderer } from './technical';
 export { CreativeRenderer } from './creative';
 
+// Import types
+import type { Resume, Template, TemplateCustomizations } from '@/lib/types';
+
+// Template renderer interface
+export interface TemplateRendererProps {
+  resume: Resume;
+  template: Template;
+  customizations?: TemplateCustomizations;
+  className?: string;
+  scale?: number;
+  isPrintMode?: boolean; // PDF mode support
+}
+
 // Template renderer mapping
 import { ClassicProfessionalRenderer } from './classic-professional';
 import { ModernMinimalRenderer } from './modern-minimal';

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { Resume } from '@/lib/types';
 import type { Template, TemplateCustomizations } from '@/lib/types/template';
+import type { TemplateRendererProps } from './index';
 import { 
   Palette, 
   Sparkles, 
@@ -19,14 +20,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-interface CreativeRendererProps {
-  resume: Resume;
-  template: Template;
-  customizations?: TemplateCustomizations;
-  className?: string;
-  scale?: number;
-  isPrintMode?: boolean;
-}
+interface CreativeRendererProps extends TemplateRendererProps {}
 
 export function CreativeRenderer({
   resume,
@@ -104,16 +98,17 @@ export function CreativeRenderer({
       className={cn(
         'creative-template bg-white text-gray-900 relative overflow-hidden',
         'w-full max-w-[8.5in] mx-auto',
-        isPrintMode ? 'min-h-[11in]' : 'min-h-[600px]',
+        isPrintMode ? 'min-h-[11in] print-optimized' : 'min-h-[600px]',
+        isPrintMode ? 'p-6' : '', // Add print-specific padding
         className
       )}
       style={{
-        transform: `scale(${scale})`,
+        transform: isPrintMode ? 'none' : `scale(${scale})`, // Don't scale in print mode
         transformOrigin: 'top left',
         fontFamily: appliedTypography.body.fontFamily,
-        fontSize: appliedTypography.body.fontSize,
+        fontSize: isPrintMode ? '11pt' : appliedTypography.body.fontSize, // Print-friendly font size
         lineHeight: appliedTypography.body.lineHeight,
-        padding: `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
+        padding: isPrintMode ? '0.5in' : `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
         backgroundColor: appliedColorScheme.background.primary
       }}
     >
@@ -139,7 +134,7 @@ export function CreativeRenderer({
       </div>
 
       {/* Creative Header Section */}
-      <header className="relative mb-8">
+      <header className={cn("relative mb-8", isPrintMode && "print-break-inside-avoid")}>
         <div className="flex items-center justify-between mb-6">
           {/* Main Header */}
           <div className="flex-1">
@@ -399,7 +394,7 @@ export function CreativeRenderer({
         {/* Right Main Content */}
         <div className="lg:col-span-3 space-y-8">
           {visibleSections.filter(s => s.type !== 'skills').map(section => (
-            <section key={section.id} className="relative">
+            <section key={section.id} className={cn("relative", isPrintMode && "pdf-section print-break-inside-avoid")}>
               <div className="flex items-center gap-3 mb-6">
                 <div 
                   className="p-3 rounded-full"

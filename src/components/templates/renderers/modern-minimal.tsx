@@ -39,14 +39,14 @@ export function ModernMinimalRenderer({
         fontFamily: appliedTypography.body.fontFamily,
         fontSize: isPrintMode ? '11pt' : appliedTypography.body.fontSize, // Print-friendly font size
         lineHeight: appliedTypography.body.lineHeight,
-        padding: isPrintMode ? '0.5in' : `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
+        padding: isPrintMode ? '0.25in' : `${appliedLayout.margins.top} ${appliedLayout.margins.right} ${appliedLayout.margins.bottom} ${appliedLayout.margins.left}`,
         backgroundColor: appliedColorScheme.background.primary
       }}
     >
       {/* Header Section */}
-      <header className={cn("mb-4", isPrintMode && "print-break-inside-avoid")}>
+      <header className={cn("mb-2", isPrintMode && "print-break-inside-avoid")}>
         <h1
-          className="text-4xl font-semibold mb-3 tracking-tight"
+          className="text-4xl font-semibold mb-1 tracking-tight"
           style={{
             color: appliedColorScheme.text.primary,
             fontFamily: appliedTypography.headings.fontFamily,
@@ -96,10 +96,10 @@ export function ModernMinimalRenderer({
       </header>
 
       {/* Sections */}
-      <div className="space-y-4">
+      <div className="space-y-2">
         {visibleSections.map(section => (
           <section key={section.id} className={cn(isPrintMode && "pdf-section print-break-inside-avoid")}>
-            <div className="flex items-center mb-3">
+            <div className="flex items-center mb-1">
               <h2 
                 className="text-xl font-medium tracking-wide mr-4"
                 style={{ 
@@ -116,10 +116,10 @@ export function ModernMinimalRenderer({
             </div>
             
             {section.type === 'experience' && (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {section.items?.map((item: any, index: number) => (
                   <div key={index} className="relative">
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
                       <div className="lg:col-span-1">
                         <div className="text-sm font-medium mb-1" style={{ color: appliedColorScheme.text.secondary }}>
                           {item.startDate} – {item.endDate || 'Present'}
@@ -135,12 +135,12 @@ export function ModernMinimalRenderer({
                         <h3 className="text-lg font-medium mb-1" style={{ color: appliedColorScheme.text.primary }}>
                           {item.position}
                         </h3>
-                        <h4 className="text-base font-medium mb-3" style={{ color: appliedColorScheme.accent }}>
+                        <h4 className="text-base font-medium mb-1" style={{ color: appliedColorScheme.accent }}>
                           {item.company}
                         </h4>
-                        
+
                         {item.description && Array.isArray(item.description) && (
-                          <ul className="space-y-2 mb-4" style={{ color: appliedColorScheme.text.primary }}>
+                          <ul className="space-y-1 mb-2" style={{ color: appliedColorScheme.text.primary }}>
                             {item.description.map((desc: string, descIndex: number) => (
                               <li key={descIndex} className="flex items-start">
                                 <span 

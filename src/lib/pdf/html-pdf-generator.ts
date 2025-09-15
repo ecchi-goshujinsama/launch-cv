@@ -294,12 +294,12 @@ export class HTMLToPDFGenerator {
     }
 
     .print-section {
-      margin-bottom: 1em;
+      margin-bottom: 0.5em;
       page-break-inside: avoid;
     }
 
     .pdf-section {
-      margin-bottom: 1.5em;
+      margin-bottom: 0.75em;
       page-break-inside: avoid;
     }
 
@@ -323,15 +323,15 @@ export class HTMLToPDFGenerator {
     .mx-auto { margin-left: auto; margin-right: auto; }
     .min-h-\[11in\] { min-height: 11in; }
     .print-optimized { /* handled above */ }
-    .p-6 { padding: 1.5rem; }
+    .p-6 { padding: 0.5rem; }
 
-    .mb-12 { margin-bottom: 3rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .mb-3 { margin-bottom: 0.75rem; }
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .mb-2 { margin-bottom: 0.5rem; }
-    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-12 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 0.75rem; }
+    .mb-3 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 0.5rem; }
+    .mb-8 { margin-bottom: 1rem; }
+    .mb-2 { margin-bottom: 0.25rem; }
+    .mb-1 { margin-bottom: 0.125rem; }
     .mt-1 { margin-top: 0.25rem; }
     .mt-2 { margin-top: 0.5rem; }
     .mr-3 { margin-right: 0.75rem; }
@@ -363,12 +363,12 @@ export class HTMLToPDFGenerator {
     .lg\\:col-span-1 { grid-column: span 1 / span 1; }
     .lg\\:col-span-3 { grid-column: span 3 / span 3; }
 
-    .space-y-1 > * + * { margin-top: 0.25rem; }
-    .space-y-2 > * + * { margin-top: 0.5rem; }
-    .space-y-4 > * + * { margin-top: 1rem; }
-    .space-y-6 > * + * { margin-top: 1.5rem; }
-    .space-y-8 > * + * { margin-top: 2rem; }
-    .space-y-10 > * + * { margin-top: 2.5rem; }
+    .space-y-1 > * + * { margin-top: 0.125rem; }
+    .space-y-2 > * + * { margin-top: 0.25rem; }
+    .space-y-4 > * + * { margin-top: 0.5rem; }
+    .space-y-6 > * + * { margin-top: 0.75rem; }
+    .space-y-8 > * + * { margin-top: 1rem; }
+    .space-y-10 > * + * { margin-top: 1.25rem; }
 
     .flex { display: flex; }
     .flex-col { flex-direction: column; }

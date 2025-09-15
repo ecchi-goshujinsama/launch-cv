@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { Resume } from '@/lib/types';
@@ -134,8 +132,8 @@ export function CreativeRenderer({
       </div>
 
       {/* Creative Header Section */}
-      <header className={cn("relative mb-8", isPrintMode && "print-break-inside-avoid")}>
-        <div className="flex items-center justify-between mb-6">
+      <header className={cn("relative mb-4", isPrintMode && "print-break-inside-avoid")}>
+        <div className="flex items-center justify-between mb-3">
           {/* Main Header */}
           <div className="flex-1">
             <div className="relative">

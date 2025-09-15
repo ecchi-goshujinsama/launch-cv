@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { Resume } from '@/lib/types';
@@ -116,8 +114,8 @@ export function TechnicalRenderer({
       }}
     >
       {/* Technical Header Section */}
-      <header className={cn("mb-8", isPrintMode && "print-break-inside-avoid")}>
-        <div className="flex items-start justify-between mb-4">
+      <header className={cn("mb-4", isPrintMode && "print-break-inside-avoid")}>
+        <div className="flex items-start justify-between mb-2">
           <div>
             <h1 
               className="text-3xl font-bold mb-2 flex items-center gap-3"

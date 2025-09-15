@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { 
@@ -78,7 +76,7 @@ export function ClassicProfessionalRenderer({
       className={cn(
         'classic-professional-template bg-white font-serif text-slate-800',
         'w-full max-w-[8.5in] mx-auto',
-        isPrintMode ? 'min-h-[11in] print-optimized' : 'min-h-[600px]',
+        isPrintMode ? 'print-optimized' : 'min-h-[600px]',
         isPrintMode ? 'p-6' : '', // Add print-specific padding
         className
       )}
@@ -93,7 +91,7 @@ export function ClassicProfessionalRenderer({
       }}
     >
       {/* Header Section */}
-      <header className={cn("text-center mb-6 border-b-2 pb-4", isPrintMode && "print-break-inside-avoid")} style={{ borderColor: appliedColorScheme.borders }}>
+      <header className={cn("text-center mb-3 border-b-2 pb-4", isPrintMode && "print-break-inside-avoid")} style={{ borderColor: appliedColorScheme.borders }}>
         <h1 
           className="text-2xl font-bold mb-2"
           style={{ 
@@ -143,9 +141,9 @@ export function ClassicProfessionalRenderer({
       </header>
 
       {/* Sections */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {visibleSections.map(section => (
-          <section key={section.id} className={cn("mb-6", isPrintMode && "pdf-section print-break-inside-avoid")}>
+          <section key={section.id} className={cn("mb-3", isPrintMode && "pdf-section print-break-inside-avoid")}>
             <h2 
               className="text-lg font-bold mb-3 uppercase tracking-wide border-b pb-1"
               style={{ 

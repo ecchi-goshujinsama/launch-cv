@@ -57,7 +57,7 @@ export function ModernMinimalRenderer({
           {resume.personalInfo.fullName}
         </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
           <div className="space-y-1 text-sm" style={{ color: appliedColorScheme.text.secondary }}>
             {resume.personalInfo.email && (
               <div>{resume.personalInfo.email}</div>
@@ -99,7 +99,7 @@ export function ModernMinimalRenderer({
       <div className="space-y-4">
         {visibleSections.map(section => (
           <section key={section.id} className={cn(isPrintMode && "pdf-section print-break-inside-avoid")}>
-            <div className="flex items-center mb-6">
+            <div className="flex items-center mb-3">
               <h2 
                 className="text-xl font-medium tracking-wide mr-4"
                 style={{ 
@@ -116,7 +116,7 @@ export function ModernMinimalRenderer({
             </div>
             
             {section.type === 'experience' && (
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {section.items?.map((item: any, index: number) => (
                   <div key={index} className="relative">
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -235,7 +235,7 @@ export function ModernMinimalRenderer({
             )}
 
             {section.type === 'projects' && (
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {section.items?.map((item: any, index: number) => (
                   <div key={index}>
                     <div className="mb-3">

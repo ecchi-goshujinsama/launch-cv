@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { Resume, SectionItem } from '@/lib/types';
@@ -58,7 +56,7 @@ export function ExecutiveRenderer({
     >
       {/* Bold Header Section */}
       <header 
-        className={cn("relative mb-10 p-8 -mx-8", isPrintMode && "print-break-inside-avoid")}
+        className={cn("relative mb-4 p-8 -mx-8", isPrintMode && "print-break-inside-avoid")}
         style={{ 
           background: `linear-gradient(135deg, ${appliedColorScheme.primary} 0%, ${appliedColorScheme.secondary} 100%)`,
           color: 'white'
@@ -154,7 +152,7 @@ export function ExecutiveRenderer({
 
       {/* Executive Summary */}
       {resume.personalInfo.summary && (
-        <section className="mb-10">
+        <section className="mb-4">
           <div 
             className="border-l-4 pl-6 py-4"
             style={{ 

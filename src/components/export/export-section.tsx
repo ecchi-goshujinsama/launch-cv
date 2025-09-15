@@ -140,7 +140,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-sm text-slate-400">{progress}% complete</p>
+            <p className="text-sm text-slate-400">{Math.round(progress)}% complete</p>
           </div>
         </div>
       )}

@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { cn, deepMerge } from '@/lib/utils';
 import type { Resume } from '@/lib/types';
@@ -31,7 +29,7 @@ export function ModernMinimalRenderer({
       className={cn(
         'modern-minimal-template bg-white font-sans text-gray-900',
         'w-full max-w-[8.5in] mx-auto',
-        isPrintMode ? 'min-h-[11in] print-optimized' : 'min-h-[600px]',
+        isPrintMode ? 'print-optimized' : 'min-h-[600px]',
         isPrintMode ? 'p-6' : '', // Add print-specific padding
         className
       )}
@@ -46,10 +44,10 @@ export function ModernMinimalRenderer({
       }}
     >
       {/* Header Section */}
-      <header className={cn("mb-12", isPrintMode && "print-break-inside-avoid")}>
-        <h1 
+      <header className={cn("mb-4", isPrintMode && "print-break-inside-avoid")}>
+        <h1
           className="text-4xl font-semibold mb-3 tracking-tight"
-          style={{ 
+          style={{
             color: appliedColorScheme.text.primary,
             fontFamily: appliedTypography.headings.fontFamily,
             fontWeight: appliedTypography.headings.fontWeight,
@@ -98,7 +96,7 @@ export function ModernMinimalRenderer({
       </header>
 
       {/* Sections */}
-      <div className="space-y-10">
+      <div className="space-y-4">
         {visibleSections.map(section => (
           <section key={section.id} className={cn(isPrintMode && "pdf-section print-break-inside-avoid")}>
             <div className="flex items-center mb-6">

@@ -5,6 +5,7 @@ import { useResumeStore } from '@/lib/stores/resume-store';
 import useTemplateStore from '@/lib/stores/template-store';
 import { usePDFExport } from '@/lib/hooks/use-pdf-export';
 import { getTemplateById } from '@/lib/templates';
+import { ClientPDFGenerator } from '@/lib/pdf/client-generator';
 import { LaunchButton } from '@/components/ui/launch-button';
 
 import { 
@@ -115,6 +116,19 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
       window.open(previewUrl, '_blank');
     } catch (error) {
       console.error('Preview failed:', error);
+    }
+  };
+
+  const handlePrint = async () => {
+    if (!testResume || !currentTemplate) {
+      console.error('Missing resume or template for print');
+      return;
+    }
+
+    try {
+      await ClientPDFGenerator.printResume(testResume, currentTemplate);
+    } catch (error) {
+      console.error('Print failed:', error);
     }
   };
 
@@ -274,10 +288,7 @@ export function ExportSection({ onExport, className }: ExportSectionProps) {
 
                   <LaunchButton
                     variant="outline"
-                    onClick={() => {
-                      // TODO: Implement print functionality
-                      console.log('Print resume');
-                    }}
+                    onClick={handlePrint}
                     disabled={!canExport}
                     icon="none"
                     className="w-full"

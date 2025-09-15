@@ -6,5 +6,4 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Re-export utilities
-export * from './form-utils';
 export * from './deep-merge';

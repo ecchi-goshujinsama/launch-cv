@@ -38,11 +38,11 @@ export const usePDFExport = (): PDFExportHook => {
       let progress = 0;
       const progressInterval = setInterval(() => {
         progress += Math.random() * 15 + 5; // Random progress between 5-20%
-        if (progress >= 95) {
-          progress = 95;
+        const roundedProgress = Math.round(Math.min(progress, 95));
+        if (roundedProgress >= 95) {
           clearInterval(progressInterval);
         }
-        updateState({ progress: Math.min(progress, 95) });
+        updateState({ progress: roundedProgress });
       }, 200);
 
       callback()

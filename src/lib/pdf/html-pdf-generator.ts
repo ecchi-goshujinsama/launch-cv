@@ -1,6 +1,20 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
 import type { Resume, Template } from '../types';
 
+
+// Dynamic imports for server-side only
+async function loadServerDependencies() {
+  if (typeof window !== 'undefined') {
+    throw new Error('This function can only be called on the server');
+  }
+
+  const { renderToString } = await import('react-dom/server');
+  const React = await import('react');
+  const { getTemplateRenderer } = await import('@/components/templates/renderers');
+
+  return { renderToString, React, getTemplateRenderer };
+}
+
 export interface HTMLToPDFOptions {
   format?: 'A4' | 'Letter';
   margin?: {
@@ -88,9 +102,9 @@ export class HTMLToPDFGenerator {
     options: Partial<HTMLToPDFOptions> = {}
   ): Promise<Buffer> {
     const finalOptions = { ...DEFAULT_PDF_OPTIONS, ...options };
-    
-    // Generate HTML content directly from resume data
-    const htmlContent = this.generateHTMLFromResume(resume, template);
+
+    // Generate HTML content using React server-side rendering
+    const htmlContent = await this.generateHTMLFromResume(resume, template);
 
     // Create complete HTML document with CSS
     const fullHTML = this.createFullHTMLDocument(htmlContent, template);
@@ -150,104 +164,68 @@ export class HTMLToPDFGenerator {
     template: Template,
     options: Partial<HTMLToPDFOptions> = {}
   ): Promise<string> {
+    if (typeof window !== 'undefined') {
+      throw new Error('generatePreviewBlob must be called server-side');
+    }
     const buffer = await this.generatePDF(resume, template, options);
     const blob = new Blob([buffer.buffer], { type: 'application/pdf' });
     return URL.createObjectURL(blob);
   }
 
   /**
-   * Generate HTML content directly from resume data
+   * Generate HTML content using React server-side rendering
    */
-  private static generateHTMLFromResume(resume: Resume, template: Template): string {
-    return `
-      <div class="pdf-optimized classic-template">
-        <header>
-          <h1>${resume.personalInfo.fullName}</h1>
-          <div class="contact-info">
-            ${resume.personalInfo.email ? `<span>${resume.personalInfo.email}</span>` : ''}
-            ${resume.personalInfo.phone ? `<span>• ${resume.personalInfo.phone}</span>` : ''}
-            ${resume.personalInfo.location ? `<span>• ${resume.personalInfo.location}</span>` : ''}
-          </div>
-        </header>
-        
-        ${resume.personalInfo.summary ? `
-          <section class="print-section">
-            <h2>Professional Summary</h2>
-            <p>${resume.personalInfo.summary}</p>
-          </section>
-        ` : ''}
-        
-        ${(() => {
-          const experienceSection = resume.sections?.find(s => s.type === 'experience');
-          const experienceItems = experienceSection?.items?.filter(item => item.type === 'experience') || [];
-          return experienceItems.length ? `
-            <section class="print-section">
-              <h2>Work Experience</h2>
-              ${experienceItems.map(exp => `
-                <div class="experience-item">
-                  <div class="job-header">
-                    <h3>${exp.position || exp.title || ''}</h3>
-                    <span class="dates">${exp.startDate} - ${exp.endDate || 'Present'}</span>
-                  </div>
-                  <div class="company-info">
-                    <h4>${exp.company}</h4>
-                    ${exp.location ? `<span>${exp.location}</span>` : ''}
-                  </div>
-                  ${exp.description?.length ? `
-                    <ul>
-                      ${exp.description.map(item =>
-                        `<li>${item}</li>`
-                      ).join('')}
-                    </ul>
-                  ` : ''}
-                </div>
-              `).join('')}
-            </section>
-          ` : '';
-        })()}
-        
-        ${(() => {
-          const educationSection = resume.sections?.find(s => s.type === 'education');
-          const educationItems = educationSection?.items?.filter(item => item.type === 'education') || [];
-          return educationItems.length ? `
-            <section class="print-section">
-              <h2>Education</h2>
-              ${educationItems.map(edu => `
-                <div class="education-item">
-                  <h3>${edu.degree}${edu.field ? ` in ${edu.field}` : ''}</h3>
-                  <h4>${edu.institution}</h4>
-                  <div class="education-details">
-                    ${edu.endDate ? `<span>${edu.endDate}</span>` : ''}
-                    ${edu.location ? `<span>${edu.location}</span>` : ''}
-                  </div>
-                </div>
-              `).join('')}
-            </section>
-          ` : '';
-        })()}
-        
-        ${(() => {
-          const skillsSection = resume.sections?.find(s => s.type === 'skills');
-          const skillsItems = skillsSection?.items?.filter(item => item.type === 'skills') || [];
-          return skillsItems.length ? `
-            <section class="print-section">
-              <h2>Skills</h2>
-              <div class="skills-grid">
-                ${skillsItems.map(skillCategory =>
-                  skillCategory.skills?.map(skill =>
-                    `<span class="skill-item">${skill}</span>`
-                  ).join('') || ''
-                ).join('')}
-              </div>
-            </section>
-          ` : '';
-        })()}
-      </div>
-    `;
+  private static async generateHTMLFromResume(resume: Resume, template: Template): Promise<string> {
+    // Ensure we're on the server side
+    if (typeof window !== 'undefined') {
+      throw new Error('PDF generation must be done server-side only');
+    }
+
+    try {
+      // Load server dependencies dynamically
+      const { renderToString, React, getTemplateRenderer } = await loadServerDependencies();
+
+      // Get the appropriate template renderer
+      const TemplateRenderer = getTemplateRenderer(template.id);
+
+      if (!TemplateRenderer) {
+        throw new Error(`Template renderer not found for template: ${template.id}`);
+      }
+
+      // Render the React component to HTML string using server-side rendering
+      const reactElement = React.createElement(TemplateRenderer, {
+        resume,
+        template,
+        isPrintMode: true, // Enable print-optimized mode
+        scale: 1,
+        customizations: {}
+      });
+
+      return renderToString(reactElement);
+    } catch (error) {
+      console.error('Error rendering template:', error);
+
+      // Fallback to basic template if React rendering fails
+      return `
+        <div class="pdf-optimized fallback-template" style="font-family: Inter, sans-serif; max-width: 8.5in; margin: 0 auto; padding: 0.5in; background: white; color: black;">
+          <header style="margin-bottom: 2rem;">
+            <h1 style="font-size: 24pt; margin-bottom: 0.5rem; color: #000;">${resume.personalInfo.fullName}</h1>
+            <div style="margin-bottom: 1rem; color: #666;">
+              ${resume.personalInfo.email ? `<span>${resume.personalInfo.email}</span>` : ''}
+              ${resume.personalInfo.phone ? ` • ${resume.personalInfo.phone}` : ''}
+              ${resume.personalInfo.location ? ` • ${resume.personalInfo.location}` : ''}
+            </div>
+            ${resume.personalInfo.summary ? `<p style="margin-bottom: 1rem; line-height: 1.4;">${resume.personalInfo.summary}</p>` : ''}
+          </header>
+
+          ${this.generateFallbackSections(resume)}
+        </div>
+      `;
+    }
   }
 
   /**
-   * Create complete HTML document with embedded CSS and fonts
+   * Create complete HTML document with embedded CSS and fonts for PDF rendering
    */
   private static createFullHTMLDocument(content: string, template: Template): string {
     return `<!DOCTYPE html>
@@ -256,12 +234,12 @@ export class HTMLToPDFGenerator {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume - ${template.name}</title>
-  
+
   <!-- Web fonts for better typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Georgia:wght@400;700&family=Helvetica:wght@400;700;800&display=swap" rel="stylesheet">
+
   <style>
     /* Reset and base styles */
     *, *::before, *::after {
@@ -291,7 +269,7 @@ export class HTMLToPDFGenerator {
       margin: 0.5in;
     }
 
-    /* Typography optimizations */
+    /* Typography optimizations for PDF */
     h1, h2, h3, h4, h5, h6 {
       margin-bottom: 0.5em;
       page-break-after: avoid;
@@ -320,6 +298,11 @@ export class HTMLToPDFGenerator {
       page-break-inside: avoid;
     }
 
+    .pdf-section {
+      margin-bottom: 1.5em;
+      page-break-inside: avoid;
+    }
+
     .print-break-before { page-break-before: always; }
     .print-break-after { page-break-after: always; }
     .print-break-inside-avoid { page-break-inside: avoid; }
@@ -331,48 +314,138 @@ export class HTMLToPDFGenerator {
       color-adjust: exact !important;
     }
 
-    /* Template-specific optimizations */
-    ${this.getTemplatePrintCSS(template.id)}
+    /* Tailwind-like utilities for PDF rendering */
+    .bg-white { background-color: white; }
+    .font-sans { font-family: 'Inter', system-ui, sans-serif; }
+    .text-gray-900 { color: #111827; }
+    .w-full { width: 100%; }
+    .max-w-\[8\.5in\] { max-width: 8.5in; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .min-h-\[11in\] { min-height: 11in; }
+    .print-optimized { /* handled above */ }
+    .p-6 { padding: 1.5rem; }
 
-    /* Tailwind-like utilities for PDF */
-    .grid { display: flex; flex-wrap: wrap; }
-    .grid-cols-1 > * { flex: 1 1 100%; }
-    .grid-cols-2 > * { flex: 1 1 50%; }
-    .grid-cols-3 > * { flex: 1 1 33.333%; }
-    .gap-2 { gap: 0.5rem; }
+    .mb-12 { margin-bottom: 3rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mr-3 { margin-right: 0.75rem; }
+    .mr-4 { margin-right: 1rem; }
+
+    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    .font-bold { font-weight: 700; }
+
+    .tracking-tight { letter-spacing: -0.025em; }
+    .tracking-wide { letter-spacing: 0.025em; }
+
+    .grid { display: grid; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .gap-4 { gap: 1rem; }
     .gap-6 { gap: 1.5rem; }
-    .gap-8 { gap: 2rem; }
-    
+    .gap-8 { gap: 1.5rem; }
+    .gap-2 { gap: 0.5rem; }
+
+    .lg\\:col-span-1 { grid-column: span 1 / span 1; }
+    .lg\\:col-span-3 { grid-column: span 3 / span 3; }
+
+    .space-y-1 > * + * { margin-top: 0.25rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-6 > * + * { margin-top: 1.5rem; }
+    .space-y-8 > * + * { margin-top: 2rem; }
+    .space-y-10 > * + * { margin-top: 2.5rem; }
+
     .flex { display: flex; }
     .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
     .items-center { align-items: center; }
     .items-start { align-items: flex-start; }
     .justify-between { justify-content: space-between; }
     .justify-center { justify-content: center; }
-    
-    .mb-2 { margin-bottom: 0.5rem; }
-    .mb-3 { margin-bottom: 0.75rem; }
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    
-    .p-2 { padding: 0.5rem; }
-    .p-3 { padding: 0.75rem; }
-    .p-4 { padding: 1rem; }
-    .p-6 { padding: 1.5rem; }
-    
-    .text-sm { font-size: 0.875rem; }
-    .text-xs { font-size: 0.75rem; }
-    .font-bold { font-weight: 700; }
-    .font-semibold { font-weight: 600; }
-    .font-medium { font-weight: 500; }
-    
+    .flex-1 { flex: 1 1 0%; }
+    .flex-shrink-0 { flex-shrink: 0; }
+
+    .border-l-4 { border-left-width: 4px; }
+    .pl-6 { padding-left: 1.5rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+    .p-8 { padding: 2rem; }
+
+    .leading-relaxed { line-height: 1.625; }
+    .leading-relaxed { line-height: 1.625; }
+
+    .inline-block { display: inline-block; }
+    .block { display: block; }
+
+    .w-2 { width: 0.5rem; }
+    .h-2 { height: 0.5rem; }
+    .h-px { height: 1px; }
+
+    .rounded-full { border-radius: 9999px; }
     .rounded { border-radius: 0.25rem; }
-    .rounded-lg { border-radius: 0.5rem; }
-    
+
+    .border { border-width: 1px; }
+
+    .relative { position: relative; }
+
+    .hover\\:underline:hover { text-decoration: underline; }
+
+    .text-right { text-align: right; }
+
     /* Hide elements not suitable for print */
     .no-print { display: none !important; }
+
+    /* Template-specific styles */
+    .modern-minimal-template h1 {
+      font-size: 2.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.025em;
+    }
+
+    .modern-minimal-template h2 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      letter-spacing: 0.025em;
+      margin-right: 1rem;
+    }
+
+    .modern-minimal-template h3 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .modern-minimal-template h4 {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Responsive grid adjustments for PDF */
+    @media print {
+      .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lg\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lg\\:col-span-1 { grid-column: span 1 / span 1; }
+      .lg\\:col-span-3 { grid-column: span 3 / span 3; }
+    }
   </style>
 </head>
 <body>
@@ -382,113 +455,85 @@ export class HTMLToPDFGenerator {
   }
 
   /**
-   * Get template-specific CSS optimized for PDF output
+   * Generate fallback sections when React rendering fails
    */
-  private static getTemplatePrintCSS(templateId: string): string {
-    const templateSpecificCSS: Record<string, string> = {
-      'technical': `
-        .technical-template {
-          font-family: 'JetBrains Mono', 'Courier New', monospace !important;
-        }
-        
-        .technical-template h1 {
-          font-family: 'JetBrains Mono', monospace !important;
-          font-size: 24pt;
-          font-weight: 700;
-          color: #0d1117 !important;
-          text-transform: uppercase;
-          letter-spacing: 0.5pt;
-        }
-        
-        .technical-template h2 {
-          font-family: 'JetBrains Mono', monospace !important;
-          font-size: 14pt;
-          font-weight: 700;
-          color: #0d1117 !important;
-          text-transform: uppercase;
-          letter-spacing: 0.25pt;
-          border: 1px solid #0d1117;
-          background: #f6f8fa;
-          padding: 4pt 8pt;
-          margin: 12pt 0 8pt 0;
-        }
-        
-        .skill-item {
-          background: #0d1117 !important;
-          color: white !important;
-          padding: 2pt 6pt;
-          border-radius: 3pt;
-          font-size: 8pt;
-          font-family: 'JetBrains Mono', monospace !important;
-          font-weight: 700;
-          display: inline-block;
-          margin: 1pt;
-        }
-        
-        .contact-dot {
-          width: 4pt;
-          height: 4pt;
-          border-radius: 2pt;
-          background: #58a6ff !important;
-          display: inline-block;
-          margin-right: 6pt;
-        }
-        
-        .stats-box {
-          background: #f6f8fa !important;
-          border: 1pt solid #d0d7de;
-          border-radius: 4pt;
-          padding: 8pt;
-          margin-bottom: 12pt;
-        }
-        
-        .experience-item {
-          padding: 8pt;
-          margin-bottom: 12pt;
-          border-left: 4pt solid #58a6ff;
-          background: #f6f8fa !important;
-        }
-        
-        .bullet-point::before {
-          content: "▶";
-          color: #58a6ff;
-          margin-right: 6pt;
-        }
-      `,
-      
-      'classic-professional': `
-        .classic-template {
-          font-family: 'Times New Roman', serif !important;
-        }
-        .classic-template h1 { font-size: 20pt; }
-        .classic-template h2 { font-size: 14pt; border-bottom: 1pt solid #2c3e50; }
-      `,
-      
-      'modern-minimal': `
-        .modern-template {
-          font-family: 'Inter', system-ui, sans-serif !important;
-        }
-        .modern-template h1 { font-size: 18pt; font-weight: 600; }
-        .modern-template h2 { font-size: 13pt; font-weight: 600; }
-      `,
-      
-      'executive': `
-        .executive-template {
-          font-family: Georgia, serif !important;
-        }
-        .executive-template h1 { font-size: 22pt; font-weight: 700; }
-        .executive-template h2 { font-size: 15pt; font-weight: 700; }
-      `,
-      
-      'creative': `
-        .creative-template {
-          font-family: Helvetica, sans-serif !important;
-        }
-        .creative-template h1 { font-size: 20pt; font-weight: 800; letter-spacing: -0.5pt; }
-        .creative-template h2 { font-size: 14pt; font-weight: 700; }
-      `
-    };
+  private static generateFallbackSections(resume: Resume): string {
+    const sections = [];
 
-    return templateSpecificCSS[templateId] || '';
+    // Experience section
+    const experienceSection = resume.sections?.find(s => s.type === 'experience');
+    const experienceItems = experienceSection?.items?.filter(item => item.type === 'experience') || [];
+    if (experienceItems.length > 0) {
+      sections.push(`
+        <section style="margin-bottom: 2rem; page-break-inside: avoid;">
+          <h2 style="font-size: 18pt; margin-bottom: 1rem; color: #000; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem;">Work Experience</h2>
+          ${experienceItems.map((exp: any) => `
+            <div style="margin-bottom: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <h3 style="font-size: 14pt; font-weight: 600; color: #000;">${exp.position || exp.title || ''}</h3>
+                <span style="font-size: 10pt; color: #666;">${exp.startDate} - ${exp.endDate || 'Present'}</span>
+              </div>
+              <h4 style="font-size: 12pt; font-weight: 500; color: #2563eb; margin-bottom: 0.75rem;">${exp.company}</h4>
+              ${exp.location ? `<p style="font-size: 10pt; color: #666; margin-bottom: 0.5rem;">${exp.location}</p>` : ''}
+              ${exp.description?.length ? `
+                <ul style="margin-bottom: 0.75rem; padding-left: 1.5rem;">
+                  ${exp.description.map((item: string) => `<li style="margin-bottom: 0.25rem; line-height: 1.4;">${item}</li>`).join('')}
+                </ul>
+              ` : ''}
+              ${exp.skills?.length ? `
+                <div style="margin-top: 0.5rem;">
+                  ${exp.skills.map((skill: string) => `<span style="display: inline-block; background: #f3f4f6; color: #374151; padding: 0.25rem 0.5rem; margin: 0.125rem; border-radius: 0.25rem; font-size: 9pt;">${skill}</span>`).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </section>
+      `);
+    }
+
+    // Education section
+    const educationSection = resume.sections?.find(s => s.type === 'education');
+    const educationItems = educationSection?.items?.filter(item => item.type === 'education') || [];
+    if (educationItems.length > 0) {
+      sections.push(`
+        <section style="margin-bottom: 2rem; page-break-inside: avoid;">
+          <h2 style="font-size: 18pt; margin-bottom: 1rem; color: #000; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem;">Education</h2>
+          ${educationItems.map((edu: any) => `
+            <div style="margin-bottom: 1rem;">
+              <h3 style="font-size: 14pt; font-weight: 600; color: #000;">${edu.degree}${edu.field ? ` in ${edu.field}` : ''}</h3>
+              <h4 style="font-size: 12pt; font-weight: 500; color: #2563eb;">${edu.institution}</h4>
+              <div style="font-size: 10pt; color: #666;">
+                ${edu.endDate ? `<span>${edu.endDate}</span>` : ''}
+                ${edu.location ? `<span> • ${edu.location}</span>` : ''}
+                ${edu.gpa ? `<span> • GPA: ${edu.gpa}</span>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </section>
+      `);
+    }
+
+    // Skills section
+    const skillsSection = resume.sections?.find(s => s.type === 'skills');
+    const skillsItems = skillsSection?.items?.filter(item => item.type === 'skills') || [];
+    if (skillsItems.length > 0) {
+      sections.push(`
+        <section style="margin-bottom: 2rem; page-break-inside: avoid;">
+          <h2 style="font-size: 18pt; margin-bottom: 1rem; color: #000; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem;">Skills</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+            ${skillsItems.map((skillCategory: any) => `
+              <div>
+                <h3 style="font-size: 12pt; font-weight: 600; color: #000; margin-bottom: 0.5rem;">${skillCategory.category || 'Skills'}</h3>
+                <div>
+                  ${skillCategory.skills?.map((skill: string) => `<span style="display: inline-block; background: #2563eb; color: white; padding: 0.25rem 0.5rem; margin: 0.125rem; border-radius: 0.25rem; font-size: 9pt;">${skill}</span>`).join('') || ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `);
+    }
+
+    return sections.join('');
   }
 }

@@ -11,12 +11,36 @@ export async function parsePdfFile(
   options: ParseOptions = {}
 ): Promise<ParseResult> {
   try {
-    // Dynamic import for PDF.js to avoid SSR issues
-    const pdfjsLib = await import('pdfjs-dist');
+    // Ensure we're in browser environment
+    if (typeof window === 'undefined') {
+      throw new Error('PDF parsing is only available in browser environment');
+    }
     
-    // Set up PDF.js worker
-    if (typeof window !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/pdf.worker.mjs';
+    // Use the recommended Webpack import for PDF.js
+    let pdfjsLib;
+    try {
+      // For Webpack environments (like Next.js), use the webpack.mjs import
+      pdfjsLib = await import('pdfjs-dist/webpack.mjs');
+      console.log('PDF.js loaded successfully via webpack.mjs');
+    } catch (error) {
+      console.warn('Webpack import failed, trying alternative:', error);
+      try {
+        // Fallback to direct import
+        pdfjsLib = await import('pdfjs-dist');
+        console.log('PDF.js loaded successfully via direct import');
+      } catch (altError) {
+        console.error('All PDF.js import methods failed:', altError);
+        throw new Error('Failed to load PDF.js library. This might be due to a configuration issue.');
+      }
+    }
+    
+    // Configure PDF.js worker with error handling
+    try {
+      if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/pdf.worker.mjs';
+      }
+    } catch (workerError) {
+      console.warn('Worker configuration failed, continuing without worker:', workerError);
     }
     
     // Convert File to ArrayBuffer
@@ -76,7 +100,7 @@ export async function parsePdfFile(
         
         for (const item of lineItems) {
           // Add space if there's a significant gap between items
-          if (lastX !== -1 && item.x - lastX > item.height * 0.3) {
+          if (lastX !== -1 && item.x - lastX > (item.height || 12) * 0.3) {
             lineText += ' ';
           }
           

@@ -1,8 +1,5 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
-import { renderToString } from 'react-dom/server';
-import React from 'react';
 import type { Resume, Template } from '../types';
-import { getTemplateRenderer } from '../../components/templates/renderers';
 
 export interface HTMLToPDFOptions {
   format?: 'A4' | 'Letter';
@@ -83,7 +80,7 @@ export class HTMLToPDFGenerator {
   }
 
   /**
-   * Generate PDF from React template
+   * Generate PDF from template data
    */
   static async generatePDF(
     resume: Resume,
@@ -92,27 +89,8 @@ export class HTMLToPDFGenerator {
   ): Promise<Buffer> {
     const finalOptions = { ...DEFAULT_PDF_OPTIONS, ...options };
     
-    // Get the React template component
-    const TemplateComponent = getTemplateRenderer(template.id);
-    if (!TemplateComponent) {
-      throw new Error(`Template not found: ${template.id}`);
-    }
-
-    // Render React component to HTML string
-    let htmlContent: string;
-    try {
-      htmlContent = renderToString(
-        React.createElement(TemplateComponent, {
-          resume,
-          template,
-          isPrintMode: true,
-          scale: 1,
-          className: 'pdf-optimized'
-        })
-      );
-    } catch (error) {
-      throw new Error(`Failed to render template to HTML: ${error instanceof Error ? error.message : String(error)}`);
-    }
+    // Generate HTML content directly from resume data
+    const htmlContent = this.generateHTMLFromResume(resume, template);
 
     // Create complete HTML document with CSS
     const fullHTML = this.createFullHTMLDocument(htmlContent, template);
@@ -175,6 +153,97 @@ export class HTMLToPDFGenerator {
     const buffer = await this.generatePDF(resume, template, options);
     const blob = new Blob([buffer.buffer], { type: 'application/pdf' });
     return URL.createObjectURL(blob);
+  }
+
+  /**
+   * Generate HTML content directly from resume data
+   */
+  private static generateHTMLFromResume(resume: Resume, template: Template): string {
+    return `
+      <div class="pdf-optimized classic-template">
+        <header>
+          <h1>${resume.personalInfo.fullName}</h1>
+          <div class="contact-info">
+            ${resume.personalInfo.email ? `<span>${resume.personalInfo.email}</span>` : ''}
+            ${resume.personalInfo.phone ? `<span>• ${resume.personalInfo.phone}</span>` : ''}
+            ${resume.personalInfo.location ? `<span>• ${resume.personalInfo.location}</span>` : ''}
+          </div>
+        </header>
+        
+        ${resume.personalInfo.summary ? `
+          <section class="print-section">
+            <h2>Professional Summary</h2>
+            <p>${resume.personalInfo.summary}</p>
+          </section>
+        ` : ''}
+        
+        ${(() => {
+          const experienceSection = resume.sections?.find(s => s.type === 'experience');
+          const experienceItems = experienceSection?.items?.filter(item => item.type === 'experience') || [];
+          return experienceItems.length ? `
+            <section class="print-section">
+              <h2>Work Experience</h2>
+              ${experienceItems.map(exp => `
+                <div class="experience-item">
+                  <div class="job-header">
+                    <h3>${exp.position || exp.title || ''}</h3>
+                    <span class="dates">${exp.startDate} - ${exp.endDate || 'Present'}</span>
+                  </div>
+                  <div class="company-info">
+                    <h4>${exp.company}</h4>
+                    ${exp.location ? `<span>${exp.location}</span>` : ''}
+                  </div>
+                  ${exp.description?.length ? `
+                    <ul>
+                      ${exp.description.map(item =>
+                        `<li>${item}</li>`
+                      ).join('')}
+                    </ul>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </section>
+          ` : '';
+        })()}
+        
+        ${(() => {
+          const educationSection = resume.sections?.find(s => s.type === 'education');
+          const educationItems = educationSection?.items?.filter(item => item.type === 'education') || [];
+          return educationItems.length ? `
+            <section class="print-section">
+              <h2>Education</h2>
+              ${educationItems.map(edu => `
+                <div class="education-item">
+                  <h3>${edu.degree}${edu.field ? ` in ${edu.field}` : ''}</h3>
+                  <h4>${edu.institution}</h4>
+                  <div class="education-details">
+                    ${edu.endDate ? `<span>${edu.endDate}</span>` : ''}
+                    ${edu.location ? `<span>${edu.location}</span>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </section>
+          ` : '';
+        })()}
+        
+        ${(() => {
+          const skillsSection = resume.sections?.find(s => s.type === 'skills');
+          const skillsItems = skillsSection?.items?.filter(item => item.type === 'skills') || [];
+          return skillsItems.length ? `
+            <section class="print-section">
+              <h2>Skills</h2>
+              <div class="skills-grid">
+                ${skillsItems.map(skillCategory =>
+                  skillCategory.skills?.map(skill =>
+                    `<span class="skill-item">${skill}</span>`
+                  ).join('') || ''
+                ).join('')}
+              </div>
+            </section>
+          ` : '';
+        })()}
+      </div>
+    `;
   }
 
   /**

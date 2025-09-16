@@ -25,7 +25,7 @@ export function CompletionProgress({
     if (!currentResume) return 0;
 
     let completed = 0;
-    let total = 4; // Personal info + 3 main sections (experience, education, skills)
+    const total = 4; // Personal info + 3 main sections (experience, education, skills)
 
     // Check personal info completion
     const personalInfo = currentResume.personalInfo;

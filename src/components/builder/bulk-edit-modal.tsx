@@ -14,7 +14,16 @@ import {
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { useResumeStore } from '@/lib/stores/resume-store';
-import type { SectionItem } from '@/lib/types';
+import type {
+  SectionItem,
+  ExperienceItem,
+  EducationItem,
+  ProjectItem,
+  SkillsItem,
+  CertificationItem,
+  CustomSectionItem,
+  BaseSectionItem
+} from '@/lib/types';
 
 interface BulkEditModalProps {
   isOpen: boolean;
@@ -143,17 +152,17 @@ export function BulkEditModal({ isOpen, onClose, className }: BulkEditModalProps
   const getItemDisplayText = (item: SectionItem, sectionType: string): string => {
     switch (sectionType) {
       case 'experience':
-        return `${(item as any).position || 'Position'} at ${(item as any).company || 'Company'}`;
+        return `${(item as ExperienceItem).position || 'Position'} at ${(item as ExperienceItem).company || 'Company'}`;
       case 'education':
-        return `${(item as any).degree || 'Degree'} from ${(item as any).institution || 'Institution'}`;
+        return `${(item as EducationItem).degree || 'Degree'} from ${(item as EducationItem).institution || 'Institution'}`;
       case 'skills':
-        return `${(item as any).category || 'Category'}: ${(item as any).skills?.slice(0, 3)?.join(', ') || 'Skills'}`;
+        return `${(item as SkillsItem).category || 'Category'}: ${(item as SkillsItem).skills?.slice(0, 3)?.join(', ') || 'Skills'}`;
       case 'projects':
-        return (item as any).name || 'Project';
+        return (item as ProjectItem).name || 'Project';
       case 'certifications':
-        return `${(item as any).name || 'Certification'} - ${(item as any).issuer || 'Issuer'}`;
+        return `${(item as CertificationItem).name || 'Certification'} - ${(item as CertificationItem).issuer || 'Issuer'}`;
       default:
-        return (item as any).title || (item as any).name || 'Item';
+        return (item as CustomSectionItem).title || (item as BaseSectionItem).name || 'Item';
     }
   };
 

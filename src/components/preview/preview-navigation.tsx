@@ -107,8 +107,6 @@ export function PreviewNavigation({
                 className={cn(
                   "w-full flex items-center justify-between p-2 text-left rounded-md transition-colors",
                   "hover:bg-gray-50",
-                  "hover:bg-gray-50",
-                  !section.visible && "opacity-50"
                   !section.visible && "opacity-50"
                 )}
               >
@@ -160,8 +158,6 @@ export function PreviewNavigation({
                     key={section.id}
                     className={cn(
                       "h-2 rounded-sm transition-colors cursor-pointer",
-                      "bg-gray-300 hover:bg-gray-400",
-                      !section.visible && "opacity-30"
                       activeSection === section.id ? "bg-launch-blue" : "bg-gray-300 hover:bg-gray-400",
                       !section.visible && "opacity-30"
                     )}

@@ -98,7 +98,9 @@ export const LaunchSequenceModal: React.FC<LaunchSequenceModalProps> = ({
             templates={templates}
             selectedTemplateId={selectedTemplateId}
             onTemplateSelect={handleTemplateSelect}
-       case 'export-options':
+          />
+        );
+      case 'export-options':
          const template = getTemplate(selectedTemplateId);
          if (!template) {
            setCurrentStep('template-selection');
@@ -111,8 +113,6 @@ export const LaunchSequenceModal: React.FC<LaunchSequenceModalProps> = ({
              onBack={() => setCurrentStep('template-selection')}
            />
          );
-          />
-        );
       case 'export-options':
         return (
           <ExportOptions
@@ -223,13 +223,7 @@ export const LaunchSequenceModal: React.FC<LaunchSequenceModalProps> = ({
             <MissionProgress
               currentStep={
                 currentStep === 'template-selection' ? 1 :
-import type { Template } from '../../lib/stores/template-store';
-
-interface ExportOptionsProps {
-  selectedTemplate: Template | undefined;
-  onConfirm: (options: Partial<PDFExportOptions>) => void;
-  onBack: () => void;
-}
+                currentStep === 'export-options' ? 2 :
                 currentStep === 'launching' ? 3 : 1
               }
               totalSteps={3}

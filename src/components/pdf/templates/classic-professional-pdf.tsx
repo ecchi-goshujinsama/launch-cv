@@ -69,7 +69,7 @@ interface PDFSectionProps {
   context: PDFRenderContext;
 }
 
-const PDFSection: React.FC<PDFSectionProps> = ({ section, context }) => {
+const PDFSection: React.FC<PDFSectionProps> = ({ section }) => {
   if (!section.visible || section.items.length === 0) return null;
 
   const renderSectionContent = () => {

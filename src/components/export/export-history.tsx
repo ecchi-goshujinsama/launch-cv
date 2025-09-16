@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Clock, FileText, Download, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { Clock, FileText, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { useExportStore } from '../../lib/stores/export-store';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -15,7 +15,6 @@ interface ExportHistoryProps {
 
 export const ExportHistory: React.FC<ExportHistoryProps> = ({ resumeId, limit = 10 }) => {
   const { 
-    history, 
     removeExportEntry, 
     clearHistory,
     getExportsByResumeId,

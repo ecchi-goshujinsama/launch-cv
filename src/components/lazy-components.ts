@@ -6,9 +6,9 @@ export const LazyExportProgress = lazy(() => import('./export/export-progress'))
 export const LazyExportHistory = lazy(() => import('./export/export-history'));
 
 // PDF components (heavy dependencies)
-export const LazyPDFViewer = lazy(() => 
+export const LazyPDFViewer = lazy(() =>
   import('./pdf/pdf-viewer').catch(() => ({
-    default: () => <div>PDF Viewer not available</div>
+    default: () => null
   }))
 );
 
@@ -57,9 +57,9 @@ export const LazyTemplateCustomizer = lazy(() =>
 );
 
 // Chart/analytics components (if any)
-export const LazyAnalyticsDashboard = lazy(() => 
+export const LazyAnalyticsDashboard = lazy(() =>
   import('./analytics/analytics-dashboard').catch(() => ({
-    default: () => <div>Analytics not available</div>
+    default: () => null
   }))
 );
 

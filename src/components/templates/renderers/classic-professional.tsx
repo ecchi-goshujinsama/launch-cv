@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { 
-  Resume, 
   ExperienceItem, 
   EducationItem, 
   SkillsItem, 
@@ -9,7 +8,6 @@ import type {
   CertificationItem, 
   CustomSectionItem 
 } from '@/lib/types';
-import type { Template, TemplateCustomizations } from '@/lib/types/template';
 import type { TemplateRendererProps } from './index';
 
 // Union type for all possible section items

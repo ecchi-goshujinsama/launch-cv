@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import type { Resume } from '@/lib/types';
-import type { Template, TemplateCustomizations } from '@/lib/types/template';
 import type { TemplateRendererProps } from './index';
 import { 
   Palette, 
@@ -182,7 +180,7 @@ export function CreativeRenderer({
                   className="text-base leading-relaxed font-medium italic"
                   style={{ color: appliedColorScheme.text.primary }}
                 >
-                  "{resume.personalInfo.summary}"
+                  &quot;{resume.personalInfo.summary}&quot;
                 </p>
               </div>
             )}

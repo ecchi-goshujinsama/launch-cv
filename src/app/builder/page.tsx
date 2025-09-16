@@ -14,11 +14,11 @@ import { BuilderLayout } from '@/components/builder/builder-layout';
 import { PreviewContainer } from '@/components/preview/preview-container';
 import { KeyboardShortcutsModal } from '@/components/ui/keyboard-shortcuts-modal';
 import { LaunchButton } from '@/components/ui/launch-button';
-import { CompletionProgress, CompactCompletionProgress } from '@/components/ui/completion-progress';
+import { CompletionProgress } from '@/components/ui/completion-progress';
 import { useKeyboardShortcuts, createResumeBuilderShortcuts } from '@/lib/hooks/use-keyboard-shortcuts';
 import { useSwipeNavigation, useIsMobile } from '@/lib/hooks/use-touch-interactions';
 import { useMilestoneTracker } from '@/lib/hooks/use-completion-timer';
-import { useAutoSave, useSaveStatus } from '@/lib/hooks/use-auto-save';
+import { useSaveStatus } from '@/lib/hooks/use-auto-save';
 import { 
   PersonalInfoForm, 
   ExperienceForm, 

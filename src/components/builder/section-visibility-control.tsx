@@ -37,7 +37,6 @@ export function SectionVisibilityControl({
   const visibleSections = sections.filter(s => s.visible);
   const hiddenSections = sections.filter(s => !s.visible);
   const allVisible = visibleSections.length === sections.length;
-  const noneVisible = visibleSections.length === 0;
 
   const getSectionIcon = (type: ResumeSection['type']) => {
     switch (type) {

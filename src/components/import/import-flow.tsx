@@ -8,7 +8,6 @@ import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionContainer, MissionSection, MissionCard } from '@/components/layout';
 import { FileUpload } from '@/components/resume/file-upload';
 import { PreFlightCheck } from '@/components/resume/pre-flight-check';
-import { DataReviewForm } from '@/components/resume/data-review-form';
 import { ManualEntryForm } from '@/components/resume/manual-entry-form';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import { parseResumeFile } from '@/lib/parsers/resume-parser';

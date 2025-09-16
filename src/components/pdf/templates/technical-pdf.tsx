@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from '@react-pdf/renderer';
-import { BasePDFDocument, PDFHeader, commonStyles } from '../base-pdf-document';
+import { BasePDFDocument, commonStyles } from '../base-pdf-document';
 import type { PDFRenderContext } from '../../../lib/pdf/types';
 import type { 
   ExperienceItem, 
@@ -329,7 +329,7 @@ interface PDFSectionProps {
   context: PDFRenderContext;
 }
 
-const PDFSection: React.FC<PDFSectionProps> = ({ section, context }) => {
+const PDFSection: React.FC<PDFSectionProps> = ({ section }) => {
   if (!section.visible || section.items.length === 0) return null;
 
   const renderSectionContent = () => {

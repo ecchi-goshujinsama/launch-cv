@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { MissionHeader, MissionFooter } from '@/components/layout';
 import { ImportFlow } from '@/components/import/import-flow';
 import { useResumeStore } from '@/lib/stores/resume-store';

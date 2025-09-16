@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Edit3, Save, Rocket } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Edit3, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionContainer, MissionSection, MissionCard } from '@/components/layout';
@@ -330,7 +330,7 @@ export function PreFlightCheck({
                       <div className="font-medium text-sm">{issue.section}</div>
                       <div className="text-sm text-gray-700">{issue.message}</div>
                       {issue.value && (
-                        <div className="text-xs text-gray-500 mt-1">Current value: "{issue.value}"</div>
+                        <div className="text-xs text-gray-500 mt-1">Current value: &quot;{issue.value}&quot;</div>
                       )}
                     </div>
                   </div>

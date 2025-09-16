@@ -170,7 +170,7 @@ export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
             Your professional resume is ready to soar
           </p>
           <p className="text-gray-600 animate-fadeIn animation-delay-400">
-            "{resumeName}" has been successfully generated and downloaded
+            &quot;{resumeName}&quot; has been successfully generated and downloaded
           </p>
         </div>
       </div>
@@ -266,27 +266,7 @@ export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
         </LaunchButton>
         
         <LaunchButton
-// at the top of src/components/export/career-launched-success.tsx
-import { useRouter } from 'next/navigation';
-
-export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
-  resumeName,
-  templateName,
-  onComplete,
-}) => {
-  const router = useRouter();
-
-  return (
-    <LaunchButton
-      onClick={() => router.refresh()}
-      variant="outline"
-      className="gap-2 animate-fadeIn"
-      style={{ animationDelay: '1.7s' }}
-    >
-      Launch Another
-    </LaunchButton>
-  );
-};
+          onClick={() => window.location.reload()}
           variant="outline"
           className="gap-2 animate-fadeIn"
           style={{ animationDelay: '1.7s' }}
@@ -299,7 +279,7 @@ export const CareerLaunchedSuccess: React.FC<CareerLaunchedSuccessProps> = ({
       {/* Celebration message */}
       <div className="text-center animate-fadeIn" style={{ animationDelay: '2s' }}>
         <p className="text-sm text-gray-500 italic">
-          "Every expert was once a beginner. Every pro was once an amateur. Every icon was once an unknown." 
+          &quot;Every expert was once a beginner. Every pro was once an amateur. Every icon was once an unknown.&quot;
         </p>
         <p className="text-xs text-gray-400 mt-2">
           Your career journey starts now. Good luck! 🌟

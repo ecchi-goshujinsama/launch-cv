@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import type { Resume } from '@/lib/types';
-import type { Template, TemplateCustomizations } from '@/lib/types/template';
 import { Github, ExternalLink, Code, Star, GitFork } from 'lucide-react';
 import type { TemplateRendererProps } from './index';
 

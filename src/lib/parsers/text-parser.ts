@@ -161,7 +161,7 @@ export function extractPersonalInfo(text: string): ParsedResumeData['personalInf
       // Additional check: ensure it's not a file extension or technical term
       const parts = url.split('.');
       if (parts.length === 2) {
-        const [firstPart, secondPart] = parts;
+        const [, secondPart] = parts;
         // Reject if it looks like: filename.extension, config.setting, etc.
         if (secondPart.length <= 4 && secondPart.match(/^[A-Z]{2,4}$/i)) {
           return false;

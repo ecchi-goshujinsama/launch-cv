@@ -57,7 +57,7 @@ export const generatePDF = async (resume: ResumeData, options: ExportOptions): P
 };
 
 function generateHTMLResume(resume: ResumeData, options: ExportOptions): string {
-  const { template, settings = {} } = options;
+  const { settings = {} } = options;
   const { colorScheme = 'blue' } = settings;
   
   const colors = {

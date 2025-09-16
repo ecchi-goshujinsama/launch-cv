@@ -9,7 +9,6 @@ import type { Resume } from '@/lib/types';
 import { getTemplateRenderer } from './renderers';
 import { 
   adjustGradientForContrast,
-  getAccessibleFallbackGradient,
   CONTRAST_RATIOS 
 } from '@/lib/utils/contrast';
 import { 

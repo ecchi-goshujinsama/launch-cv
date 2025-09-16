@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import type { Resume, SectionItem } from '@/lib/types';
-import type { Template, TemplateCustomizations } from '@/lib/types/template';
 import type { TemplateRendererProps } from './index';
 
 interface ExecutiveRendererProps extends TemplateRendererProps {}

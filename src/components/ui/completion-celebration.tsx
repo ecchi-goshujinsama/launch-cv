@@ -180,7 +180,7 @@ export function CompletionCelebration({
               Key Milestones
             </h4>
             <div className="space-y-1 text-xs text-slate-400 max-h-20 overflow-y-auto">
-              {summary.milestones.slice(0, 4).map((milestone, index) => (
+              {summary.milestones.slice(0, 4).map((milestone) => (
                 <div key={milestone.id} className="flex justify-between">
                   <span className="truncate">{milestone.name}</span>
                   <span className="font-mono ml-2">

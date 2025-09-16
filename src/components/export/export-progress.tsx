@@ -5,7 +5,6 @@ import { Rocket, Loader2, CheckCircle, Zap, FileText, Download } from 'lucide-re
 
 interface ExportProgressProps {
   progress: number;
-  isGenerating: boolean;
   templateName: string;
 }
 
@@ -19,7 +18,6 @@ type LaunchPhase =
 
 export const ExportProgress: React.FC<ExportProgressProps> = ({
   progress,
-  isGenerating,
   templateName,
 }) => {
   const [currentPhase, setCurrentPhase] = useState<LaunchPhase>('pre-flight-check');
@@ -219,7 +217,7 @@ export const ExportProgress: React.FC<ExportProgressProps> = ({
           </div>
           <div className="flex items-center">
             <span className="text-green-400 mr-2">✓</span>
-            <span>Template "{templateName}" loaded</span>
+            <span>Template &quot;{templateName}&quot; loaded</span>
           </div>
           <div className="flex items-center">
             <span className={`${progress > 50 ? 'text-green-400' : 'text-yellow-400'} mr-2`}>

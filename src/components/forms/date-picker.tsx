@@ -343,8 +343,8 @@ export function DatePicker({
               {DAYS.map(day => (
                 <div key={day} className="p-2 text-xs font-medium text-gray-500 text-center">
                   {day}
-                const isSelected = selectedDate &&
-                  date.toDateString() === selectedDate.toDateString();
+                </div>
+              ))}
             </div>
 
             {/* Calendar days */}

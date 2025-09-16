@@ -2,14 +2,14 @@
 
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Download, Eye, FileText, Settings, Rocket, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, Eye, FileText, Settings, Rocket, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { MissionContainer, MissionSection, MissionCard } from '@/components/layout';
 import { useResumeStore } from '@/lib/stores/resume-store';
 import useTemplateStore from '@/lib/stores/template-store';
 import { PDFGenerator } from '@/lib/pdf/generator';
-import type { Resume, Template as TemplateType } from '@/lib/types';
+import type { Template as TemplateType } from '@/lib/types';
 
 interface Template {
   id: string;

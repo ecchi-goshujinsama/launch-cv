@@ -27,7 +27,6 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
@@ -55,7 +54,6 @@ type CustomSectionItem = CustomSectionData['items'][0];
 interface SortableItemProps {
   id: string;
   index: number;
-  field: any;
   watchedData: CustomSectionData;
   fields: any[];
   removeItem: (index: number) => void;
@@ -63,13 +61,11 @@ interface SortableItemProps {
   removeDescription: (itemIndex: number, descIndex: number) => void;
   renderField: (name: string, label: string, type?: 'text' | 'textarea', icon?: React.ReactNode, placeholder?: string, required?: boolean) => JSX.Element;
   register: any;
-  setValue: any;
 }
 
 function SortableItem({
   id,
   index,
-  field,
   watchedData,
   fields,
   removeItem,
@@ -77,7 +73,6 @@ function SortableItem({
   removeDescription,
   renderField,
   register,
-  setValue,
 }: SortableItemProps) {
   const {
     attributes,
@@ -535,7 +530,6 @@ export function CustomSectionForm({
                   key={field.id}
                   id={field.id}
                   index={index}
-                  field={field}
                   watchedData={watchedData}
                   fields={fields}
                   removeItem={removeItem}
@@ -543,7 +537,6 @@ export function CustomSectionForm({
                   removeDescription={removeDescription}
                   renderField={renderField}
                   register={register}
-                  setValue={setValue}
                 />
               ))}
             </div>

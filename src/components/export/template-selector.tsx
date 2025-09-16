@@ -1,25 +1,22 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { LaunchButton } from '../ui/launch-button';
 import { PDFGenerator } from '../../lib/pdf/generator';
-import type { Template, Resume } from '../../lib/types';
+import type { Template } from '../../lib/types';
 import { Check, Rocket, Eye, FileText, Zap, Star } from 'lucide-react';
 
 interface TemplateSelectorProps {
   templates: Template[];
   selectedTemplateId: string;
   onTemplateSelect: (templateId: string) => void;
-  currentResume: Resume | null;
 }
 
 export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   templates,
   selectedTemplateId,
   onTemplateSelect,
-  currentResume,
 }) => {
-  const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
 
   const supportedTemplates = templates.filter(template =>
     PDFGenerator.isTemplateSupported(template.id)

@@ -159,24 +159,9 @@ export const LaunchCelebration: React.FC<LaunchCelebrationProps> = ({
         {/* Animated background gradient */}
         <div className={cn(
           'absolute inset-0 rounded-3xl opacity-10 animate-pulse',
-// Around lines 156-157
-<div className={cn(
-  'absolute inset-0 rounded-3xl opacity-10 animate-pulse',
-  'bg-gradient-to-br', config.color
-)} />
-
-// Around line 163
-<div className={cn(
-  'w-24 h-24 mx-auto rounded-full flex items-center justify-center relative',
-  'bg-gradient-to-br', config.color,
-  animationPhase === 'celebrating' && 'animate-bounce'
-)} />
-
-// Around line 212
-<div className={cn(
-  'w-2 h-2 rounded-full animate-pulse',
-  'bg-gradient-to-r', config.color
-)} />
+          'bg-gradient-to-br',
+          config.color
+        )} />
 
         {/* Main icon with animation */}
         <div className="relative mb-6">

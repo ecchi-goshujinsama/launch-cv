@@ -204,7 +204,7 @@ export function EducationForm({
                         }
                       </h4>
                       <p className="text-xs text-gray-500 mt-1">
-                        • Only include GPA if it's 3.5 or higher
+                        • Only include GPA if it&apos;s 3.5 or higher
                       </p>
                     </div>
                   </div>

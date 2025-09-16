@@ -6,7 +6,7 @@ import { Save, RotateCcw, WifiOff, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LaunchButton } from '@/components/ui/launch-button';
 import { useFormAutoSave, useAutoSaveStatus, type AutoSaveStatus } from '@/lib/hooks/use-auto-save';
-import { MISSION_CONTROL_MESSAGES, createMissionMessage, type MissionMessage } from '@/lib/utils/mission-control-messages';
+import { createMissionMessage } from '@/lib/utils/mission-control-messages';
 
 interface AutoSaveContextValue {
   status: AutoSaveStatus;

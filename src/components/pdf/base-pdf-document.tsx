@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 import type { PDFRenderContext } from '../../lib/pdf/types';
 
 // Register fonts for better typography - use system fonts to avoid loading issues
@@ -161,10 +161,7 @@ interface PDFHeaderProps {
   style?: 'default' | 'centered' | 'minimal';
 }
 
-export const PDFHeader: React.FC<PDFHeaderProps> = ({ 
-  context, 
-  style = 'default' 
-}) => {
+export const PDFHeader: React.FC<PDFHeaderProps> = ({ context }) => {
   const { resume } = context;
   const { personalInfo } = resume;
 

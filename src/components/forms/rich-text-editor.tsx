@@ -154,15 +154,15 @@ export function RichTextEditor({
     const selectedText = value.substring(start, end);
     const textToInsert = selectedText || placeholder;
     
-    const newValue = 
-      value.substring(0, start) + 
-      before + textToInsert + after + 
+    const newValue =
+      value.substring(0, start) +
+      before + textToInsert + after +
+      value.substring(end);
+
+    onChange(newValue);
+
     // Reset cursor position after React updates
-    requestAnimationFrame(() => {
-      textarea.focus();
-      const newCursorPos = start + before.length + textToInsert.length;
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    });
+    setTimeout(() => {
       textarea.focus();
       const newCursorPos = start + before.length + textToInsert.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);

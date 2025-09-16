@@ -1,4 +1,6 @@
 import puppeteer, { Browser, Page } from 'puppeteer';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import type { Resume, Template } from '../types';
 
 
@@ -57,8 +59,12 @@ export class HTMLToPDFGenerator {
    */
   private static async getBrowser(): Promise<Browser> {
     if (!this.browserInstance || !this.browserInstance.connected) {
+      // Create a temporary directory for Chrome user data to avoid permission issues
+      const userDataDir = join(tmpdir(), `puppeteer_chrome_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+
       this.browserInstance = await puppeteer.launch({
         headless: true,
+        userDataDir,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',

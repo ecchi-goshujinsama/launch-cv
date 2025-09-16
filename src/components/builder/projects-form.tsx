@@ -52,6 +52,7 @@ export function ProjectsForm({
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors, isDirty, isValid }
   } = useForm<ProjectsFormData>({
     resolver: zodResolver(projectsFormSchema),
@@ -83,9 +84,16 @@ export function ProjectsForm({
     if (autoSave && isDirty && isValid) {
       const timeoutId = setTimeout(() => {
         const transformedData = watchedData.projects.map(project => ({
-          ...project,
-          technologies: Array.isArray(project.technologies) 
-            ? project.technologies 
+          id: project.id || crypto.randomUUID(),
+          type: 'projects' as const,
+          name: project.name,
+          description: project.description,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          ...(project.url && { url: project.url }),
+          ...(project.github && { github: project.github }),
+          technologies: Array.isArray(project.technologies)
+            ? project.technologies
             : (project.technologies as string)?.split(',')?.map(t => t.trim())?.filter(Boolean) || [],
           highlights: project.highlights.filter(h => h.trim() !== '')
         }));
@@ -102,13 +110,20 @@ export function ProjectsForm({
 
   const handleFormSubmit = (data: ProjectsFormData) => {
     const transformedData = data.projects.map(project => ({
-      ...project,
-      technologies: Array.isArray(project.technologies) 
-        ? project.technologies 
+      id: project.id || crypto.randomUUID(),
+      type: 'projects' as const,
+      name: project.name,
+      description: project.description,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      ...(project.url && { url: project.url }),
+      ...(project.github && { github: project.github }),
+      technologies: Array.isArray(project.technologies)
+        ? project.technologies
         : (project.technologies as string)?.split(',')?.map(t => t.trim())?.filter(Boolean) || [],
       highlights: project.highlights.filter(h => h.trim() !== '')
     }));
-    
+
     updateResumeSection('projects', 'Projects', transformedData);
     onSave(transformedData);
   };
@@ -162,7 +177,7 @@ export function ProjectsForm({
     required = false,
     rows = 3
   ) => {
-    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">

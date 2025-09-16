@@ -103,21 +103,21 @@ export function SectionValidator({
       // Section-specific completeness checks
       if (section.type === 'personalInfo') {
         const optionalFields = ['linkedin', 'website', 'summary'];
-        const missingOptional = optionalFields.filter(field => !sectionData?.[field]);
+        const missingOptional = optionalFields.filter(field => !(sectionData as any)?.[field]);
         completeness = Math.max(60, 100 - (missingOptional.length * 15));
         
-        if (!sectionData?.summary) {
+        if (!(sectionData as any)?.summary) {
           warnings.push('Consider adding a professional summary to strengthen your profile');
           score -= 10;
         }
-        if (!sectionData?.linkedin) {
+        if (!(sectionData as any)?.linkedin) {
           warnings.push('LinkedIn profile can enhance your professional presence');
           score -= 5;
         }
       }
 
       if (section.type === 'experience') {
-        const experiences = sectionData || [];
+        const experiences = (sectionData as any[]) || [];
         if (experiences.length < 2) {
           warnings.push('Consider adding more work experience if available');
           score -= 10;

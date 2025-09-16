@@ -20,18 +20,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate PDF using server-side Puppeteer
-    const buffer = await HTMLToPDFGenerator.generatePDF(resume, template, {
+    const pdfOptions: Parameters<typeof HTMLToPDFGenerator.generatePDF>[2] = {
       format: (options?.format === 'letter' || options?.format === 'Letter') ? 'Letter' : 'A4',
-      margin: options?.margins ? {
+    };
+
+    if (options?.margins) {
+      pdfOptions.margin = {
         top: `${options.margins.top}px`,
         right: `${options.margins.right}px`,
         bottom: `${options.margins.bottom}px`,
         left: `${options.margins.left}px`
-      } : undefined
-    });
+      };
+    }
+
+    const buffer = await HTMLToPDFGenerator.generatePDF(resume, template, pdfOptions);
 
     // Return PDF as binary data
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

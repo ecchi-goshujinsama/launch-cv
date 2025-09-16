@@ -21,8 +21,7 @@ import type {
   ProjectItem,
   SkillsItem,
   CertificationItem,
-  CustomSectionItem,
-  BaseSectionItem
+  CustomSectionItem
 } from '@/lib/types';
 
 interface BulkEditModalProps {
@@ -162,7 +161,7 @@ export function BulkEditModal({ isOpen, onClose, className }: BulkEditModalProps
       case 'certifications':
         return `${(item as CertificationItem).name || 'Certification'} - ${(item as CertificationItem).issuer || 'Issuer'}`;
       default:
-        return (item as CustomSectionItem).title || (item as BaseSectionItem).name || 'Item';
+        return (item as CustomSectionItem).title || 'Item';
     }
   };
 

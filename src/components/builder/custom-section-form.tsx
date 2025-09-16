@@ -59,7 +59,7 @@ interface SortableItemProps {
   removeItem: (index: number) => void;
   addDescription: (itemIndex: number) => void;
   removeDescription: (itemIndex: number, descIndex: number) => void;
-  renderField: (name: string, label: string, type?: 'text' | 'textarea', icon?: React.ReactNode, placeholder?: string, required?: boolean) => JSX.Element;
+  renderField: (name: string, label: string, type?: 'text' | 'textarea', icon?: React.ReactNode, placeholder?: string, required?: boolean) => React.ReactElement;
   register: UseFormRegister<CustomSectionData>;
 }
 
@@ -275,14 +275,20 @@ export function CustomSectionForm({
     if (autoSave && isDirty && isValid && watchedData.title) {
       const timeoutId = setTimeout(() => {
         const processedItems = watchedData.items.map(item => ({
-          ...item,
+          id: item.id || crypto.randomUUID(),
+          type: 'custom' as const,
+          title: item.title,
+          ...(item.subtitle && { subtitle: item.subtitle }),
+          ...(item.date && { date: item.date }),
+          ...(item.location && { location: item.location }),
           description: item.description.filter(desc => desc.trim() !== '')
         }));
 
         if (createdSectionId) {
           updateResumeSection(createdSectionId, watchedData.title, processedItems);
         } else {
-          const newSectionId = addResumeSection('custom', watchedData.title, processedItems);
+          const newSectionId = crypto.randomUUID();
+          addResumeSection('custom', watchedData.title, processedItems);
           setCreatedSectionId(newSectionId);
         }
 
@@ -305,7 +311,12 @@ export function CustomSectionForm({
 
   const handleFormSubmit = (data: CustomSectionData) => {
     const processedItems = data.items.map(item => ({
-      ...item,
+      id: item.id || crypto.randomUUID(),
+      type: 'custom' as const,
+      title: item.title,
+      ...(item.subtitle && { subtitle: item.subtitle }),
+      ...(item.date && { date: item.date }),
+      ...(item.location && { location: item.location }),
       description: item.description.filter(desc => desc.trim() !== '')
     }));
 
@@ -385,7 +396,7 @@ export function CustomSectionForm({
     placeholder?: string,
     required = false
   ) => {
-    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">

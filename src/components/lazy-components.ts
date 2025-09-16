@@ -1,5 +1,4 @@
-import { lazy } from 'react';
-import { createLazyComponent } from '../lib/utils/performance';
+import React, { lazy } from 'react';
 
 // Lazy load heavy components to improve initial bundle size
 export const LazyExportProgress = lazy(() => import('./export/export-progress'));
@@ -13,46 +12,46 @@ export const LazyPDFViewer = lazy(() =>
 );
 
 // Template renderers (can be lazy loaded per template)
-export const LazyClassicProfessional = lazy(() => 
+export const LazyClassicProfessional = lazy(() =>
   import('./templates/renderers/classic-professional')
 );
 
-export const LazyModernMinimal = lazy(() => 
+export const LazyModernMinimal = lazy(() =>
   import('./templates/renderers/modern-minimal')
 );
 
-export const LazyExecutive = lazy(() => 
+export const LazyExecutive = lazy(() =>
   import('./templates/renderers/executive')
 );
 
-export const LazyTechnical = lazy(() => 
+export const LazyTechnical = lazy(() =>
   import('./templates/renderers/technical')
 );
 
-export const LazyCreative = lazy(() => 
+export const LazyCreative = lazy(() =>
   import('./templates/renderers/creative')
 );
 
 // Builder components (conditionally loaded)
-export const LazyBulkEditModal = lazy(() => 
+export const LazyBulkEditModal = lazy(() =>
   import('./builder/bulk-edit-modal')
 );
 
-export const LazyImportWizard = lazy(() => 
+export const LazyImportWizard = lazy(() =>
   import('./import/import-wizard')
 );
 
 // Advanced form components
-export const LazyRichTextEditor = lazy(() => 
+export const LazyRichTextEditor = lazy(() =>
   import('./forms/rich-text-editor')
 );
 
-export const LazyDatePicker = lazy(() => 
+export const LazyDatePicker = lazy(() =>
   import('./forms/date-picker')
 );
 
 // Template management
-export const LazyTemplateCustomizer = lazy(() => 
+export const LazyTemplateCustomizer = lazy(() =>
   import('./templates/template-customizer')
 );
 
@@ -77,11 +76,13 @@ export const getLazyTemplateComponent = (templateId: string) => {
   const component = LAZY_TEMPLATE_MAP[templateId as keyof typeof LAZY_TEMPLATE_MAP];
   if (!component) {
     console.warn(`Unknown template ID: ${templateId}`);
+    return null;
   }
-import React from 'react';
-import { lazy } from 'react';
+  return component;
+};
 
-export const createOptimizedLazyComponent = <T extends React.ComponentType<any>>(
+// Utility for creating optimized lazy components with error handling
+export const createOptimizedLazyComponent = <T extends React.ComponentType<Record<string, unknown>>>(
   factory: () => Promise<{ default: T }>,
   componentName: string
 ) => {
@@ -92,8 +93,8 @@ export const createOptimizedLazyComponent = <T extends React.ComponentType<any>>
       console.warn(`Failed to load ${componentName}:`, error);
       // Return a fallback component
       return {
-        default: () => null
-      } as T;
+        default: (() => null) as T
+      };
     }
   });
 };

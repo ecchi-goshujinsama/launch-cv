@@ -63,9 +63,37 @@ function getExperienceItems(sections: ResumeSection[]): ExperienceItem[] {
   return section ? section.items : [];
 }
 
+// Convert ExperienceItem to form format (position -> title)
+function experienceItemsToFormData(items: ExperienceItem[]) {
+  return items.map(item => ({
+    id: item.id,
+    title: item.position,
+    company: item.company,
+    location: item.location || undefined,
+    startDate: item.startDate || undefined,
+    endDate: item.endDate || undefined,
+    description: Array.isArray(item.description) ? item.description.join('\n') : item.description || undefined,
+    current: false // Add default value since the form expects it
+  }));
+}
+
 function getEducationItems(sections: ResumeSection[]): EducationItem[] {
   const section = sections.find(isEducationSection);
   return section ? section.items : [];
+}
+
+// Convert EducationItem to form format (null -> undefined)
+function educationItemsToFormData(items: EducationItem[]) {
+  return items.map(item => ({
+    id: item.id,
+    institution: item.institution,
+    degree: item.degree,
+    field: item.field || undefined,
+    location: item.location || undefined,
+    startDate: item.startDate || undefined,
+    endDate: item.endDate || undefined,
+    gpa: item.gpa || undefined
+  }));
 }
 
 function getProjectItems(sections: ResumeSection[]): ProjectItem[] {
@@ -81,6 +109,19 @@ function getCertificationItems(sections: ResumeSection[]): CertificationItem[] {
 function getSkillsItems(sections: ResumeSection[]): SkillsItem[] {
   const section = sections.find(isSkillsSection);
   return section ? section.items : [];
+}
+
+// Convert CertificationItem to form format
+function certificationItemsToFormData(items: CertificationItem[]) {
+  return items.map(item => ({
+    id: item.id,
+    name: item.name,
+    issuer: item.issuer,
+    issueDate: item.issueDate,
+    expirationDate: item.expirationDate || null,
+    credentialId: item.credentialId || undefined,
+    url: item.url || undefined
+  }));
 }
 
 function extractSkillsFromItems(sections: ResumeSection[]): string[] {
@@ -316,7 +357,7 @@ export default function BuilderPage() {
 
           {activeSection === 'experience' && (
             <ExperienceForm
-              initialData={getExperienceItems(currentResume.sections)}
+              initialData={experienceItemsToFormData(getExperienceItems(currentResume.sections))}
               onSave={() => {
                 // The ExperienceForm should handle saving via store
                 milestoneTracker.trackExperienceComplete();
@@ -326,7 +367,7 @@ export default function BuilderPage() {
 
           {activeSection === 'education' && (
             <EducationForm
-              initialData={getEducationItems(currentResume.sections)}
+              initialData={educationItemsToFormData(getEducationItems(currentResume.sections))}
               onSave={() => {
                 // The EducationForm should handle saving via store
                 milestoneTracker.trackEducationComplete();
@@ -355,7 +396,7 @@ export default function BuilderPage() {
 
           {activeSection === 'certifications' && (
             <CertificationsForm
-              initialData={getCertificationItems(currentResume.sections)}
+              initialData={certificationItemsToFormData(getCertificationItems(currentResume.sections))}
               onSave={() => {
                 // The CertificationsForm should handle saving via store
               }}

@@ -107,7 +107,7 @@ export function AutoSaveIndicator({
   compact = false 
 }: AutoSaveIndicatorProps) {
   const { status, lastSaved, error, save, retry, isEnabled, canRetry, retryCount, isOnline } = useAutoSaveContext();
-  const statusInfo = useAutoSaveStatus({ status, lastSaved, error, save, retry, isEnabled, canRetry, retryCount });
+  const statusInfo = useAutoSaveStatus({ status, lastSaved, error, canRetry, retryCount });
 
   if (!isEnabled) {
     return null;

@@ -77,6 +77,11 @@ export function DragDropSection({
     }
   };
 
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+
+    if (draggedIndex === null) return;
+
     const newSections = [...sections];
     const draggedSection = newSections[draggedIndex];
     
@@ -96,6 +101,7 @@ export function DragDropSection({
     }));
     
     onReorder(reorderedSections);
+  };
 
   const getSectionIcon = (type: ResumeSection['type']) => {
     switch (type) {

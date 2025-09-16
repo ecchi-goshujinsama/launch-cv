@@ -118,7 +118,7 @@ export function EducationForm({
     placeholder?: string,
     required = false
   ) => {
-    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">

@@ -81,7 +81,17 @@ export function CertificationsForm({
   React.useEffect(() => {
     if (autoSave && isDirty && isValid) {
       const timeoutId = setTimeout(() => {
-        updateResumeSection('certifications', 'Certifications', watchedData.certifications);
+        const certificationItems = watchedData.certifications.map(cert => ({
+          id: cert.id || crypto.randomUUID(),
+          type: 'certifications' as const,
+          name: cert.name,
+          issuer: cert.issuer,
+          issueDate: cert.issueDate,
+          expirationDate: cert.expirationDate,
+          ...(cert.credentialId && { credentialId: cert.credentialId }),
+          ...(cert.url && { url: cert.url })
+        }));
+        updateResumeSection('certifications', 'Certifications', certificationItems);
         onSave(watchedData.certifications);
       }, 1000);
 
@@ -91,7 +101,17 @@ export function CertificationsForm({
   }, [watchedData.certifications, isDirty, isValid, autoSave, onSave, updateResumeSection]);
 
   const handleFormSubmit = (data: CertificationsFormData) => {
-    updateResumeSection('certifications', 'Certifications', data.certifications);
+    const certificationItems = data.certifications.map(cert => ({
+      id: cert.id || crypto.randomUUID(),
+      type: 'certifications' as const,
+      name: cert.name,
+      issuer: cert.issuer,
+      issueDate: cert.issueDate,
+      expirationDate: cert.expirationDate,
+      ...(cert.credentialId && { credentialId: cert.credentialId }),
+      ...(cert.url && { url: cert.url })
+    }));
+    updateResumeSection('certifications', 'Certifications', certificationItems);
     onSave(data.certifications);
   };
 
@@ -139,7 +159,7 @@ export function CertificationsForm({
     required = false,
     rows = 3
   ) => {
-    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">

@@ -122,7 +122,7 @@ export function ExperienceForm({
     required = false,
     rows = 3
   ) => {
-    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">

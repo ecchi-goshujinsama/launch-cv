@@ -67,7 +67,7 @@ export default function ExportPage() {
 
   useEffect(() => {
     // Find the current template or default to the first one
-    const template = AVAILABLE_TEMPLATES.find(t => t.id === selectedTemplateId) || AVAILABLE_TEMPLATES[0];
+    const template = AVAILABLE_TEMPLATES.find(t => t.id === selectedTemplateId) || AVAILABLE_TEMPLATES[0] || null;
     setSelectedTemplate(template);
   }, [selectedTemplateId]);
 
@@ -165,7 +165,7 @@ export default function ExportPage() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      <MissionContainer maxWidth="6xl" padding="lg">
+      <MissionContainer maxWidth="7xl" padding="lg">
         <MissionSection
           title="Launch Sequence"
           subtitle="Select your template and export your mission-ready resume"

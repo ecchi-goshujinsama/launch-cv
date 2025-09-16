@@ -1,13 +1,12 @@
-import type { Resume, Template } from '../types';
-import type { PDFExportOptions } from './types';
-import { useExportStore } from '../stores/export-store';
+import type { Resume, Template } from "../types";
+import type { PDFExportOptions } from "./types";
+import { useExportStore } from "../stores/export-store";
 
 /**
  * Client-side PDF generator that uses server API routes
  * This avoids importing server-side libraries like Puppeteer in the browser
  */
 export class ClientPDFGenerator {
-  
   /**
    * Generate PDF by making a request to the server API
    */
@@ -16,25 +15,43 @@ export class ClientPDFGenerator {
     template: Template,
     options: Partial<PDFExportOptions> = {}
   ): Promise<Blob> {
-    const response = await fetch('/api/pdf/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        resume,
-        template,
-        options,
-      }),
-    });
+    // Create AbortController for timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 second timeout
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `PDF generation failed with status ${response.status}`);
+    try {
+      const response = await fetch("/api/pdf/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resume,
+          template,
+          options,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `PDF generation failed with status ${response.status}`
+        );
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      return new Blob([arrayBuffer], { type: "application/pdf" });
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("PDF generation timed out. Please try again.");
+      }
+      throw error;
     }
-
-    const arrayBuffer = await response.arrayBuffer();
-    return new Blob([arrayBuffer], { type: 'application/pdf' });
   }
 
   /**
@@ -47,40 +64,44 @@ export class ClientPDFGenerator {
   ): Promise<void> {
     const startTime = Date.now();
     let exportId: string | null = null;
-    
+
     try {
       const blob = await this.generatePDF(resume, template, options);
-      
+
       // Generate filename
-      const fileName = options.fileName || this.generateAdvancedFileName(resume, template, options);
-      
+      const fileName =
+        options.fileName ||
+        this.generateAdvancedFileName(resume, template, options);
+
       // Log export attempt
       exportId = this.logExportAttempt(resume, template, fileName);
-      
+
       // Create download link
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = fileName;
-      link.setAttribute('target', '_blank');
-      link.setAttribute('rel', 'noopener noreferrer');
-      
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Log success
       this.logExportSuccess(exportId, blob.size, Date.now() - startTime);
-      
+
       // Cleanup
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       }, 100);
-      
     } catch (error) {
       if (exportId) {
-        this.logExportFailure(exportId, error instanceof Error ? error.message : 'Unknown error');
+        this.logExportFailure(
+          exportId,
+          error instanceof Error ? error.message : "Unknown error"
+        );
       }
       throw error;
     }
@@ -103,17 +124,17 @@ export class ClientPDFGenerator {
    */
   private static generateFileName(resume: Resume, template: Template): string {
     const name = resume.personalInfo.fullName
-      .replace(/[^a-zA-Z0-9]/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_|_$/g, '');
-    
+      .replace(/[^a-zA-Z0-9]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "");
+
     const templateName = template.name
-      .replace(/[^a-zA-Z0-9]/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_|_$/g, '');
-    
-    const timestamp = new Date().toISOString().split('T')[0];
-    
+      .replace(/[^a-zA-Z0-9]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "");
+
+    const timestamp = new Date().toISOString().split("T")[0];
+
     return `${name}_Resume_${templateName}_${timestamp}.pdf`;
   }
 
@@ -125,7 +146,7 @@ export class ClientPDFGenerator {
     template: Template,
     options: Partial<PDFExportOptions> = {}
   ): string {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       try {
         const store = useExportStore.getState();
         return store.generateFileName(
@@ -134,10 +155,12 @@ export class ClientPDFGenerator {
           options.fileName
         );
       } catch {
-        console.warn('Could not use export store for filename generation, falling back to basic method');
+        console.warn(
+          "Could not use export store for filename generation, falling back to basic method"
+        );
       }
     }
-    
+
     // Fallback to basic filename generation
     return this.generateFileName(resume, template);
   }
@@ -145,8 +168,12 @@ export class ClientPDFGenerator {
   /**
    * Log export attempt
    */
-  private static logExportAttempt(resume: Resume, template: Template, fileName: string): string | null {
-    if (typeof window !== 'undefined') {
+  private static logExportAttempt(
+    resume: Resume,
+    template: Template,
+    fileName: string
+  ): string | null {
+    if (typeof window !== "undefined") {
       try {
         const store = useExportStore.getState();
         return store.addExportEntry({
@@ -159,7 +186,7 @@ export class ClientPDFGenerator {
           success: false, // Will be updated on success
         });
       } catch (error) {
-        console.warn('Could not log export attempt:', error);
+        console.warn("Could not log export attempt:", error);
       }
     }
     return null;
@@ -168,17 +195,23 @@ export class ClientPDFGenerator {
   /**
    * Log export success
    */
-  private static logExportSuccess(exportId: string, fileSize: number, duration: number): void {
-    if (typeof window !== 'undefined' && exportId) {
+  private static logExportSuccess(
+    exportId: string,
+    fileSize: number,
+    duration: number
+  ): void {
+    if (typeof window !== "undefined" && exportId) {
       try {
         const store = useExportStore.getState();
         store.updateExportEntry(exportId, {
           success: true,
           fileSize,
         });
-        console.log(`PDF export successful: ${fileSize} bytes in ${duration}ms`);
+        console.log(
+          `PDF export successful: ${fileSize} bytes in ${duration}ms`
+        );
       } catch (error) {
-        console.warn('Could not log export success:', error);
+        console.warn("Could not log export success:", error);
       }
     }
   }
@@ -186,8 +219,11 @@ export class ClientPDFGenerator {
   /**
    * Log export failure
    */
-  private static logExportFailure(exportId: string, errorMessage: string): void {
-    if (typeof window !== 'undefined' && exportId) {
+  private static logExportFailure(
+    exportId: string,
+    errorMessage: string
+  ): void {
+    if (typeof window !== "undefined" && exportId) {
       try {
         const store = useExportStore.getState();
         store.updateExportEntry(exportId, {
@@ -195,7 +231,7 @@ export class ClientPDFGenerator {
           error: errorMessage,
         });
       } catch (error) {
-        console.warn('Could not log export failure:', error);
+        console.warn("Could not log export failure:", error);
       }
     }
   }
@@ -210,13 +246,15 @@ export class ClientPDFGenerator {
   ): Promise<Blob> {
     const printOptions = {
       ...options,
-      format: ((options.format === 'letter' || options.format === 'Letter') ? 'Letter' : 'A4') as 'A4' | 'Letter',
+      format: (options.format === "letter" || options.format === "Letter"
+        ? "Letter"
+        : "A4") as "A4" | "Letter",
       margins: options.margins || {
         top: 36, // 0.5 inch
         right: 36,
         bottom: 36,
-        left: 36
-      }
+        left: 36,
+      },
     };
 
     return await this.generatePDF(resume, template, printOptions);
@@ -230,20 +268,24 @@ export class ClientPDFGenerator {
     template: Template,
     options: Partial<PDFExportOptions> = {}
   ): Promise<void> {
-    const blob = await this.generatePrintOptimizedPDF(resume, template, options);
+    const blob = await this.generatePrintOptimizedPDF(
+      resume,
+      template,
+      options
+    );
     const url = URL.createObjectURL(blob);
-    
+
     // Open in new window for printing
-    const printWindow = window.open(url, '_blank');
+    const printWindow = window.open(url, "_blank");
     if (printWindow) {
-      printWindow.addEventListener('load', () => {
+      printWindow.addEventListener("load", () => {
         printWindow.print();
       });
     } else {
       // Fallback: trigger download if popup blocked
       await this.downloadPDF(resume, template, options);
     }
-    
+
     // Cleanup URL after a delay
     setTimeout(() => {
       URL.revokeObjectURL(url);
@@ -254,7 +296,13 @@ export class ClientPDFGenerator {
    * Check if template is supported
    */
   static isTemplateSupported(templateId: string): boolean {
-    const supportedTemplates = ['classic-professional', 'modern-minimal', 'executive', 'technical', 'creative'];
+    const supportedTemplates = [
+      "classic-professional",
+      "modern-minimal",
+      "executive",
+      "technical",
+      "creative",
+    ];
     return supportedTemplates.includes(templateId);
   }
 
@@ -262,6 +310,12 @@ export class ClientPDFGenerator {
    * Get supported template IDs
    */
   static getSupportedTemplateIds(): string[] {
-    return ['classic-professional', 'modern-minimal', 'executive', 'technical', 'creative'];
+    return [
+      "classic-professional",
+      "modern-minimal",
+      "executive",
+      "technical",
+      "creative",
+    ];
   }
 }

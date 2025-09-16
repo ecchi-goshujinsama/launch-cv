@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Github, ExternalLink, Code, Star, GitFork } from 'lucide-react';
 import type { TemplateRendererProps } from './index';
+import type { SectionItem } from '@/lib/types';
 
 interface TechnicalRendererProps extends TemplateRendererProps {}
 
@@ -217,7 +218,7 @@ export function TechnicalRenderer({
               </h2>
               
               <div className="space-y-3">
-                {visibleSections.find(s => s.type === 'skills')?.items?.map((item: any, index: number) => (
+                {visibleSections.find(s => s.type === 'skills')?.items?.map((item: SectionItem, index: number) => (
                   <div key={index}>
                     <h3 
                       className="text-xs font-bold uppercase tracking-wider mb-2 px-2 py-1 rounded"
@@ -274,7 +275,7 @@ export function TechnicalRenderer({
               <div className="flex justify-between">
                 <span style={{ color: appliedColorScheme.text.secondary }}>Skills:</span>
                 <span className="font-mono font-bold" style={{ color: appliedColorScheme.text.primary }}>
-                  {visibleSections.find(s => s.type === 'skills')?.items?.reduce((acc: number, item: any) => acc + (item.skills?.length || 0), 0) || 0}
+                  {visibleSections.find(s => s.type === 'skills')?.items?.reduce((acc: number, item: SectionItem) => acc + ((item as { skills?: string[] }).skills?.length || 0), 0) || 0}
                 </span>
               </div>
             </div>
@@ -303,7 +304,7 @@ export function TechnicalRenderer({
               
               {section.type === 'experience' && (
                 <div className="space-y-6">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-4 rounded border-l-4"
@@ -371,7 +372,7 @@ export function TechnicalRenderer({
 
               {section.type === 'projects' && (
                 <div className="space-y-6">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-4 rounded border"
@@ -424,7 +425,7 @@ export function TechnicalRenderer({
 
               {section.type === 'education' && (
                 <div className="space-y-4">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-4 rounded border"
@@ -465,7 +466,7 @@ export function TechnicalRenderer({
 
               {section.type === 'certifications' && (
                 <div className="space-y-3">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-3 rounded border flex items-center justify-between"
@@ -507,7 +508,7 @@ export function TechnicalRenderer({
               {/* Handle custom sections */}
               {!['experience', 'education', 'skills', 'projects', 'certifications'].includes(section.type) && (
                 <div className="space-y-3">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-4 rounded border"

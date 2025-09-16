@@ -36,7 +36,7 @@ export interface ResumeSection {
   visible: boolean;
   required: boolean;
   order: number;
-  data?: any;
+  data?: unknown;
 }
 
 interface SectionManagerProps {

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn, deepMerge } from '@/lib/utils';
 import type { TemplateRendererProps } from './index';
+import type { SectionItem } from '@/lib/types';
 
 interface ModernMinimalRendererProps extends TemplateRendererProps {}
 
@@ -115,7 +116,7 @@ export function ModernMinimalRenderer({
             
             {section.type === 'experience' && (
               <div className="space-y-2">
-                {section.items?.map((item: any, index: number) => (
+                {section.items?.map((item: SectionItem, index: number) => (
                   <div key={index} className="relative">
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
                       <div className="lg:col-span-1">
@@ -176,7 +177,7 @@ export function ModernMinimalRenderer({
 
             {section.type === 'education' && (
               <div className="space-y-6">
-                {section.items?.map((item: any, index: number) => (
+                {section.items?.map((item: SectionItem, index: number) => (
                   <div key={index} className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                     <div className="lg:col-span-1">
                       <div className="text-sm font-medium" style={{ color: appliedColorScheme.text.secondary }}>
@@ -209,7 +210,7 @@ export function ModernMinimalRenderer({
 
             {section.type === 'skills' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {section.items?.map((item: any, index: number) => (
+                {section.items?.map((item: SectionItem, index: number) => (
                   <div key={index}>
                     <h3 className="text-base font-medium mb-3" style={{ color: appliedColorScheme.text.primary }}>
                       {item.category}
@@ -234,7 +235,7 @@ export function ModernMinimalRenderer({
 
             {section.type === 'projects' && (
               <div className="space-y-4">
-                {section.items?.map((item: any, index: number) => (
+                {section.items?.map((item: SectionItem, index: number) => (
                   <div key={index}>
                     <div className="mb-3">
                       <div className="flex items-start justify-between mb-2">
@@ -287,7 +288,7 @@ export function ModernMinimalRenderer({
 
             {section.type === 'certifications' && (
               <div className="space-y-4">
-                {section.items?.map((item: any, index: number) => (
+                {section.items?.map((item: SectionItem, index: number) => (
                   <div key={index} className="flex items-start justify-between">
                     <div>
                       <h3 className="text-base font-medium" style={{ color: appliedColorScheme.text.primary }}>
@@ -318,7 +319,7 @@ export function ModernMinimalRenderer({
             {/* Handle custom sections */}
             {!['experience', 'education', 'skills', 'projects', 'certifications'].includes(section.type) && (
               <div className="space-y-4">
-                {section.items?.map((item: any, index: number) => (
+                {section.items?.map((item: SectionItem, index: number) => (
                   <div key={index}>
                     <h3 className="text-base font-medium mb-2" style={{ color: appliedColorScheme.text.primary }}>
                       {item.title || item.name}

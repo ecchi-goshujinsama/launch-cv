@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
@@ -50,7 +50,7 @@ export function EducationForm({
     watch,
     formState: { errors, isDirty, isValid }
   } = useForm<EducationFormData>({
-    resolver: zodResolver(educationFormSchema) as any,
+    resolver: zodResolver(educationFormSchema),
     defaultValues: {
       education: initialData.length > 0 ? initialData : [{
         id: crypto.randomUUID(),
@@ -118,7 +118,7 @@ export function EducationForm({
     placeholder?: string,
     required = false
   ) => {
-    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">
@@ -128,7 +128,7 @@ export function EducationForm({
           {required && <span className="text-red-500">*</span>}
         </label>
         <input
-          {...register(name as any)}
+          {...register(name as FieldPath<EducationFormData>)}
           type={type}
           placeholder={placeholder}
           step={type === 'number' ? '0.1' : undefined}

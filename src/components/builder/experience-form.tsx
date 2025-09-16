@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
@@ -51,7 +51,7 @@ export function ExperienceForm({
     watch,
     formState: { errors, isDirty, isValid }
   } = useForm<ExperienceFormData>({
-    resolver: zodResolver(experienceFormSchema) as any,
+    resolver: zodResolver(experienceFormSchema),
     defaultValues: {
       experiences: initialData.length > 0 ? initialData : [{
         id: crypto.randomUUID(),
@@ -122,7 +122,7 @@ export function ExperienceForm({
     required = false,
     rows = 3
   ) => {
-    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">
@@ -133,7 +133,7 @@ export function ExperienceForm({
         </label>
         {type === 'textarea' ? (
           <textarea
-            {...register(name as any)}
+            {...register(name as FieldPath<ExperienceFormData>)}
             rows={rows}
             placeholder={placeholder}
             className={cn(
@@ -146,7 +146,7 @@ export function ExperienceForm({
           />
         ) : (
           <input
-            {...register(name as any)}
+            {...register(name as FieldPath<ExperienceFormData>)}
             type={type}
             placeholder={placeholder}
             className={cn(

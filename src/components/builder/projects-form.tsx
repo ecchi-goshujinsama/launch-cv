@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
@@ -54,7 +54,7 @@ export function ProjectsForm({
     watch,
     formState: { errors, isDirty, isValid }
   } = useForm<ProjectsFormData>({
-    resolver: zodResolver(projectsFormSchema) as any,
+    resolver: zodResolver(projectsFormSchema),
     defaultValues: {
       projects: initialData.length > 0 ? initialData : [{
         id: crypto.randomUUID(),
@@ -162,7 +162,7 @@ export function ProjectsForm({
     required = false,
     rows = 3
   ) => {
-    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">
@@ -173,7 +173,7 @@ export function ProjectsForm({
         </label>
         {type === 'textarea' ? (
           <textarea
-            {...register(name as any)}
+            {...register(name as FieldPath<ProjectsFormData>)}
             rows={rows}
             placeholder={placeholder}
             className={cn(
@@ -186,7 +186,7 @@ export function ProjectsForm({
           />
         ) : (
           <input
-            {...register(name as any)}
+            {...register(name as FieldPath<ProjectsFormData>)}
             type={type}
             placeholder={placeholder}
             className={cn(
@@ -334,7 +334,7 @@ export function ProjectsForm({
                     Technologies Used
                   </label>
                   <input
-                    {...register(`projects.${index}.technologies` as any)}
+                    {...register(`projects.${index}.technologies` as FieldPath<ProjectsFormData>)}
                     type="text"
                     placeholder="React, Node.js, PostgreSQL, AWS (separate with commas)"
                     className={cn(
@@ -371,7 +371,7 @@ export function ProjectsForm({
                     {(watchedData.projects[index]?.highlights || ['']).map((_, highlightIndex) => (
                       <div key={highlightIndex} className="flex gap-2">
                         <input
-                          {...register(`projects.${index}.highlights.${highlightIndex}` as any)}
+                          {...register(`projects.${index}.highlights.${highlightIndex}` as FieldPath<ProjectsFormData>)}
                           type="text"
                           placeholder="Increased user engagement by 40% through improved UI/UX design"
                           className={cn(

@@ -221,11 +221,7 @@ export function TemplateCustomizer({
 
   const enabledTabs = React.useMemo(
     () => tabs.filter(tab => tab.enabled),
-    [
-      template.customization.colors.canChangeColors,
-      template.customization.fonts.canChangeFonts,
-      template.customization.layout.canChangeLayout
-    ]
+    [tabs]
   );
 
   React.useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldPath, UseFormRegister, FieldArrayWithId } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
@@ -55,12 +55,12 @@ interface SortableItemProps {
   id: string;
   index: number;
   watchedData: CustomSectionData;
-  fields: any[];
+  fields: FieldArrayWithId<CustomSectionData, 'items', 'id'>[];
   removeItem: (index: number) => void;
   addDescription: (itemIndex: number) => void;
   removeDescription: (itemIndex: number, descIndex: number) => void;
   renderField: (name: string, label: string, type?: 'text' | 'textarea', icon?: React.ReactNode, placeholder?: string, required?: boolean) => JSX.Element;
-  register: any;
+  register: UseFormRegister<CustomSectionData>;
 }
 
 function SortableItem({
@@ -179,7 +179,7 @@ function SortableItem({
             {(watchedData.items[index]?.description || ['']).map((_, descIndex) => (
               <div key={descIndex} className="flex gap-2">
                 <input
-                  {...register(`items.${index}.description.${descIndex}` as any)}
+                  {...register(`items.${index}.description.${descIndex}` as FieldPath<CustomSectionData>)}
                   type="text"
                   placeholder="Describe your role, achievements, or key details"
                   className={cn(
@@ -240,7 +240,7 @@ export function CustomSectionForm({
     setValue,
     formState: { errors, isDirty, isValid }
   } = useForm<CustomSectionData>({
-    resolver: zodResolver(customSectionSchema) as any,
+    resolver: zodResolver(customSectionSchema),
     defaultValues: {
       title: initialTitle,
       items: initialData.length > 0 ? initialData : [{
@@ -385,7 +385,7 @@ export function CustomSectionForm({
     placeholder?: string,
     required = false
   ) => {
-    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">
@@ -396,7 +396,7 @@ export function CustomSectionForm({
         </label>
         {type === 'textarea' ? (
           <textarea
-            {...register(name as any)}
+            {...register(name as FieldPath<CustomSectionData>)}
             rows={3}
             placeholder={placeholder}
             className={cn(
@@ -409,7 +409,7 @@ export function CustomSectionForm({
           />
         ) : (
           <input
-            {...register(name as any)}
+            {...register(name as FieldPath<CustomSectionData>)}
             type={type}
             placeholder={placeholder}
             className={cn(

@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { 
-  Resume, 
-  ResumeState, 
-  PersonalInfo, 
+import type {
+  Resume,
+  ResumeState,
+  PersonalInfo,
   ResumeSection,
+  SectionItem,
   ExperienceItem,
   EducationItem,
   SkillsItem
@@ -32,13 +33,13 @@ interface ResumeActions {
   toggleSectionVisibility: (sectionId: string) => void;
   
   // Helper methods for form components
-  updateResumeSection: (sectionType: string, title: string, items: any[]) => void;
-  addResumeSection: (sectionType: string, title: string, items: any[]) => void;
+  updateResumeSection: (sectionType: string, title: string, items: SectionItem[]) => void;
+  addResumeSection: (sectionType: string, title: string, items: SectionItem[]) => void;
   removeResumeSection: (sectionId: string) => void;
   
   // Section items
-  addSectionItem: (sectionId: string, item: any) => void;
-  updateSectionItem: (sectionId: string, itemId: string, updates: any) => void;
+  addSectionItem: (sectionId: string, item: SectionItem) => void;
+  updateSectionItem: (sectionId: string, itemId: string, updates: Partial<SectionItem>) => void;
   deleteSectionItem: (sectionId: string, itemId: string) => void;
   reorderSectionItems: (sectionId: string, startIndex: number, endIndex: number) => void;
   
@@ -482,7 +483,7 @@ export const useResumeStore = create<ResumeStore>()(
         },
 
         // Section item actions
-        addSectionItem: (sectionId: string, item: any) => {
+        addSectionItem: (sectionId: string, item: SectionItem) => {
           set((state) => {
             if (state.currentResume) {
               const section = state.currentResume.sections.find(s => s.id === sectionId);
@@ -498,7 +499,7 @@ export const useResumeStore = create<ResumeStore>()(
           });
         },
 
-        updateSectionItem: (sectionId: string, itemId: string, updates: any) => {
+        updateSectionItem: (sectionId: string, itemId: string, updates: Partial<SectionItem>) => {
           set((state) => {
             if (state.currentResume) {
               const section = state.currentResume.sections.find(s => s.id === sectionId);
@@ -572,7 +573,7 @@ export const useResumeStore = create<ResumeStore>()(
         },
 
         // Helper methods for form components
-        updateResumeSection: (sectionType: string, title: string, items: any[]) => {
+        updateResumeSection: (sectionType: string, title: string, items: SectionItem[]) => {
           set((state) => {
             if (state.currentResume) {
               const existingSection = state.currentResume.sections.find(s => s.type === sectionType);
@@ -586,7 +587,7 @@ export const useResumeStore = create<ResumeStore>()(
                 // Create new section if it doesn't exist
                 const newSection: ResumeSection = {
                   id: generateId(),
-                  type: sectionType as any,
+                  type: sectionType as ResumeSection['type'],
                   title,
                   items: items.map(item => ({
                     ...item,
@@ -602,7 +603,7 @@ export const useResumeStore = create<ResumeStore>()(
           });
         },
 
-        addResumeSection: (sectionType: string, title: string, items: any[]) => {
+        addResumeSection: (sectionType: string, title: string, items: SectionItem[]) => {
           set((state) => {
             if (state.currentResume) {
               const newSection: ResumeSection = {

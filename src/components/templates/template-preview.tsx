@@ -354,9 +354,12 @@ export function TemplatePreview({
 }: TemplatePreviewProps) {
   const [isHovered, setIsHovered] = React.useState(false);
 
-  const appliedColorScheme = customizations?.colorScheme 
-    ? { ...template.colorScheme, ...customizations.colorScheme }
-    : template.colorScheme;
+  const appliedColorScheme = React.useMemo(
+    () => customizations?.colorScheme
+      ? { ...template.colorScheme, ...customizations.colorScheme }
+      : template.colorScheme,
+    [template.colorScheme, customizations?.colorScheme]
+  );
 
   // Create template with applied customizations for accessibility calculation
   const adjustedTemplate = React.useMemo(() => ({

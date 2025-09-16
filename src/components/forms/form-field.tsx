@@ -46,7 +46,7 @@ export function FormField({
       
       <div className={cn("relative", className)}>
         {React.isValidElement(children) && 
-          React.cloneElement(children as React.ReactElement<any>, { id })
+          React.cloneElement(children as React.ReactElement<Record<string, unknown>>, { id })
         }
       </div>
       

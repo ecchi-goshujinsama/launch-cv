@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { TemplateRendererProps } from './index';
+import type { SectionItem } from '@/lib/types';
 import { 
   Palette, 
   Sparkles, 
@@ -417,7 +418,7 @@ export function CreativeRenderer({
               
               {section.type === 'experience' && (
                 <div className="space-y-6">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="relative p-6 rounded-2xl border transition-all hover:shadow-lg"
@@ -504,7 +505,7 @@ export function CreativeRenderer({
 
               {section.type === 'projects' && (
                 <div className="space-y-6">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="relative p-6 rounded-2xl border overflow-hidden"
@@ -569,7 +570,7 @@ export function CreativeRenderer({
 
               {section.type === 'education' && (
                 <div className="space-y-4">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-6 rounded-2xl border"
@@ -615,7 +616,7 @@ export function CreativeRenderer({
               {/* Handle custom sections */}
               {!['experience', 'education', 'skills', 'projects'].includes(section.type) && (
                 <div className="space-y-4">
-                  {section.items?.map((item: any, index: number) => (
+                  {section.items?.map((item: SectionItem, index: number) => (
                     <div 
                       key={index}
                       className="p-6 rounded-2xl border"

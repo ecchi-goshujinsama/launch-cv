@@ -92,17 +92,8 @@ export const createOptimizedLazyComponent = <T extends React.ComponentType<any>>
       console.warn(`Failed to load ${componentName}:`, error);
       // Return a fallback component
       return {
-        default: (() => (
-          <div className="p-4 text-center text-gray-500">
-            <p>Component temporarily unavailable</p>
-            <p className="text-sm">Please refresh the page</p>
-          </div>
-        )) as T
-      };
-    }
-  });
-};
-      };
+        default: () => null
+      } as T;
     }
   });
 };

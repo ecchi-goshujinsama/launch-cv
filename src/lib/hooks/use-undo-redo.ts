@@ -81,7 +81,7 @@ export function useUndoRedo<T>(
       const newIndex = Math.min(prev + 1, maxHistorySize - 1);
       return newIndex;
     });
-  }, [currentIndex, maxHistorySize]);
+  }, [currentIndex, maxHistorySize, defaultIsEqual, history]);
 
   const clearHistory = useCallback(() => {
     setHistory([currentState]);

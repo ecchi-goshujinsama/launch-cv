@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { 
@@ -55,7 +55,7 @@ export function CertificationsForm({
     watch,
     formState: { errors, isDirty, isValid }
   } = useForm<CertificationsFormData>({
-    resolver: zodResolver(certificationsFormSchema) as any,
+    resolver: zodResolver(certificationsFormSchema),
     defaultValues: {
       certifications: initialData.length > 0 ? initialData : [{
         id: crypto.randomUUID(),
@@ -139,7 +139,7 @@ export function CertificationsForm({
     required = false,
     rows = 3
   ) => {
-    const fieldError = name.split('.').reduce((err: any, key) => err?.[key], errors);
+    const fieldError = name.split('.').reduce((err: Record<string, unknown> | undefined, key) => err?.[key], errors);
     
     return (
       <div className="space-y-2">
@@ -150,7 +150,7 @@ export function CertificationsForm({
         </label>
         {type === 'textarea' ? (
           <textarea
-            {...register(name as any)}
+            {...register(name as FieldPath<CertificationsFormData>)}
             rows={rows}
             placeholder={placeholder}
             className={cn(
@@ -163,7 +163,7 @@ export function CertificationsForm({
           />
         ) : (
           <input
-            {...register(name as any)}
+            {...register(name as FieldPath<CertificationsFormData>)}
             type={type}
             placeholder={placeholder}
             className={cn(

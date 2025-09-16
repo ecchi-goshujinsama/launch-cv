@@ -72,7 +72,7 @@ export function SkillsForm({
     handleSubmit,
     // formState: { errors }
   } = useForm<SkillsFormData>({
-    resolver: zodResolver(skillsFormSchema) as any,
+    resolver: zodResolver(skillsFormSchema),
     defaultValues: {
       skills: initialData,
       newSkill: ''

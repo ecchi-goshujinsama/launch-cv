@@ -18,7 +18,7 @@ import { usePDFExport } from '../../lib/hooks/use-pdf-export';
 import { useResumeStore } from '../../lib/stores/resume-store';
 import { useTemplateStore } from '../../lib/stores/template-store';
 import type { PDFExportOptions } from '../../lib/pdf/types';
-import { Rocket, Download, Eye, Settings, AlertTriangle } from 'lucide-react';
+import { Rocket, AlertTriangle } from 'lucide-react';
 
 interface LaunchSequenceModalProps {
   children?: React.ReactNode;
